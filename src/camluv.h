@@ -22,7 +22,7 @@
 #ifndef _CAMLUV_H_
 #define _CAMLUV_H_
 
-#include <caml/callback.h>
+#include <caml/threads.h>
 
 #if !defined(CAMLUV_THREADED_CALLBACK_GUARD)
  #define camluv_enter_callback() \

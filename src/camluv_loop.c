@@ -236,19 +236,6 @@ camluv_loop_stop(value loop)
 }
 
 CAMLprim value
-camluv_loop_update_time(value loop)
-{
-  CAMLparam1(loop);
-
-  camluv_loop_t *camluv_loop = camluv_loop_struct_val(loop);
-  if (camluv_loop->uv_loop != NULL) {
-    uv_update_time(camluv_loop->uv_loop);
-  }
-
-  return Val_unit;
-}
-
-CAMLprim value
 camluv_loop_now(value loop)
 {
   CAMLparam1(loop);
@@ -260,6 +247,19 @@ camluv_loop_now(value loop)
   }
 
   return caml_copy_int64(now);
+}
+
+CAMLprim value
+camluv_loop_update_time(value loop)
+{
+  CAMLparam1(loop);
+
+  camluv_loop_t *camluv_loop = camluv_loop_struct_val(loop);
+  if (camluv_loop->uv_loop != NULL) {
+    uv_update_time(camluv_loop->uv_loop);
+  }
+
+  return Val_unit;
 }
 
 CAMLprim value
