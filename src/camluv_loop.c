@@ -61,7 +61,11 @@ camluv_walk_cb(uv_handle_t* handle, void* arg)
 
   camluv_walk_cb_ctx_t *walk_cb_ctx = (camluv_walk_cb_ctx_t *)arg;
   walk_cb = walk_cb_ctx->walk_cb;
-  walk_cb_handle = camluv_copy_handle2(handle, walk_cb_ctx->camluv_loop);
+  walk_cb_handle = camluv_copy_handle2(handle,
+                                       0,
+                                       1,
+                                       walk_cb_ctx->camluv_loop,
+                                       Val_unit);
   walk_cb_arg = caml_copy_string(walk_cb_ctx->arg);
 
   callback2(walk_cb, walk_cb_handle, walk_cb_arg);

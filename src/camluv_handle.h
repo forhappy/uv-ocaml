@@ -39,6 +39,10 @@ struct camluv_handle_s_ {
   value on_close_cb;
 };
 
-value camluv_copy_handle2(uv_handle_t *uv_handle, camluv_loop_t *camluv_loop);
+value camluv_copy_handle2(uv_handle_t *uv_handle,
+                          int flags,
+                          int initialized,
+                          camluv_loop_t *camluv_loop,
+                          value on_close_cb);
 
 #endif /* _CAMLUV_HANDLE_H_*/

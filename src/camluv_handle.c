@@ -81,7 +81,11 @@ camluv_copy_handle(camluv_handle_t *camluv_handle)
 }
 
 value
-camluv_copy_handle2(uv_handle_t *uv_handle, camluv_loop_t *camluv_loop)
+camluv_copy_handle2(uv_handle_t *uv_handle,
+                    int flags,
+                    int initialized,
+                    camluv_loop_t *camluv_loop,
+                    value on_close_cb)
 {
   CAMLparam0();
   CAMLlocal1(handle);
@@ -89,10 +93,10 @@ camluv_copy_handle2(uv_handle_t *uv_handle, camluv_loop_t *camluv_loop)
   camluv_handle_t *camluv_handle = (camluv_handle_t *)
       malloc(sizeof(camluv_handle_t));
   camluv_handle->uv_handle = uv_handle;
-  camluv_handle->flags = 0;
-  camluv_handle->initialized = 1;
+  camluv_handle->flags = flags;
+  camluv_handle->initialized = initialized;
   camluv_handle->camluv_loop = camluv_loop;
-  camluv_handle->on_close_cb = Val_unit;
+  camluv_handle->on_close_cb = on_close_cb;
 
   handle = caml_alloc_custom(&camluv_handle_struct_ops,
           sizeof(camluv_handle_t *), 0, 1);
