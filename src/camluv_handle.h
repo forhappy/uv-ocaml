@@ -34,9 +34,9 @@ typedef struct camluv_handle_s_ camluv_handle_t;
 struct camluv_handle_s_ {
   uv_handle_t *uv_handle;
   int flags;
-  int initialized;
+  int initialized; /* non-zero if the handle is initialized. */
   camluv_loop_t *camluv_loop;
-  value on_close_cb;
+  value close_cb;
 };
 
 value camluv_copy_handle2(uv_handle_t *uv_handle,
@@ -44,5 +44,8 @@ value camluv_copy_handle2(uv_handle_t *uv_handle,
                           int initialized,
                           camluv_loop_t *camluv_loop,
                           value on_close_cb);
+
+void camluv_handle_init(camluv_handle_t *camluv_handle,
+                        camluv_loop_t *camluv_loop);
 
 #endif /* _CAMLUV_HANDLE_H_*/

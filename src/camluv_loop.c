@@ -103,7 +103,7 @@ static struct custom_operations camluv_loop_struct_ops = {
   custom_deserialize_default
 };
 
-static value
+value
 camluv_copy_loop(camluv_loop_t *camluv_loop)
 {
   CAMLparam0();

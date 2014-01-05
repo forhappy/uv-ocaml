@@ -7,8 +7,8 @@ type uv_run_mode =
   | UV_RUN_ONCE
   | UV_RUN_NOWAIT
 
-
 type uv_walk_cb = handle -> string -> unit
+type uv_close_cb = handle -> unit
 
 module Loop =
   struct
@@ -22,5 +22,16 @@ module Loop =
     external backend_fd: loop -> int32 = "camluv_loop_backend_fd"
     external backend_timeout: loop -> int32 = "camluv_loop_backend_timeout"
     external walk: loop -> uv_walk_cb -> string -> unit = "camluv_loop_walk"
+  end
+
+module Handle =
+  struct
+    external close: handle -> uv_close_cb -> unit = "camluv_close"
+    external closed: handle -> int = "camluv_is_closing"
+    external active: handle -> int = "camluv_is_active"
+    external ref: handle -> unit = "camluv_ref"
+    external unref: handle -> unit = "camluv_unref"
+    external has_ref: handle -> int = "camluv_has_ref"
+    external loop: handle -> loop = "camluv_loop"
   end
 

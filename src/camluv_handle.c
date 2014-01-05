@@ -67,6 +67,21 @@ static struct custom_operations camluv_handle_struct_ops = {
   custom_deserialize_default
 };
 
+static int
+camluv_handle_initialized(camluv_handle_t *handle)
+{
+  return handle->initialized != 0;
+}
+
+void
+camluv_handle_init(camluv_handle_t *camluv_handle,
+                   camluv_loop_t *camluv_loop)
+{
+  camluv_handle->camluv_loop = camluv_loop;
+  camluv_handle->flags = 0;
+  camluv_handle->initialized = 1;
+}
+
 static value
 camluv_copy_handle(camluv_handle_t *camluv_handle)
 {
@@ -85,7 +100,7 @@ camluv_copy_handle2(uv_handle_t *uv_handle,
                     int flags,
                     int initialized,
                     camluv_loop_t *camluv_loop,
-                    value on_close_cb)
+                    value close_cb)
 {
   CAMLparam0();
   CAMLlocal1(handle);
@@ -96,12 +111,152 @@ camluv_copy_handle2(uv_handle_t *uv_handle,
   camluv_handle->flags = flags;
   camluv_handle->initialized = initialized;
   camluv_handle->camluv_loop = camluv_loop;
-  camluv_handle->on_close_cb = on_close_cb;
+  camluv_handle->close_cb = close_cb;
 
   handle = caml_alloc_custom(&camluv_handle_struct_ops,
           sizeof(camluv_handle_t *), 0, 1);
   camluv_handle_struct_val(handle) = camluv_handle;
 
   CAMLreturn(handle);
+}
+
+static void
+camluv_close_cb(uv_handle_t* uv_handle)
+{
+  camluv_enter_callback();
+
+  CAMLlocal2(close_cb, handle);
+
+  camluv_handle_t *camluv_handle = uv_handle->data;
+  close_cb = camluv_handle->close_cb;
+  handle = camluv_copy_handle(camluv_handle);
+
+  callback(close_cb, handle);
+
+  camluv_leave_callback();
+}
+
+CAMLprim value
+camluv_close(value handle, value close_cb)
+{
+  CAMLparam2(handle, close_cb);
+
+  camluv_handle_t *camluv_handle = camluv_handle_struct_val(handle);
+  if (camluv_handle_initialized(camluv_handle)) {
+    // TODO: this handle is not initialized.
+    return Val_unit;
+  }
+  if (uv_is_closing(camluv_handle->uv_handle)) {
+    // TODO: this handle is closing.
+    return Val_unit;
+  }
+
+  camluv_handle->uv_handle->data = camluv_handle;
+  camluv_handle->close_cb = close_cb;
+  uv_close(camluv_handle->uv_handle, camluv_close_cb);
+
+  return Val_unit;
+}
+
+CAMLprim value
+camluv_is_closing(value handle)
+{
+  CAMLparam1(handle);
+
+  camluv_handle_t *camluv_handle = camluv_handle_struct_val(handle);
+  if (uv_is_closing(camluv_handle->uv_handle)) {
+    return Val_int(1);
+  }
+
+  return Val_int(0);
+}
+
+CAMLprim value
+camluv_is_active(value handle)
+{
+  CAMLparam1(handle);
+
+  camluv_handle_t *camluv_handle = camluv_handle_struct_val(handle);
+  if (uv_is_active(camluv_handle->uv_handle)) {
+    return Val_int(1);
+  }
+
+  return Val_int(0);
+}
+
+CAMLprim value
+camluv_ref(value handle)
+{
+  CAMLparam1(handle);
+
+  camluv_handle_t *camluv_handle = camluv_handle_struct_val(handle);
+  if (camluv_handle_initialized(camluv_handle)) {
+    // TODO: this handle is not initialized.
+    return Val_unit;
+  }
+  if (uv_is_closing(camluv_handle->uv_handle)) {
+    // TODO: this handle is closing.
+    return Val_unit;
+  }
+
+  uv_ref(camluv_handle->uv_handle);
+
+  return Val_unit;
+}
+
+CAMLprim value
+camluv_unref(value handle)
+{
+  CAMLparam1(handle);
+
+  camluv_handle_t *camluv_handle = camluv_handle_struct_val(handle);
+  if (camluv_handle_initialized(camluv_handle)) {
+    // TODO: this handle is not initialized.
+    return Val_unit;
+  }
+  if (uv_is_closing(camluv_handle->uv_handle)) {
+    // TODO: this handle is closing.
+    return Val_unit;
+  }
+
+  uv_unref(camluv_handle->uv_handle);
+
+  return Val_unit;
+}
+
+CAMLprim value
+camluv_has_ref(value handle)
+{
+  CAMLparam1(handle);
+
+  camluv_handle_t *camluv_handle = camluv_handle_struct_val(handle);
+  if (camluv_handle_initialized(camluv_handle)) {
+    // TODO: this handle is not initialized.
+    return Val_int(0);
+  }
+  if (uv_is_closing(camluv_handle->uv_handle)) {
+    // TODO: this handle is closing.
+    return Val_int(0);
+  }
+
+  return Val_int(uv_has_ref(camluv_handle->uv_handle));
+}
+
+CAMLprim value
+camluv_loop(value handle)
+{
+  CAMLparam1(handle);
+
+  camluv_handle_t *camluv_handle = camluv_handle_struct_val(handle);
+  if (camluv_handle_initialized(camluv_handle)) {
+    // TODO: this handle is not initialized.
+    return Val_unit;
+  }
+  if (uv_is_closing(camluv_handle->uv_handle)) {
+    // TODO: this handle is closing.
+    return Val_unit;
+  }
+
+  return camluv_copy_loop(camluv_handle->camluv_loop);
 }
 

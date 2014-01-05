@@ -42,6 +42,9 @@ struct camluv_walk_cb_ctx_s_ {
   void *arg;
 };
 
+
+value camluv_copy_loop(camluv_loop_t *camluv_loop);
+
 // extern camluv_loop_t *default_loop;
 
 #endif /* _CAMLUV_LOOP_H_ */
