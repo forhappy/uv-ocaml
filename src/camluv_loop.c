@@ -270,7 +270,7 @@ camluv_loop_backend_fd(value loop)
 
   camluv_loop_t *camluv_loop = camluv_loop_struct_val(loop);
   if (camluv_loop->uv_loop != NULL) {
-    fd = uv_now(camluv_loop->uv_loop);
+    fd = uv_backend_fd(camluv_loop->uv_loop);
   }
 
   return caml_copy_int32(fd);
@@ -284,7 +284,7 @@ camluv_loop_backend_timeout(value loop)
 
   camluv_loop_t *camluv_loop = camluv_loop_struct_val(loop);
   if (camluv_loop->uv_loop != NULL) {
-    timeout = uv_now(camluv_loop->uv_loop);
+    timeout = uv_backend_timeout(camluv_loop->uv_loop);
   }
 
   return caml_copy_int32(timeout);
