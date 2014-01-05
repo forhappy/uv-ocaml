@@ -74,8 +74,8 @@ camluv_handle_initialized(camluv_handle_t *handle)
 }
 
 void
-camluv_handle_init(camluv_handle_t *camluv_handle,
-                   camluv_loop_t *camluv_loop)
+camluv_init_handle_with_loop(camluv_handle_t *camluv_handle,
+                             camluv_loop_t *camluv_loop)
 {
   camluv_handle->camluv_loop = camluv_loop;
   camluv_handle->flags = 0;
@@ -127,7 +127,7 @@ camluv_close_cb(uv_handle_t* uv_handle)
 
   CAMLlocal2(close_cb, handle);
 
-  camluv_handle_t *camluv_handle = uv_handle->data;
+  camluv_handle_t *camluv_handle = (camluv_handle_t *)(uv_handle->data);
   close_cb = camluv_handle->close_cb;
   handle = camluv_copy_handle(camluv_handle);
 

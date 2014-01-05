@@ -39,13 +39,6 @@
 #include "camluv_idle.h"
 
 static void
-camluv_idle_cb(uv_handle_t* handle, int status)
-{
-  camluv_enter_callback();
-  camluv_leave_callback();
-}
-
-static void
 camluv_idle_struct_finalize(value v)
 {
 }
@@ -88,108 +81,61 @@ camluv_copy_idle(camluv_idle_t *camluv_idle)
   CAMLreturn(idle);
 }
 
-static value
-camluv_copy_idle2(uv_idle_t *uv_idle, int is_default)
+static void
+camluv_idle_cb(uv_idle_t* uv_handle, int status)
 {
-  CAMLparam0();
-  CAMLlocal1(idle);
+  camluv_enter_callback();
 
-  camluv_idle_t *camluv_idle = (camluv_idle_t *)
-      malloc(sizeof(camluv_idle_t));
-  uv_idle->data = camluv_idle;
-  camluv_idle->uv_idle = uv_idle;
-  camluv_idle->is_default = is_default;
+  CAMLlocal3(idle_cb, camluv_handle, camluv_status);
 
-  idle = caml_alloc_custom(&camluv_idle_struct_ops,
-          sizeof(camluv_idle_t *), 0, 1);
-  camluv_idle_struct_val(idle) = camluv_idle;
+  camluv_idle_t *camluv_idle =(camluv_idle_t *)(uv_handle->data);
+  idle_cb = camluv_idle->idle_cb;
+  camluv_handle = camluv_copy_idle(camluv_idle);
+  camluv_status = Val_int(status);
 
-  CAMLreturn(idle);
+  callback2(idle_cb, camluv_handle, camluv_status);
+
+  camluv_leave_callback();
 }
 
-static int
-camluv_init_idle(camluv_idle_t *idle, int is_default)
+static camluv_idle_t *
+camluv_idle_new(void)
 {
-  uv_idle_t *uv_idle;
+  camluv_idle_t *idle = (camluv_idle_t *)malloc(sizeof(camluv_idle_t));
+  if (!idle) return NULL;
 
-  uv_idle = NULL;
-
-  if (is_default) {
-    uv_idle = uv_default_idle();
-  } else {
-    uv_idle = uv_idle_new();
-  }
-
-  if (!uv_idle) {
-      return -1;
-  }
-  uv_idle->data = idle;
-
-  idle->uv_idle = uv_idle;
-  idle->is_default = is_default;
-
-  return 0;
-}
-
-static camluv_idle_t*
-camluv_new_idle(int is_default)
-{
-  if (is_default) {
-      default_idle = (camluv_idle_t *)malloc(sizeof(camluv_idle_t));
-      if (!default_idle) return NULL;
-      if (camluv_init_idle(default_idle, is_default) != 0) return NULL;
-      return default_idle;
-  } else {
-      camluv_idle_t *camluv_idle =
-        (camluv_idle_t *)malloc(sizeof(camluv_idle_t));
-      if (!camluv_idle) return NULL;
-      if (camluv_init_idle(camluv_idle, is_default) != 0) return NULL;
-      return camluv_idle;
-  }
+  return idle;
 }
 
 CAMLprim value
-camluv_idle_new(value unit)
+camluv_idle_init(value loop)
 {
-  camluv_idle_t *camluv_idle = camluv_new_idle(0);
-  if (!camluv_idle) return Val_unit;
+  CAMLparam1(loop);
+
+  camluv_loop_t *camluv_loop = camluv_loop_struct_val(loop);
+  camluv_idle_t *camluv_idle = camluv_idle_new();
+  uv_idle_init(camluv_loop->uv_loop, &(camluv_idle->uv_idle));
+
+  (camluv_idle->uv_idle).data = camluv_idle;
+
+  ((camluv_handle_t *)camluv_idle)->uv_handle =
+                              (uv_handle_t *)&(camluv_idle->uv_idle);
+  camluv_init_handle_with_loop((camluv_handle_t *)
+                               (&(camluv_idle->camluv_handle)),
+                               camluv_loop);
 
   return camluv_copy_idle(camluv_idle);
 }
 
 CAMLprim value
-camluv_idle_default(value unit)
+camluv_idle_start(value idle, value idle_cb)
 {
-  camluv_idle_t *camluv_idle = camluv_new_idle(1);
-  if (!camluv_idle) return Val_unit;
-
-  return camluv_copy_idle(camluv_idle);
-}
-
-CAMLprim value
-camluv_idle_delete(value idle)
-{
-  CAMLparam1(idle);
-
-  camluv_idle_t *camluv_idle = camluv_idle_struct_val(idle);
-  if (camluv_idle->uv_idle != NULL) {
-    camluv_idle->uv_idle->data = NULL;
-    uv_idle_delete(camluv_idle->uv_idle);
-  }
-
-  return Val_unit;
-}
-
-CAMLprim value
-camluv_idle_run(value idle, value mode)
-{
-  CAMLparam2(idle, mode);
-
+  CAMLparam2(idle, idle_cb);
   int rc = -1;
+
   camluv_idle_t *camluv_idle = camluv_idle_struct_val(idle);
-  if (camluv_idle->uv_idle != NULL) {
-    rc = uv_run(camluv_idle->uv_idle, camluv_uv_run_mode_ml2c(mode));
-  }
+  camluv_idle->idle_cb = idle_cb;
+  rc = uv_idle_start(&(camluv_idle->uv_idle), camluv_idle_cb);
 
   return Val_int(rc);
 }
@@ -198,11 +144,12 @@ CAMLprim value
 camluv_idle_stop(value idle)
 {
   CAMLparam1(idle);
+  int rc = -1;
 
-  camluv_loop_t *camluv_loop = camluv_loop_struct_val(loop);
-  if (camluv_loop->uv_loop != NULL) {
-    uv_stop(camluv_loop->uv_loop);
-  }
+  camluv_idle_t *camluv_idle = camluv_idle_struct_val(idle);
+  rc = uv_idle_stop(&(camluv_idle->uv_idle));
 
-  return Val_unit;
+  return Val_int(rc);
+
 }
+

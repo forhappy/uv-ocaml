@@ -45,7 +45,7 @@ value camluv_copy_handle2(uv_handle_t *uv_handle,
                           camluv_loop_t *camluv_loop,
                           value on_close_cb);
 
-void camluv_handle_init(camluv_handle_t *camluv_handle,
-                        camluv_loop_t *camluv_loop);
+void camluv_init_handle_with_loop(camluv_handle_t *camluv_handle,
+                                  camluv_loop_t *camluv_loop);
 
 #endif /* _CAMLUV_HANDLE_H_*/

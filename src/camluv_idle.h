@@ -35,7 +35,7 @@ typedef struct camluv_idle_s_ camluv_idle_t;
 struct camluv_idle_s_ {
   camluv_handle_t camluv_handle;
   uv_idle_t uv_idle;
-  value uv_idle_cb;
+  value idle_cb;
 };
 
 #endif /* _CAMLUV_IDLE_H_*/
