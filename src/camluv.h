@@ -1,4 +1,4 @@
-/* Copyright (c) 2013-2014 Fu Haiping <haipingf@gmail.com>
+/* Copyright (c) 2014 Fu Haiping <haipingf@gmail.com>
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to
@@ -22,6 +22,8 @@
 #ifndef _CAMLUV_H_
 #define _CAMLUV_H_
 
+#include <caml/callback.h>
+
 #if !defined(CAMLUV_THREADED_CALLBACK_GUARD)
  #define camluv_enter_callback() \
    do {\
@@ -44,12 +46,8 @@
    } while(0)
 #endif
 
-typedef struct camluv_loop_s_ camluv_loop_t;
-
-struct camluv_loop_s_ {
-  uv_loop_t *loop;
-  int is_default;
-};
+#define camluv_table_len(v) \
+  sizeof(v) / sizeof(v[0])
 
 #endif /* _CAMLUV_H_ */
 

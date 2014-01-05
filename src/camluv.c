@@ -34,5 +34,7 @@
 #include <uv.h>
 
 #include "camluv.h"
+#include "camluv_loop.h"
+
 
 
