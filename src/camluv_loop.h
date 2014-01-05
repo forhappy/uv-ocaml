@@ -38,6 +38,7 @@ struct camluv_loop_s_ {
 typedef struct camluv_walk_cb_ctx_s_ camluv_walk_cb_ctx_t;
 struct camluv_walk_cb_ctx_s_ {
   value walk_cb;
+  camluv_loop_t *camluv_loop;
   void *arg;
 };
 

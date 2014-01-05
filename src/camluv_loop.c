@@ -58,10 +58,12 @@ camluv_walk_cb(uv_handle_t* handle, void* arg)
   camluv_enter_callback();
 
   CAMLlocal3(walk_cb, walk_cb_handle, walk_cb_arg);
+
   camluv_walk_cb_ctx_t *walk_cb_ctx = (camluv_walk_cb_ctx_t *)arg;
   walk_cb = walk_cb_ctx->walk_cb;
-  walk_cb_handle = camluv_copy_handle(handle);
+  walk_cb_handle = camluv_copy_handle2(handle, walk_cb_ctx->camluv_loop);
   walk_cb_arg = caml_copy_string(walk_cb_ctx->arg);
+
   callback2(walk_cb, walk_cb_handle, walk_cb_arg);
 
   camluv_leave_callback();
@@ -89,7 +91,7 @@ camluv_loop_struct_hash(value v)
 }
 
 static struct custom_operations camluv_loop_struct_ops = {
-  "org.joyent.uv.loop",
+  "camluv.loop",
   custom_finalize_default,
   custom_compare_default,
   custom_hash_default,
@@ -118,6 +120,7 @@ camluv_copy_loop2(uv_loop_t *uv_loop, int is_default)
 
   camluv_loop_t *camluv_loop = (camluv_loop_t *)
       malloc(sizeof(camluv_loop_t));
+  uv_loop->data = camluv_loop;
   camluv_loop->uv_loop = uv_loop;
   camluv_loop->is_default = is_default;
 
@@ -293,7 +296,9 @@ camluv_loop_walk(value loop, value callback, value arg)
     camluv_walk_cb_ctx_t *walk_cb_ctx =
       (camluv_walk_cb_ctx_t *)malloc(sizeof(camluv_walk_cb_ctx_t));
     walk_cb_ctx->walk_cb = callback;
+    walk_cb_ctx->camluv_loop = camluv_loop;
     walk_cb_ctx->arg = strdup(String_val(arg));
+
     uv_walk(camluv_loop->uv_loop, camluv_walk_cb, walk_cb_ctx);
   }
 
