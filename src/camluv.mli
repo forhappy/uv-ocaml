@@ -1,10 +1,12 @@
 type loop
 type handle
 type idle
+type timer
 type uv_run_mode = UV_RUN_DEFAULT | UV_RUN_ONCE | UV_RUN_NOWAIT
 type uv_walk_cb = handle -> string -> unit
 type uv_close_cb = handle -> unit
 type uv_idle_cb = idle -> int -> unit
+type uv_timer_cb = timer -> int -> unit
 module Loop :
   sig
     external create : unit -> loop = "camluv_loop_new"
@@ -34,4 +36,15 @@ module Idle :
     external create : loop -> idle = "camluv_idle_init"
     external start : idle -> uv_idle_cb -> int = "camluv_idle_start"
     external stop : idle -> int = "camluv_idle_stop"
+  end
+module Timer :
+  sig
+    external init : loop -> timer = "camluv_timer_init"
+    external create : loop -> timer = "camluv_timer_init"
+    external start : timer -> uv_timer_cb -> int64 -> int64 -> int
+      = "camluv_timer_start"
+    external stop : timer -> int = "camluv_timer_stop"
+    external again : timer -> int = "camluv_timer_again"
+    external set_repeat : timer -> int64 -> unit = "camluv_timer_set_repeat"
+    external get_repeat : timer -> int64 = "camluv_timer_get_repeat"
   end
