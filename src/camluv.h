@@ -22,6 +22,8 @@
 #ifndef _CAMLUV_H_
 #define _CAMLUV_H_
 
+#include <uv.h>
+
 #include <caml/threads.h>
 
 #if !defined(CAMLUV_THREADED_CALLBACK_GUARD)
@@ -48,6 +50,10 @@
 
 #define camluv_table_len(v) \
   sizeof(v) / sizeof(v[0])
+
+uv_errno_t camluv_errno_ml2c(value v);
+
+value camluv_errno_c2ml(uv_errno_t error);
 
 #endif /* _CAMLUV_H_ */
 
