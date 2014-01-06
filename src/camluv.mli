@@ -5,6 +5,7 @@ type timer
 type async
 type check
 type prepare
+type signal
 type uv_errno =
     UV_OK
   | UV_E2BIG
@@ -85,6 +86,7 @@ type uv_timer_cb = timer -> int -> unit
 type uv_async_cb = async -> int -> unit
 type uv_check_cb = check -> int -> unit
 type uv_prepare_cb = prepare -> int -> unit
+type uv_signal_cb = signal -> int -> unit
 module Loop :
   sig
     external create : unit -> loop = "camluv_loop_new"
@@ -147,4 +149,12 @@ module Prepare :
     external start : prepare -> uv_prepare_cb -> uv_errno
       = "camluv_prepare_start"
     external stop : prepare -> uv_errno = "camluv_prepare_stop"
+  end
+module Signal :
+  sig
+    external init : loop -> signal = "camluv_signal_init"
+    external create : loop -> signal = "camluv_signal_init"
+    external start : signal -> uv_signal_cb -> int -> uv_errno
+      = "camluv_signal_start"
+    external stop : signal -> uv_errno = "camluv_signal_stop"
   end

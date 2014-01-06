@@ -12,6 +12,8 @@ type check
 
 type prepare
 
+type signal
+
 type uv_errno =
     UV_OK
   | UV_E2BIG
@@ -104,6 +106,8 @@ type uv_check_cb  = check -> int -> unit
 
 type uv_prepare_cb = prepare -> int -> unit
 
+type uv_signal_cb = signal -> int -> unit
+
 module Loop =
   struct
     external create: unit->loop = "camluv_loop_new"
@@ -170,5 +174,13 @@ module Prepare =
     external create: loop -> prepare = "camluv_prepare_init"
     external start: prepare -> uv_prepare_cb -> uv_errno = "camluv_prepare_start"
     external stop: prepare -> uv_errno = "camluv_prepare_stop"
+  end
+
+module Signal =
+  struct
+    external init: loop -> signal = "camluv_signal_init"
+    external create: loop -> signal = "camluv_signal_init"
+    external start: signal -> uv_signal_cb -> int -> uv_errno = "camluv_signal_start"
+    external stop: signal -> uv_errno = "camluv_signal_stop"
   end
 
