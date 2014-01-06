@@ -150,6 +150,5 @@ camluv_idle_stop(value idle)
   rc = uv_idle_stop(&(camluv_idle->uv_idle));
 
   return Val_int(rc);
-
 }
 
