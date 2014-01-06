@@ -114,7 +114,11 @@ camluv_idle_init(value loop)
 
   camluv_loop_t *camluv_loop = camluv_loop_struct_val(loop);
   camluv_idle_t *camluv_idle = camluv_idle_new();
-  uv_idle_init(camluv_loop->uv_loop, &(camluv_idle->uv_idle));
+
+  int rc = uv_idle_init(camluv_loop->uv_loop, &(camluv_idle->uv_idle));
+  if (rc != UV_OK) {
+    // TODO: error handling.
+  }
 
   (camluv_idle->uv_idle).data = camluv_idle;
 
@@ -137,7 +141,7 @@ camluv_idle_start(value idle, value idle_cb)
   camluv_idle->idle_cb = idle_cb;
   rc = uv_idle_start(&(camluv_idle->uv_idle), camluv_idle_cb);
 
-  return Val_int(rc);
+  return camluv_errno_c2ml(rc);
 }
 
 CAMLprim value
@@ -149,6 +153,6 @@ camluv_idle_stop(value idle)
   camluv_idle_t *camluv_idle = camluv_idle_struct_val(idle);
   rc = uv_idle_stop(&(camluv_idle->uv_idle));
 
-  return Val_int(rc);
+  return camluv_errno_c2ml(rc);
 }
 

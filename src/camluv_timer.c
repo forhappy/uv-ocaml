@@ -114,10 +114,13 @@ camluv_timer_init(value loop)
 
   camluv_loop_t *camluv_loop = camluv_loop_struct_val(loop);
   camluv_timer_t *camluv_timer = camluv_timer_new();
-  uv_timer_init(camluv_loop->uv_loop, &(camluv_timer->uv_timer));
+
+  int rc = uv_timer_init(camluv_loop->uv_loop, &(camluv_timer->uv_timer));
+  if (rc != UV_OK) {
+    // TODO: error handling.
+  }
 
   (camluv_timer->uv_timer).data = camluv_timer;
-
   ((camluv_handle_t *)camluv_timer)->uv_handle =
                                (uv_handle_t *)&(camluv_timer->uv_timer);
   camluv_init_handle_with_loop((camluv_handle_t *)
@@ -145,7 +148,7 @@ camluv_timer_start(value timer,
                       timeout64,
                       repeat64);
 
-  return Val_int(rc);
+  return camluv_errno_c2ml(rc);
 }
 
 CAMLprim value
@@ -157,7 +160,7 @@ camluv_timer_stop(value timer)
   camluv_timer_t *camluv_timer = camluv_timer_struct_val(timer);
   rc = uv_timer_stop(&(camluv_timer->uv_timer));
 
-  return Val_int(rc);
+  return camluv_errno_c2ml(rc);
 }
 
 CAMLprim value
@@ -169,7 +172,7 @@ camluv_timer_again(value timer)
   camluv_timer_t *camluv_timer = camluv_timer_struct_val(timer);
   rc = uv_timer_again(&(camluv_timer->uv_timer));
 
-  return Val_int(rc);
+  return camluv_errno_c2ml(rc);
 }
 
 CAMLprim value

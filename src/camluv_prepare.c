@@ -114,7 +114,11 @@ camluv_prepare_init(value loop)
 
   camluv_loop_t *camluv_loop = camluv_loop_struct_val(loop);
   camluv_prepare_t *camluv_prepare = camluv_prepare_new();
-  uv_prepare_init(camluv_loop->uv_loop, &(camluv_prepare->uv_prepare));
+  int rc = uv_prepare_init(camluv_loop->uv_loop,
+                           &(camluv_prepare->uv_prepare));
+  if (rc != UV_OK) {
+    // TODO: error handling.
+  }
 
   (camluv_prepare->uv_prepare).data = camluv_prepare;
 
@@ -137,7 +141,7 @@ camluv_prepare_start(value prepare, value prepare_cb)
   camluv_prepare->prepare_cb = prepare_cb;
   rc = uv_prepare_start(&(camluv_prepare->uv_prepare), camluv_prepare_cb);
 
-  return Val_int(rc);
+  return camluv_errno_c2ml(rc);
 }
 
 CAMLprim value
@@ -149,6 +153,6 @@ camluv_prepare_stop(value prepare)
   camluv_prepare_t *camluv_prepare = camluv_prepare_struct_val(prepare);
   rc = uv_prepare_stop(&(camluv_prepare->uv_prepare));
 
-  return Val_int(rc);
+  return camluv_errno_c2ml(rc);
 }
 

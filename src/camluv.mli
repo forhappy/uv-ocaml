@@ -2,6 +2,9 @@ type loop
 type handle
 type idle
 type timer
+type async
+type check
+type prepare
 type uv_errno =
     UV_OK
   | UV_E2BIG
@@ -79,12 +82,15 @@ type uv_walk_cb = handle -> string -> unit
 type uv_close_cb = handle -> unit
 type uv_idle_cb = idle -> int -> unit
 type uv_timer_cb = timer -> int -> unit
+type uv_async_cb = async -> int -> unit
+type uv_check_cb = check -> int -> unit
+type uv_prepare_cb = prepare -> int -> unit
 module Loop :
   sig
     external create : unit -> loop = "camluv_loop_new"
     external default : unit -> loop = "camluv_loop_default"
     external delete : loop -> unit = "camluv_loop_delete"
-    external run : loop -> uv_run_mode -> int32 = "camluv_loop_run"
+    external run : loop -> uv_run_mode -> uv_errno = "camluv_loop_run"
     external stop : loop -> unit = "camluv_loop_stop"
     external now : loop -> int64 = "camluv_loop_now"
     external update_time : loop -> unit = "camluv_loop_update_time"
@@ -106,17 +112,39 @@ module Idle :
   sig
     external init : loop -> idle = "camluv_idle_init"
     external create : loop -> idle = "camluv_idle_init"
-    external start : idle -> uv_idle_cb -> int = "camluv_idle_start"
-    external stop : idle -> int = "camluv_idle_stop"
+    external start : idle -> uv_idle_cb -> uv_errno = "camluv_idle_start"
+    external stop : idle -> uv_errno = "camluv_idle_stop"
   end
 module Timer :
   sig
     external init : loop -> timer = "camluv_timer_init"
     external create : loop -> timer = "camluv_timer_init"
-    external start : timer -> uv_timer_cb -> int64 -> int64 -> int
+    external start : timer -> uv_timer_cb -> int64 -> int64 -> uv_errno
       = "camluv_timer_start"
-    external stop : timer -> int = "camluv_timer_stop"
-    external again : timer -> int = "camluv_timer_again"
+    external stop : timer -> uv_errno = "camluv_timer_stop"
+    external again : timer -> uv_errno = "camluv_timer_again"
     external set_repeat : timer -> int64 -> unit = "camluv_timer_set_repeat"
     external get_repeat : timer -> int64 = "camluv_timer_get_repeat"
+  end
+module Async :
+  sig
+    external init : loop -> async = "camluv_async_init"
+    external create : loop -> async = "camluv_async_init"
+    external start : async -> uv_async_cb -> uv_errno = "camluv_async_start"
+    external stop : async -> uv_errno = "camluv_async_stop"
+  end
+module Check :
+  sig
+    external init : loop -> check = "camluv_check_init"
+    external create : loop -> check = "camluv_check_init"
+    external start : check -> uv_check_cb -> uv_errno = "camluv_check_start"
+    external stop : check -> uv_errno = "camluv_check_stop"
+  end
+module Prepare :
+  sig
+    external init : loop -> prepare = "camluv_prepare_init"
+    external create : loop -> prepare = "camluv_prepare_init"
+    external start : prepare -> uv_prepare_cb -> uv_errno
+      = "camluv_prepare_start"
+    external stop : prepare -> uv_errno = "camluv_prepare_stop"
   end

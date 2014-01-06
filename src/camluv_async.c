@@ -122,7 +122,12 @@ camluv_async_init(value loop, value async_cb)
                                (&(camluv_async->camluv_handle)),
                                camluv_loop);
 
-  uv_async_init(camluv_loop->uv_loop, &(camluv_async->uv_async), camluv_async_cb);
+  int rc = uv_async_init(camluv_loop->uv_loop,
+                        &(camluv_async->uv_async),
+                        camluv_async_cb);
+  if (rc != UV_OK) {
+    // TODO: error handling.
+  }
 
   return camluv_copy_async(camluv_async);
 }
@@ -136,6 +141,6 @@ camluv_async_stop(value async)
   camluv_async_t *camluv_async = camluv_async_struct_val(async);
   rc = uv_async_send(&(camluv_async->uv_async));
 
-  return Val_int(rc);
+  return camluv_errno_c2ml(rc);
 }
 

@@ -114,7 +114,11 @@ camluv_check_init(value loop)
 
   camluv_loop_t *camluv_loop = camluv_loop_struct_val(loop);
   camluv_check_t *camluv_check = camluv_check_new();
-  uv_check_init(camluv_loop->uv_loop, &(camluv_check->uv_check));
+
+  int rc = uv_check_init(camluv_loop->uv_loop, &(camluv_check->uv_check));
+  if (rc != UV_OK) {
+    // TODO: error handling.
+  }
 
   (camluv_check->uv_check).data = camluv_check;
 
@@ -137,7 +141,7 @@ camluv_check_start(value check, value check_cb)
   camluv_check->check_cb = check_cb;
   rc = uv_check_start(&(camluv_check->uv_check), camluv_check_cb);
 
-  return Val_int(rc);
+  return camluv_errno_c2ml(rc);
 }
 
 CAMLprim value
@@ -149,6 +153,6 @@ camluv_check_stop(value check)
   camluv_check_t *camluv_check = camluv_check_struct_val(check);
   rc = uv_check_stop(&(camluv_check->uv_check));
 
-  return Val_int(rc);
+  return camluv_errno_c2ml(rc);
 }
 

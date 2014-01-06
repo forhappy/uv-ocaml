@@ -219,7 +219,7 @@ camluv_loop_run(value loop, value mode)
     rc = uv_run(camluv_loop->uv_loop, camluv_uv_run_mode_ml2c(mode));
   }
 
-  return Val_int(rc);
+  return camluv_errno_c2ml(rc);
 }
 
 CAMLprim value
