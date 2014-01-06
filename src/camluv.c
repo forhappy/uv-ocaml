@@ -38,6 +38,7 @@
 #include "camluv_handle.h"
 
 static const uv_errno_t CAMLUV_ERRNO_TABLE[] = {
+  UV_OK,
   UV_E2BIG,
   UV_EACCES,
   UV_EADDRINUSE,

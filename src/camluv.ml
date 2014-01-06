@@ -7,7 +7,8 @@ type idle
 type timer
 
 type uv_errno =
-    UV_E2BIG
+    UV_OK
+  | UV_E2BIG
   | UV_EACCES
   | UV_EADDRINUSE
   | UV_EADDRNOTAVAIL

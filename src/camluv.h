@@ -26,6 +26,10 @@
 
 #include <caml/threads.h>
 
+#ifndef UV_OK
+  #define UV_OK 0
+#endif
+
 #if !defined(CAMLUV_THREADED_CALLBACK_GUARD)
  #define camluv_enter_callback() \
    do {\
