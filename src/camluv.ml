@@ -14,6 +14,20 @@ type prepare
 
 type signal
 
+type thread
+
+type key
+
+type mutex
+
+type rwlock
+
+type sem
+
+type condition
+
+type barrier
+
 type uv_errno =
     UV_OK
   | UV_E2BIG
@@ -182,5 +196,73 @@ module Signal =
     external create: loop -> signal = "camluv_signal_init"
     external start: signal -> uv_signal_cb -> int -> uv_errno = "camluv_signal_start"
     external stop: signal -> uv_errno = "camluv_signal_stop"
+  end
+
+module Thread =
+  struct
+    external init: ('a -> unit) -> 'a -> thread = "camluv_thread_create"
+    external create: ('a -> unit) -> 'a -> thread = "camluv_thread_create"
+    external self: unit -> int = "camluv_thread_create"
+    external join: thread -> uv_errno = "camluv_thread_create"
+  end
+
+module Key =
+  struct
+    external init: unit -> key = "camluv_key_init"
+    external create: unit -> key = "camluv_key_init"
+    external delete: key -> unit = "camluv_key_delete"
+    external get: key -> 'a = "camluv_key_get"
+    external set: key -> 'a -> unit = "camluv_key_set"
+  end
+
+module Mutex =
+  struct
+    external init: unit -> mutex = "camluv_mutex_init"
+    external create: unit -> mutex = "camluv_mutex_init"
+    external destroy: mutex -> unit = "camluv_mutex_destroy"
+    external lock: mutex -> unit = "camluv_mutex_lock"
+    external unlock: mutex -> unit = "camluv_mutex_unlock"
+    external trylock: mutex -> int = "camluv_mutex_trylock"
+  end
+
+module RWlock =
+  struct
+    external init: unit -> rwlock = "camluv_rwlock_init"
+    external create: unit -> rwlock = "camluv_rwlock_init"
+    external destroy: rwlock -> unit = "camluv_rwlock_destroy"
+    external rdlock: rwlock -> unit = "camluv_rwlock_rdlock"
+    external rdunlock: rwlock -> unit = "camluv_rwlock_rdunlock"
+    external tryrdlock: rwlock -> int = "camluv_rwlock_tryrdlock"
+    external wrlock: rwlock -> unit = "camluv_rwlock_wrlock"
+    external wrunlock: rwlock -> unit = "camluv_rwlock_wrunlock"
+    external trywrlock: rwlock -> int = "camluv_rwlock_trywrlock"
+  end
+
+module Sem =
+  struct
+    external init: int -> sem = "camluv_sem_init"
+    external create: int -> sem = "camluv_sem_init"
+    external destroy: sem -> unit = "camluv_sem_destroy"
+    external post: sem -> unit = "camluv_sem_post"
+    external wait: sem -> unit = "camluv_sem_wait"
+    external trywait: sem -> int = "camluv_sem_trywait"
+  end
+
+module Condition =
+  struct
+    external init: unit -> condition = "camluv_condition_init"
+    external create: unit -> condition = "camluv_condition_init"
+    external destroy: condition -> unit = "camluv_condition_destroy"
+    external signal: condition -> unit = "camluv_condition_signal"
+    external broadcast: condition -> unit = "camluv_condition_broadcast"
+    external wait: condition -> mutex -> unit = "camluv_condition_wait"
+  end
+
+module Barrier =
+  struct
+    external init: int -> barrier = "camluv_barrier_init"
+    external create: int -> barrier = "camluv_barrier_init"
+    external destroy: barrier -> unit = "camluv_barrier_destroy"
+    external wait: barrier -> unit = "camluv_barrier_wait"
   end
 
