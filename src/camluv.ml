@@ -200,10 +200,10 @@ module Signal =
 
 module Thread =
   struct
-    external init: ('a -> unit) -> 'a -> thread = "camluv_thread_create"
-    external create: ('a -> unit) -> 'a -> thread = "camluv_thread_create"
-    external self: unit -> int = "camluv_thread_create"
-    external join: thread -> uv_errno = "camluv_thread_create"
+    external init: ('a -> unit) -> 'a -> thread = "camluv_thread_init"
+    external create: ('a -> unit) -> 'a -> thread = "camluv_thread_init"
+    external self: unit -> int = "camluv_thread_self"
+    external join: thread -> uv_errno = "camluv_thread_join"
   end
 
 module Key =
