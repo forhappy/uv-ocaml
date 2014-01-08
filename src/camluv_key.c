@@ -81,14 +81,6 @@ camluv_copy_key(camluv_key_t *camluv_key)
   CAMLreturn(key);
 }
 
-static void
-camluv_key_cb(void *arg)
-{
-  camluv_enter_callback();
-
-  camluv_leave_callback();
-}
-
 static camluv_key_t *
 camluv_key_new(void)
 {

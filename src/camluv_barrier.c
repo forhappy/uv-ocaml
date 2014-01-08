@@ -81,14 +81,6 @@ camluv_copy_barrier(camluv_barrier_t *camluv_barrier)
   CAMLreturn(barrier);
 }
 
-static void
-camluv_barrier_cb(void *arg)
-{
-  camluv_enter_callback();
-
-  camluv_leave_callback();
-}
-
 static camluv_barrier_t *
 camluv_barrier_new(void)
 {

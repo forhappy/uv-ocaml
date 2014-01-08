@@ -81,14 +81,6 @@ camluv_copy_rwlock(camluv_rwlock_t *camluv_rwlock)
   CAMLreturn(rwlock);
 }
 
-static void
-camluv_rwlock_cb(void *arg)
-{
-  camluv_enter_callback();
-
-  camluv_leave_callback();
-}
-
 static camluv_rwlock_t *
 camluv_rwlock_new(void)
 {

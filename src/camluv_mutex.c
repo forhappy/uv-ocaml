@@ -81,14 +81,6 @@ camluv_copy_mutex(camluv_mutex_t *camluv_mutex)
   CAMLreturn(mutex);
 }
 
-static void
-camluv_mutex_cb(void *arg)
-{
-  camluv_enter_callback();
-
-  camluv_leave_callback();
-}
-
 static camluv_mutex_t *
 camluv_mutex_new(void)
 {

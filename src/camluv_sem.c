@@ -81,14 +81,6 @@ camluv_copy_sem(camluv_sem_t *camluv_sem)
   CAMLreturn(sem);
 }
 
-static void
-camluv_sem_cb(void *arg)
-{
-  camluv_enter_callback();
-
-  camluv_leave_callback();
-}
-
 static camluv_sem_t *
 camluv_sem_new(void)
 {
