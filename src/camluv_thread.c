@@ -34,8 +34,6 @@
 #include <uv.h>
 
 #include "camluv.h"
-#include "camluv_handle.h"
-#include "camluv_loop.h"
 #include "camluv_thread.h"
 
 static void
@@ -85,6 +83,13 @@ static void
 camluv_thread_cb(void *arg)
 {
   camluv_enter_callback();
+  CAMLlocal2(thread_cb, arg_value);
+
+  camluv_thread_t *camluv_thread = (camluv_thread_t *)arg;
+  thread_cb = camluv_thread->thread_cb;
+  arg_value = camluv_thread->arg;
+
+  callback(thread_cb, arg_value);
 
   camluv_leave_callback();
 }
@@ -105,14 +110,13 @@ camluv_thread_init(value thread_cb, value arg)
   CAMLparam2(thread_cb, arg);
 
   camluv_thread_t *camluv_thread = camluv_thread_new();
-  void *p = NULL;
-  // TODO: parse arg into c heap block pointed by p.
-  // Do we need a camluv_thread_ctx structure that
-  // wraps user argument and camluv_thread_t? Yes.
+  camluv_thread->thread_cb = thread_cb;
+  camluv_thread->arg = arg;
+  camluv_thread->initialized = 1;
 
   int rc = uv_thread_create(&(camluv_thread->uv_thread),
                             camluv_thread_cb,
-                            p);
+                            (void *)camluv_thread);
   if (rc != UV_OK) {
     // TODO: error handling.
   }

@@ -24,9 +24,6 @@
 
 #include <caml/mlvalues.h>
 
-#include "camluv_loop.h"
-#include "camluv_handle.h"
-
 #define camluv_thread_struct_val(v) \
   (*(camluv_thread_t **)Data_custom_val(v))
 
@@ -35,6 +32,8 @@ typedef struct camluv_thread_s_ camluv_thread_t;
 struct camluv_thread_s_ {
   uv_thread_t uv_thread;
   int initialized;
+  value thread_cb;
+  value arg;
 };
 
 #endif /* _CAMLUV_THREAD_H_*/
