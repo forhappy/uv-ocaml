@@ -19,8 +19,8 @@
  * IN THE SOFTWARE.
  */
 
-#ifndef _CAMLUV_thread_H_
-#define _CAMLUV_thread_H_
+#ifndef _CAMLUV_THREAD_H_
+#define _CAMLUV_THREAD_H_
 
 #include <caml/mlvalues.h>
 
@@ -37,4 +37,4 @@ struct camluv_thread_s_ {
   int initialized;
 };
 
-#endif /* _CAMLUV_thread_H_*/
+#endif /* _CAMLUV_THREAD_H_*/
