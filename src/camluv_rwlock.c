@@ -101,6 +101,8 @@ camluv_rwlock_init(value unit)
     // TODO: error handling.
   }
 
+  camluv_rwlock->initialized = 1;
+
   return camluv_copy_rwlock(camluv_rwlock);
 }
 

@@ -101,6 +101,8 @@ camluv_mutex_init(value unit)
     // TODO: error handling.
   }
 
+  camluv_mutex->initialized = 1;
+
   return camluv_copy_mutex(camluv_mutex);
 }
 

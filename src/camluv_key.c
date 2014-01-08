@@ -101,6 +101,7 @@ camluv_key_init(value unit)
   if (rc != UV_OK) {
     // TODO: error handling.
   }
+  camluv_key->initialized = 1;
 
   return camluv_errno_c2ml(rc);
 }

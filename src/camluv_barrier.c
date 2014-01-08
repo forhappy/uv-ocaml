@@ -103,6 +103,8 @@ camluv_barrier_init(value count)
     // TODO: error handling.
   }
 
+  camluv_barrier->initialized = 1;
+
   return camluv_copy_barrier(camluv_barrier);
 }
 

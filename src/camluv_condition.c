@@ -102,6 +102,8 @@ camluv_condition_init(value unit)
     // TODO: error handling.
   }
 
+  camluv_condition->initialized = 1;
+
   return camluv_copy_condition(camluv_condition);
 }
 

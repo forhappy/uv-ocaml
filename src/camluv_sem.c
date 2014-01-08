@@ -103,6 +103,8 @@ camluv_sem_init(value v)
     // TODO: error handling.
   }
 
+  camluv_sem->initialized = 1;
+
   return camluv_copy_sem(camluv_sem);
 }
 
