@@ -125,7 +125,7 @@ camluv_key_get(value key)
 
   camluv_key_t *camluv_key = camluv_key_struct_val(key);
   void *p = uv_key_get(&(camluv_key->uv_key));
-  // TODO: parse p into an ocaml value.
+  key_value = (value)p;
 
   return key_value;
 }
@@ -136,9 +136,7 @@ camluv_key_set(value key, value key_value)
   CAMLparam1(key);
 
   camluv_key_t *camluv_key = camluv_key_struct_val(key);
-  void *p = NULL;
-  // TODO: parse key_value into a C heap block pointed by p.
-  uv_key_set(&(camluv_key->uv_key), p);
+  uv_key_set(&(camluv_key->uv_key), (void *)key_value);
 
   return Val_unit;
 }
