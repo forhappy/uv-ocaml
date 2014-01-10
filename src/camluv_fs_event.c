@@ -94,6 +94,7 @@ camluv_fs_event_cb(uv_fs_event_t* uv_handle,
              camluv_filename,
              camluv_events,
              camluv_status);
+
   CAMLlocalN(args, 4);
 
   camluv_fs_event_t *camluv_fs_event =(camluv_fs_event_t *)(uv_handle->data);
@@ -108,7 +109,7 @@ camluv_fs_event_cb(uv_fs_event_t* uv_handle,
   Store_field(args, 2, camluv_events);
   Store_field(args, 3, camluv_status);
 
-  callbackN(fs_event_cb, 4, args);
+  caml_callbackN(fs_event_cb, 4, args);
 
   camluv_leave_callback();
 }

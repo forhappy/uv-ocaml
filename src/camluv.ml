@@ -202,7 +202,7 @@ module Signal =
     external stop: signal -> uv_errno = "camluv_signal_stop"
   end
 
-module FsEvent =
+module FileEvent =
   struct
     external init: loop -> fs_event = "camluv_fs_event_init"
     external create: loop -> fs_event = "camluv_fs_event_init"
