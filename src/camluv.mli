@@ -6,6 +6,7 @@ type async
 type check
 type prepare
 type signal
+type fs_event
 type thread
 type key
 type mutex
@@ -94,6 +95,7 @@ type uv_async_cb = async -> int -> unit
 type uv_check_cb = check -> int -> unit
 type uv_prepare_cb = prepare -> int -> unit
 type uv_signal_cb = signal -> int -> unit
+type uv_fs_event_cb = fs_event -> string -> int -> int -> unit
 module Loop :
   sig
     external create : unit -> loop = "camluv_loop_new"
@@ -164,6 +166,14 @@ module Signal :
     external start : signal -> uv_signal_cb -> int -> uv_errno
       = "camluv_signal_start"
     external stop : signal -> uv_errno = "camluv_signal_stop"
+  end
+module Fs_event :
+  sig
+    external init : loop -> fs_event = "camluv_fs_event_init"
+    external create : loop -> fs_event = "camluv_fs_event_init"
+    external start : fs_event -> uv_fs_event_cb -> string -> int -> uv_errno
+      = "camluv_fs_event_start"
+    external stop : fs_event -> uv_errno = "camluv_fs_event_stop"
   end
 module Thread :
   sig
