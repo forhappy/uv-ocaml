@@ -246,7 +246,6 @@ module FsPoll=
     external stop: fs_poll -> uv_errno = "camluv_fs_poll_stop"
   end
 
-
 module Thread =
   struct
     external init: ('a -> unit) -> 'a -> thread = "camluv_thread_init"
