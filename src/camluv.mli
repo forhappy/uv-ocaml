@@ -7,6 +7,7 @@ type check
 type prepare
 type signal
 type fs_event
+type fs_poll
 type thread
 type key
 type mutex
@@ -14,6 +15,25 @@ type rwlock
 type sem
 type condition
 type barrier
+type timestamp = { tv_sec : int32; tv_nsec : int32; }
+type stat = {
+  st_dev : int64;
+  st_mode : int64;
+  st_nlink : int64;
+  st_uid : int64;
+  st_gid : int64;
+  st_rdev : int64;
+  st_ino : int64;
+  st_size : int64;
+  st_blksize : int64;
+  st_blocks : int64;
+  st_flags : int64;
+  st_gen : int64;
+  st_atim : timestamp;
+  st_mtim : timestamp;
+  st_ctim : timestamp;
+  st_birthtim : timestamp;
+}
 type uv_errno =
     UV_OK
   | UV_E2BIG
@@ -96,6 +116,7 @@ type uv_check_cb = check -> int -> unit
 type uv_prepare_cb = prepare -> int -> unit
 type uv_signal_cb = signal -> int -> unit
 type uv_fs_event_cb = fs_event -> string -> int -> int -> unit
+type uv_fs_poll_cb = fs_poll -> int -> stat -> stat -> unit
 module Loop :
   sig
     external create : unit -> loop = "camluv_loop_new"
@@ -174,6 +195,14 @@ module FsEvent :
     external start : fs_event -> uv_fs_event_cb -> string -> int -> uv_errno
       = "camluv_fs_event_start"
     external stop : fs_event -> uv_errno = "camluv_fs_event_stop"
+  end
+module FsPoll :
+  sig
+    external init : loop -> fs_poll = "camluv_fs_poll_init"
+    external create : loop -> fs_poll = "camluv_fs_poll_init"
+    external start : fs_poll -> uv_fs_poll_cb -> string -> int -> uv_errno
+      = "camluv_fs_poll_start"
+    external stop : fs_poll -> uv_errno = "camluv_fs_poll_stop"
   end
 module Thread :
   sig
