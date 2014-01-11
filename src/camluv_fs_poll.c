@@ -94,22 +94,21 @@ camluv_build_stat(const uv_stat_t *stat)
   ts_atim = caml_alloc(2, 0);
   Store_field(ts_atim, 0, Val_long(stat->st_atim.tv_sec));
   Store_field(ts_atim, 0, Val_long(stat->st_atim.tv_nsec));
+  Store_field(result_stat, 12, ts_atim);
 
   ts_mtim = caml_alloc(2, 0);
   Store_field(ts_mtim, 0, Val_long(stat->st_mtim.tv_sec));
   Store_field(ts_mtim, 0, Val_long(stat->st_mtim.tv_nsec));
+  Store_field(result_stat, 13, ts_mtim);
 
   ts_ctim = caml_alloc(2, 0);
   Store_field(ts_ctim, 0, Val_long(stat->st_ctim.tv_sec));
   Store_field(ts_ctim, 0, Val_long(stat->st_ctim.tv_nsec));
+  Store_field(result_stat, 14, ts_ctim);
 
   ts_birthtim = caml_alloc(2, 0);
   Store_field(ts_birthtim, 0, Val_long(stat->st_birthtim.tv_sec));
   Store_field(ts_birthtim, 0, Val_long(stat->st_birthtim.tv_nsec));
-
-  Store_field(result_stat, 12, ts_atim);
-  Store_field(result_stat, 13, ts_mtim);
-  Store_field(result_stat, 14, ts_ctim);
   Store_field(result_stat, 15, ts_birthtim);
 
   return result_stat;

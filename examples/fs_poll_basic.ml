@@ -1,7 +1,7 @@
 open Camluv
 
 let fs_poll_cb handle status prev curr =
-    print_string "Something happened.\n";;
+    Printf.printf "Something happened.%!\n";;
 
 
 let loop = Loop.default ();;

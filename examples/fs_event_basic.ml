@@ -1,8 +1,7 @@
 open Camluv
 
 let fs_event_cb handle filename event status =
-    print_string "Something happened.\n";;
-
+    Printf.printf "Event %d happened on file: %s with status %d.%!\n" (event) (filename) (status);;
 
 let loop = Loop.default ();;
 let fs_event = FsEvent.init loop;;
