@@ -265,3 +265,8 @@ module Barrier :
     external destroy : barrier -> unit = "camluv_barrier_destroy"
     external wait : barrier -> unit = "camluv_barrier_wait"
   end
+module Util :
+  sig
+    external strerror : int -> string = "camluv_strerror"
+    external err_name : int -> string = "camluv_err_name"
+  end

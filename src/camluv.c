@@ -132,4 +132,27 @@ camluv_errno_c2ml(uv_errno_t error)
   return Val_int(index);
 }
 
+CAMLprim value
+camluv_strerror(value err)
+{
+  CAMLparam1(err);
+  CAMLlocal1(strerr);
+
+  const char *strerror = uv_strerror(Int_val(err));
+  strerr = caml_copy_string(strerror);
+
+  return strerr;
+}
+
+CAMLprim value
+camluv_err_name(value err)
+{
+  CAMLparam1(err);
+  CAMLlocal1(errname);
+
+  const char *strname = uv_err_name(Int_val(err));
+  errname = caml_copy_string(strname);
+
+  return errname;
+}
 

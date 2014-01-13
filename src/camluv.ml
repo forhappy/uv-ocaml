@@ -314,3 +314,9 @@ module Barrier =
     external wait: barrier -> unit = "camluv_barrier_wait"
   end
 
+module Util =
+  struct
+    external strerror: int -> string = "camluv_strerror"
+    external err_name: int -> string = "camluv_err_name"
+  end
+
