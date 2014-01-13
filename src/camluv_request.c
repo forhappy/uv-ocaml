@@ -123,7 +123,6 @@ camluv_cancel(value request)
   camluv_request_t *camluv_request = camluv_request_struct_val(request);
   if (camluv_request_initialized(camluv_request)) {
     // TODO: this request is not initialized.
-    return Val_unit;
   }
 
   int rc = uv_cancel(camluv_request->uv_request);

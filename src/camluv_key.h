@@ -24,6 +24,8 @@
 
 #include <caml/mlvalues.h>
 
+#include <uv.h>
+
 #include "camluv_loop.h"
 #include "camluv_handle.h"
 

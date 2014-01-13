@@ -24,6 +24,8 @@
 
 #include <caml/mlvalues.h>
 
+#include <uv.h>
+
 #define camluv_loop_struct_val(v) \
   (*(camluv_loop_t **)Data_custom_val(v))
 

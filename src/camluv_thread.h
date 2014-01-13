@@ -24,6 +24,8 @@
 
 #include <caml/mlvalues.h>
 
+#include <uv.h>
+
 #define camluv_thread_struct_val(v) \
   (*(camluv_thread_t **)Data_custom_val(v))
 
