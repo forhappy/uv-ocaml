@@ -286,7 +286,7 @@ module RWlock =
     external trywrlock: rwlock -> int = "camluv_rwlock_trywrlock"
   end
 
-module Sem =
+module Semaphore =
   struct
     external init: int -> sem = "camluv_sem_init"
     external create: int -> sem = "camluv_sem_init"

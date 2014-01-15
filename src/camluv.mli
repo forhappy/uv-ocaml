@@ -240,7 +240,7 @@ module RWlock :
     external wrunlock : rwlock -> unit = "camluv_rwlock_wrunlock"
     external trywrlock : rwlock -> int = "camluv_rwlock_trywrlock"
   end
-module Sem :
+module Semaphore :
   sig
     external init : int -> sem = "camluv_sem_init"
     external create : int -> sem = "camluv_sem_init"
