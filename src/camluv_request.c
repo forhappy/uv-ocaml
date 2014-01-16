@@ -37,6 +37,11 @@
 #include "camluv_request.h"
 #include "camluv_loop.h"
 
+#if defined(CAMLUV_USE_CUMSTOM_OPERATIONS)
+/**
+ * TODO: we will use ocaml cumstom operations later to support
+ * user-provided finalization, comparision, hashing.
+ */
 static void
 camluv_request_struct_finalize(value v)
 {
@@ -57,6 +62,7 @@ camluv_request_struct_hash(value v)
 {
   return (long)camluv_request_struct_val(v);
 }
+#endif /* CAMLUV_USE_CUMSTOM_OPERATIONS */
 
 static struct custom_operations camluv_request_struct_ops = {
   "camluv.request",
