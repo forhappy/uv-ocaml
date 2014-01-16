@@ -38,6 +38,11 @@
 #include "camluv_loop.h"
 #include "camluv_timer.h"
 
+#if defined(CAMLUV_USE_CUMSTOM_OPERATIONS)
+/**
+ * TODO: we will use ocaml cumstom operations later to support
+ * user-provided finalization, comparision, hashing.
+ */
 static void
 camluv_timer_struct_finalize(value v)
 {
@@ -58,6 +63,7 @@ camluv_timer_struct_hash(value v)
 {
   return (long)camluv_timer_struct_val(v);
 }
+#endif /* CAMLUV_USE_CUMSTOM_OPERATIONS */
 
 static struct custom_operations camluv_timer_struct_ops = {
   "camluv.timer",
@@ -111,6 +117,7 @@ CAMLprim value
 camluv_timer_init(value loop)
 {
   CAMLparam1(loop);
+  CAMLlocal1(timer);
 
   camluv_loop_t *camluv_loop = camluv_loop_struct_val(loop);
   camluv_timer_t *camluv_timer = camluv_timer_new();
@@ -126,8 +133,9 @@ camluv_timer_init(value loop)
   camluv_init_handle_with_loop((camluv_handle_t *)
                                (&(camluv_timer->camluv_handle)),
                                camluv_loop);
+  timer = camluv_copy_timer(camluv_timer);
 
-  return camluv_copy_timer(camluv_timer);
+  CAMLreturn(timer);
 }
 
 CAMLprim value
@@ -137,8 +145,9 @@ camluv_timer_start(value timer,
                    value repeat)
 {
   CAMLparam4(timer, timer_cb, timeout, repeat);
-  int rc = -1;
+  CAMLlocal1(camluv_rc);
 
+  int rc = -1;
   camluv_timer_t *camluv_timer = camluv_timer_struct_val(timer);
   camluv_timer->timer_cb = timer_cb;
   uint64_t timeout64 = Int64_val(timeout);
@@ -147,32 +156,37 @@ camluv_timer_start(value timer,
                       camluv_timer_cb,
                       timeout64,
                       repeat64);
+  camluv_rc = camluv_errno_c2ml(rc);
 
-  return camluv_errno_c2ml(rc);
+  CAMLreturn(camluv_rc);
 }
 
 CAMLprim value
 camluv_timer_stop(value timer)
 {
   CAMLparam1(timer);
-  int rc = -1;
+  CAMLlocal1(camluv_rc);
 
+  int rc = -1;
   camluv_timer_t *camluv_timer = camluv_timer_struct_val(timer);
   rc = uv_timer_stop(&(camluv_timer->uv_timer));
+  camluv_rc = camluv_errno_c2ml(rc);
 
-  return camluv_errno_c2ml(rc);
+  CAMLreturn(camluv_rc);
 }
 
 CAMLprim value
 camluv_timer_again(value timer)
 {
   CAMLparam1(timer);
-  int rc = -1;
+  CAMLlocal1(camluv_rc);
 
+  int rc = -1;
   camluv_timer_t *camluv_timer = camluv_timer_struct_val(timer);
   rc = uv_timer_again(&(camluv_timer->uv_timer));
+  camluv_rc = camluv_errno_c2ml(rc);
 
-  return camluv_errno_c2ml(rc);
+  CAMLreturn(camluv_rc);
 }
 
 CAMLprim value
@@ -184,18 +198,20 @@ camluv_timer_set_repeat(value timer, value repeat)
   camluv_timer_t *camluv_timer = camluv_timer_struct_val(timer);
   uv_timer_set_repeat(&(camluv_timer->uv_timer), repeat64);
 
-  return Val_unit;
+  CAMLreturn(Val_unit);
 }
 
 CAMLprim value
 camluv_timer_get_repeat(value timer)
 {
   CAMLparam1(timer);
-  uint64_t repeat = 0;
+  CAMLlocal1(camluv_repeat);
 
+  uint64_t repeat = 0;
   camluv_timer_t *camluv_timer = camluv_timer_struct_val(timer);
   repeat = uv_timer_get_repeat(&(camluv_timer->uv_timer));
+  camluv_repeat = caml_copy_int64(repeat);
 
-  return caml_copy_int64(repeat);
+  CAMLreturn(camluv_repeat);
 }
 

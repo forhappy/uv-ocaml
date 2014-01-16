@@ -70,7 +70,7 @@ camluv_loop_struct_hash(value v)
 {
   return (long)camluv_loop_struct_val(v);
 }
-#endif /* CAMLUV_NO_CUMSTOM_OPERATIONS */
+#endif /* CAMLUV_USE_CUMSTOM_OPERATIONS */
 
 static uv_run_mode
 camluv_uv_run_mode_ml2c(value v)

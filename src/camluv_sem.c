@@ -38,6 +38,11 @@
 #include "camluv_loop.h"
 #include "camluv_sem.h"
 
+#if defined(CAMLUV_USE_CUMSTOM_OPERATIONS)
+/**
+ * TODO: we will use ocaml cumstom operations later to support
+ * user-provided finalization, comparision, hashing.
+ */
 static void
 camluv_sem_struct_finalize(value v)
 {
@@ -58,6 +63,7 @@ camluv_sem_struct_hash(value v)
 {
   return (long)camluv_sem_struct_val(v);
 }
+#endif /* CAMLUV_USE_CUMSTOM_OPERATIONS */
 
 static struct custom_operations camluv_sem_struct_ops = {
   "camluv.sem",
@@ -95,17 +101,18 @@ CAMLprim value
 camluv_sem_init(value v)
 {
   CAMLparam1(v);
+  CAMLlocal1(sem);
 
+  int rc = -1;
   camluv_sem_t *camluv_sem = camluv_sem_new();
-
-  int rc = uv_sem_init(&(camluv_sem->uv_sem), Int_val(v));
+  rc = uv_sem_init(&(camluv_sem->uv_sem), Int_val(v));
   if (rc != UV_OK) {
     // TODO: error handling.
   }
-
   camluv_sem->initialized = 1;
+  sem = camluv_copy_sem(camluv_sem);
 
-  return camluv_copy_sem(camluv_sem);
+  CAMLreturn(sem);
 }
 
 CAMLprim value
@@ -116,7 +123,7 @@ camluv_sem_destroy(value sem)
   camluv_sem_t *camluv_sem = camluv_sem_struct_val(sem);
   uv_sem_destroy(&(camluv_sem->uv_sem));
 
-  return Val_unit;
+  CAMLreturn(Val_unit);
 }
 
 CAMLprim value
@@ -127,7 +134,7 @@ camluv_sem_post(value sem)
   camluv_sem_t *camluv_sem = camluv_sem_struct_val(sem);
   uv_sem_post(&(camluv_sem->uv_sem));
 
-  return Val_unit;
+  CAMLreturn(Val_unit);
 }
 
 
@@ -139,7 +146,7 @@ camluv_sem_wait(value sem)
   camluv_sem_t *camluv_sem = camluv_sem_struct_val(sem);
   uv_sem_wait(&(camluv_sem->uv_sem));
 
-  return Val_unit;
+  CAMLreturn(Val_unit);
 }
 
 CAMLprim value
@@ -150,6 +157,6 @@ camluv_sem_trywait(value sem)
   camluv_sem_t *camluv_sem = camluv_sem_struct_val(sem);
   uv_sem_trywait(&(camluv_sem->uv_sem));
 
-  return Val_unit;
+  CAMLreturn(Val_unit);
 }
 

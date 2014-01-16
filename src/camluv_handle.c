@@ -63,7 +63,7 @@ camluv_handle_struct_hash(value v)
 {
   return (long)camluv_handle_struct_val(v);
 }
-#endif /* CAMLUV_NO_CUMSTOM_OPERATIONS */
+#endif /* CAMLUV_USE_CUMSTOM_OPERATIONS */
 
 static struct custom_operations camluv_handle_struct_ops = {
   "camluv.handle",

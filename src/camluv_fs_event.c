@@ -38,6 +38,11 @@
 #include "camluv_loop.h"
 #include "camluv_fs_event.h"
 
+#if defined(CAMLUV_USE_CUMSTOM_OPERATIONS)
+/**
+ * TODO: we will use ocaml cumstom operations later to support
+ * user-provided finalization, comparision, hashing.
+ */
 static void
 camluv_fs_event_struct_finalize(value v)
 {
@@ -58,6 +63,7 @@ camluv_fs_event_struct_hash(value v)
 {
   return (long)camluv_fs_event_struct_val(v);
 }
+#endif /* CAMLUV_USE_CUMSTOM_OPERATIONS */
 
 static struct custom_operations camluv_fs_event_struct_ops = {
   "camluv.fs_event",
@@ -128,6 +134,7 @@ CAMLprim value
 camluv_fs_event_init(value loop)
 {
   CAMLparam1(loop);
+  CAMLlocal1(fs_event);
 
   camluv_loop_t *camluv_loop = camluv_loop_struct_val(loop);
   camluv_fs_event_t *camluv_fs_event = camluv_fs_event_new();
@@ -144,8 +151,9 @@ camluv_fs_event_init(value loop)
   camluv_init_handle_with_loop((camluv_handle_t *)
                                (&(camluv_fs_event->camluv_handle)),
                                camluv_loop);
+  fs_event = camluv_copy_fs_event(camluv_fs_event);
 
-  return camluv_copy_fs_event(camluv_fs_event);
+  CAMLreturn(fs_event);
 }
 
 CAMLprim value
@@ -155,28 +163,32 @@ camluv_fs_event_start(value fs_event,
                       value flags)
 {
   CAMLparam4(fs_event, fs_event_cb, filename, flags);
-  int rc = -1;
+  CAMLlocal1(camluv_rc);
 
+  int rc = -1;
   camluv_fs_event_t *camluv_fs_event = camluv_fs_event_struct_val(fs_event);
   camluv_fs_event->fs_event_cb = fs_event_cb;
   rc = uv_fs_event_start(&(camluv_fs_event->uv_fs_event),
                          camluv_fs_event_cb,
                          String_val(filename),
                          Int_val(flags));
+  camluv_rc = camluv_errno_c2ml(rc);
 
-  return camluv_errno_c2ml(rc);
+  CAMLreturn(camluv_rc);
 }
 
 CAMLprim value
 camluv_fs_event_stop(value fs_event)
 {
   CAMLparam1(fs_event);
-  int rc = -1;
+  CAMLlocal1(camluv_rc);
 
+  int rc = -1;
   camluv_fs_event_t *camluv_fs_event =
           camluv_fs_event_struct_val(fs_event);
   rc = uv_fs_event_stop(&(camluv_fs_event->uv_fs_event));
+  camluv_rc = camluv_errno_c2ml(rc);
 
-  return camluv_errno_c2ml(rc);
+  CAMLreturn(camluv_rc);
 }
 

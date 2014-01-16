@@ -38,6 +38,11 @@
 #include "camluv_loop.h"
 #include "camluv_signal.h"
 
+#if defined(CAMLUV_USE_CUMSTOM_OPERATIONS)
+/**
+ * TODO: we will use ocaml cumstom operations later to support
+ * user-provided finalization, comparision, hashing.
+ */
 static void
 camluv_signal_struct_finalize(value v)
 {
@@ -58,6 +63,7 @@ camluv_signal_struct_hash(value v)
 {
   return (long)camluv_signal_struct_val(v);
 }
+#endif /* CAMLUV_USE_CUMSTOM_OPERATIONS */
 
 static struct custom_operations camluv_signal_struct_ops = {
   "camluv.signal",
@@ -111,6 +117,7 @@ CAMLprim value
 camluv_signal_init(value loop)
 {
   CAMLparam1(loop);
+  CAMLlocal1(signal);
 
   camluv_loop_t *camluv_loop = camluv_loop_struct_val(loop);
   camluv_signal_t *camluv_signal = camluv_signal_new();
@@ -127,34 +134,39 @@ camluv_signal_init(value loop)
   camluv_init_handle_with_loop((camluv_handle_t *)
                                (&(camluv_signal->camluv_handle)),
                                camluv_loop);
+  signal = camluv_copy_signal(camluv_signal);
 
-  return camluv_copy_signal(camluv_signal);
+  CAMLreturn(signal);
 }
 
 CAMLprim value
 camluv_signal_start(value signal, value signal_cb, value signum)
 {
   CAMLparam3(signal, signal_cb, signum);
-  int rc = -1;
+  CAMLlocal1(camluv_rc);
 
+  int rc = -1;
   camluv_signal_t *camluv_signal = camluv_signal_struct_val(signal);
   camluv_signal->signal_cb = signal_cb;
   rc = uv_signal_start(&(camluv_signal->uv_signal),
                        camluv_signal_cb,
                        Int_val(signum));
+  camluv_rc = camluv_errno_c2ml(rc);
 
-  return camluv_errno_c2ml(rc);
+  CAMLreturn(camluv_rc);
 }
 
 CAMLprim value
 camluv_signal_stop(value signal)
 {
   CAMLparam1(signal);
-  int rc = -1;
+  CAMLlocal1(camluv_rc);
 
+  int rc = -1;
   camluv_signal_t *camluv_signal = camluv_signal_struct_val(signal);
   rc = uv_signal_stop(&(camluv_signal->uv_signal));
+  camluv_rc = camluv_errno_c2ml(rc);
 
-  return camluv_errno_c2ml(rc);
+  CAMLreturn(camluv_rc);
 }
 

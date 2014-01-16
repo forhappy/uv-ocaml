@@ -38,6 +38,11 @@
 #include "camluv_loop.h"
 #include "camluv_barrier.h"
 
+#if defined(CAMLUV_USE_CUMSTOM_OPERATIONS)
+/**
+ * TODO: we will use ocaml cumstom operations later to support
+ * user-provided finalization, comparision, hashing.
+ */
 static void
 camluv_barrier_struct_finalize(value v)
 {
@@ -58,6 +63,7 @@ camluv_barrier_struct_hash(value v)
 {
   return (long)camluv_barrier_struct_val(v);
 }
+#endif /* CAMLUV_USE_CUMSTOM_OPERATIONS */
 
 static struct custom_operations camluv_barrier_struct_ops = {
   "camluv.barrier",
@@ -95,6 +101,7 @@ CAMLprim value
 camluv_barrier_init(value count)
 {
   CAMLparam1(count);
+  CAMLlocal1(barrier);
 
   camluv_barrier_t *camluv_barrier = camluv_barrier_new();
 
@@ -102,10 +109,10 @@ camluv_barrier_init(value count)
   if (rc != UV_OK) {
     // TODO: error handling.
   }
-
   camluv_barrier->initialized = 1;
+  barrier = camluv_copy_barrier(camluv_barrier);
 
-  return camluv_copy_barrier(camluv_barrier);
+  CAMLreturn(barrier);
 }
 
 CAMLprim value
@@ -116,7 +123,7 @@ camluv_barrier_destroy(value barrier)
   camluv_barrier_t *camluv_barrier = camluv_barrier_struct_val(barrier);
   uv_barrier_destroy(&(camluv_barrier->uv_barrier));
 
-  return Val_unit;
+  CAMLreturn(Val_unit);
 }
 
 CAMLprim value
@@ -127,6 +134,6 @@ camluv_barrier_wait(value barrier)
   camluv_barrier_t *camluv_barrier = camluv_barrier_struct_val(barrier);
   uv_barrier_wait(&(camluv_barrier->uv_barrier));
 
-  return Val_unit;
+  CAMLreturn(Val_unit);
 }
 

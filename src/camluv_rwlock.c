@@ -38,6 +38,11 @@
 #include "camluv_loop.h"
 #include "camluv_rwlock.h"
 
+#if defined(CAMLUV_USE_CUMSTOM_OPERATIONS)
+/**
+ * TODO: we will use ocaml cumstom operations later to support
+ * user-provided finalization, comparision, hashing.
+ */
 static void
 camluv_rwlock_struct_finalize(value v)
 {
@@ -58,6 +63,7 @@ camluv_rwlock_struct_hash(value v)
 {
   return (long)camluv_rwlock_struct_val(v);
 }
+#endif /* CAMLUV_USE_CUMSTOM_OPERATIONS */
 
 static struct custom_operations camluv_rwlock_struct_ops = {
   "camluv.rwlock",
@@ -94,16 +100,19 @@ camluv_rwlock_new(void)
 CAMLprim value
 camluv_rwlock_init(value unit)
 {
-  camluv_rwlock_t *camluv_rwlock = camluv_rwlock_new();
+  CAMLparam0();
+  CAMLlocal1(rwlock);
 
-  int rc = uv_rwlock_init(&(camluv_rwlock->uv_rwlock));
+  int rc = -1;
+  camluv_rwlock_t *camluv_rwlock = camluv_rwlock_new();
+  rc = uv_rwlock_init(&(camluv_rwlock->uv_rwlock));
   if (rc != UV_OK) {
     // TODO: error handling.
   }
-
   camluv_rwlock->initialized = 1;
+  rwlock = camluv_copy_rwlock(camluv_rwlock);
 
-  return camluv_copy_rwlock(camluv_rwlock);
+  CAMLreturn(rwlock);
 }
 
 CAMLprim value
@@ -114,7 +123,7 @@ camluv_rwlock_destroy(value rwlock)
   camluv_rwlock_t *camluv_rwlock = camluv_rwlock_struct_val(rwlock);
   uv_rwlock_destroy(&(camluv_rwlock->uv_rwlock));
 
-  return Val_unit;
+  CAMLreturn(Val_unit);
 }
 
 CAMLprim value
@@ -125,18 +134,20 @@ camluv_rwlock_rdlock(value rwlock)
   camluv_rwlock_t *camluv_rwlock = camluv_rwlock_struct_val(rwlock);
   uv_rwlock_rdlock(&(camluv_rwlock->uv_rwlock));
 
-  return Val_unit;
+  CAMLreturn(Val_unit);
 }
 
 CAMLprim value
 camluv_rwlock_tryrdlock(value rwlock)
 {
   CAMLparam1(rwlock);
+  CAMLlocal1(camluv_rc);
 
   camluv_rwlock_t *camluv_rwlock = camluv_rwlock_struct_val(rwlock);
   int rc = uv_rwlock_tryrdlock(&(camluv_rwlock->uv_rwlock));
+  camluv_rc = camluv_errno_c2ml(rc);
 
-  return camluv_errno_c2ml(rc);
+  CAMLreturn(camluv_rc);
 }
 
 CAMLprim value
@@ -147,7 +158,7 @@ camluv_rwlock_rdunlock(value rwlock)
   camluv_rwlock_t *camluv_rwlock = camluv_rwlock_struct_val(rwlock);
   uv_rwlock_rdunlock(&(camluv_rwlock->uv_rwlock));
 
-  return Val_unit;
+  CAMLreturn(Val_unit);
 }
 
 CAMLprim value
@@ -158,18 +169,20 @@ camluv_rwlock_wrlock(value rwlock)
   camluv_rwlock_t *camluv_rwlock = camluv_rwlock_struct_val(rwlock);
   uv_rwlock_wrlock(&(camluv_rwlock->uv_rwlock));
 
-  return Val_unit;
+  CAMLreturn(Val_unit);
 }
 
 CAMLprim value
 camluv_rwlock_trywrlock(value rwlock)
 {
   CAMLparam1(rwlock);
+  CAMLlocal1(camluv_rc);
 
   camluv_rwlock_t *camluv_rwlock = camluv_rwlock_struct_val(rwlock);
   int rc = uv_rwlock_trywrlock(&(camluv_rwlock->uv_rwlock));
+  camluv_rc = camluv_errno_c2ml(rc);
 
-  return camluv_errno_c2ml(rc);
+  CAMLreturn(camluv_rc);
 }
 
 CAMLprim value
@@ -180,6 +193,6 @@ camluv_rwlock_wrunlock(value rwlock)
   camluv_rwlock_t *camluv_rwlock = camluv_rwlock_struct_val(rwlock);
   uv_rwlock_wrunlock(&(camluv_rwlock->uv_rwlock));
 
-  return Val_unit;
+  CAMLreturn(Val_unit);
 }
 

@@ -38,6 +38,11 @@
 #include "camluv_loop.h"
 #include "camluv_prepare.h"
 
+#if defined(CAMLUV_USE_CUMSTOM_OPERATIONS)
+/**
+ * TODO: we will use ocaml cumstom operations later to support
+ * user-provided finalization, comparision, hashing.
+ */
 static void
 camluv_prepare_struct_finalize(value v)
 {
@@ -58,6 +63,7 @@ camluv_prepare_struct_hash(value v)
 {
   return (long)camluv_prepare_struct_val(v);
 }
+#endif /* CAMLUV_USE_CUMSTOM_OPERATIONS */
 
 static struct custom_operations camluv_prepare_struct_ops = {
   "camluv.prepare",
@@ -111,6 +117,7 @@ CAMLprim value
 camluv_prepare_init(value loop)
 {
   CAMLparam1(loop);
+  CAMLlocal1(prepare);
 
   camluv_loop_t *camluv_loop = camluv_loop_struct_val(loop);
   camluv_prepare_t *camluv_prepare = camluv_prepare_new();
@@ -127,32 +134,37 @@ camluv_prepare_init(value loop)
   camluv_init_handle_with_loop((camluv_handle_t *)
                                (&(camluv_prepare->camluv_handle)),
                                camluv_loop);
+  prepare = camluv_copy_prepare(camluv_prepare);
 
-  return camluv_copy_prepare(camluv_prepare);
+  CAMLreturn(prepare);
 }
 
 CAMLprim value
 camluv_prepare_start(value prepare, value prepare_cb)
 {
   CAMLparam2(prepare, prepare_cb);
-  int rc = -1;
+  CAMLlocal1(camluv_rc);
 
+  int rc = -1;
   camluv_prepare_t *camluv_prepare = camluv_prepare_struct_val(prepare);
   camluv_prepare->prepare_cb = prepare_cb;
   rc = uv_prepare_start(&(camluv_prepare->uv_prepare), camluv_prepare_cb);
+  camluv_rc = camluv_errno_c2ml(rc);
 
-  return camluv_errno_c2ml(rc);
+  CAMLreturn(camluv_rc);
 }
 
 CAMLprim value
 camluv_prepare_stop(value prepare)
 {
   CAMLparam1(prepare);
-  int rc = -1;
+  CAMLlocal1(camluv_rc);
 
+  int rc = -1;
   camluv_prepare_t *camluv_prepare = camluv_prepare_struct_val(prepare);
   rc = uv_prepare_stop(&(camluv_prepare->uv_prepare));
+  camluv_rc = camluv_errno_c2ml(rc);
 
-  return camluv_errno_c2ml(rc);
+  CAMLreturn(camluv_rc);
 }
 

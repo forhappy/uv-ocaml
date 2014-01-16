@@ -36,6 +36,11 @@
 #include "camluv.h"
 #include "camluv_thread.h"
 
+#if defined(CAMLUV_USE_CUMSTOM_OPERATIONS)
+/**
+ * TODO: we will use ocaml cumstom operations later to support
+ * user-provided finalization, comparision, hashing.
+ */
 static void
 camluv_thread_struct_finalize(value v)
 {
@@ -56,6 +61,7 @@ camluv_thread_struct_hash(value v)
 {
   return (long)camluv_thread_struct_val(v);
 }
+#endif /* CAMLUV_USE_CUMSTOM_OPERATIONS */
 
 static struct custom_operations camluv_thread_struct_ops = {
   "camluv.thread",
@@ -108,41 +114,48 @@ CAMLprim value
 camluv_thread_init(value thread_cb, value arg)
 {
   CAMLparam2(thread_cb, arg);
+  CAMLlocal1(thread);
 
+  int rc = -1;
   camluv_thread_t *camluv_thread = camluv_thread_new();
   camluv_thread->thread_cb = thread_cb;
   camluv_thread->arg = arg;
   camluv_thread->initialized = 1;
 
-  int rc = uv_thread_create(&(camluv_thread->uv_thread),
+  rc = uv_thread_create(&(camluv_thread->uv_thread),
                             camluv_thread_cb,
                             (void *)camluv_thread);
   if (rc != UV_OK) {
     // TODO: error handling.
   }
+  thread = camluv_copy_thread(camluv_thread);
 
-  return camluv_copy_thread(camluv_thread);
+  CAMLreturn(thread);
 }
 
 CAMLprim value
 camluv_thread_join(value thread)
 {
   CAMLparam1(thread);
-  int rc = -1;
+  CAMLlocal1(camluv_rc);
 
+  int rc = -1;
   camluv_thread_t *camluv_thread = camluv_thread_struct_val(thread);
   rc = uv_thread_join(&(camluv_thread->uv_thread));
+  camluv_rc = camluv_errno_c2ml(rc);
 
-  return camluv_errno_c2ml(rc);
+  CAMLreturn(camluv_rc);
 }
 
 CAMLprim value
 camluv_thread_self(value unit)
 {
-  CAMLparam1(unit);
+  CAMLparam0();
+  CAMLlocal1(self_id);
 
   long self = uv_thread_self();
+  self_id = Val_long(self);
 
-  return Val_long(self);
+  CAMLreturn(self_id);
 }
 

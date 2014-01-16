@@ -11,7 +11,19 @@ C_OBJECTS=camluv.o\
 		  camluv_handle.o\
 		  camluv_async.o\
 		  camluv_check.o\
-		  camluv_idle.o
+		  camluv_idle.o\
+		  camluv_prepare.o\
+		  camluv_timer.o\
+		  camluv_signal.o\
+		  camluv_fs_event.o\
+		  camluv_fs_poll.o\
+		  camluv_barrier.o\
+		  camluv_condition.o\
+		  camluv_key.o\
+		  camluv_rwlock.o\
+		  camluv_sem.o\
+		  camluv_thread.o\
+		  camluv_threadpool.o
 
 ARCHIVE=$(NAME).cma
 XARCHIVE=$(ARCHIVE:.cma=.cmxa)

@@ -38,6 +38,11 @@
 #include "camluv_loop.h"
 #include "camluv_idle.h"
 
+#if defined(CAMLUV_USE_CUMSTOM_OPERATIONS)
+/**
+ * TODO: we will use ocaml cumstom operations later to support
+ * user-provided finalization, comparision, hashing.
+ */
 static void
 camluv_idle_struct_finalize(value v)
 {
@@ -58,6 +63,7 @@ camluv_idle_struct_hash(value v)
 {
   return (long)camluv_idle_struct_val(v);
 }
+#endif /* CAMLUV_USE_CUMSTOM_OPERATIONS */
 
 static struct custom_operations camluv_idle_struct_ops = {
   "camluv.idle",
@@ -111,6 +117,7 @@ CAMLprim value
 camluv_idle_init(value loop)
 {
   CAMLparam1(loop);
+  CAMLlocal1(idle);
 
   camluv_loop_t *camluv_loop = camluv_loop_struct_val(loop);
   camluv_idle_t *camluv_idle = camluv_idle_new();
@@ -127,32 +134,37 @@ camluv_idle_init(value loop)
   camluv_init_handle_with_loop((camluv_handle_t *)
                                (&(camluv_idle->camluv_handle)),
                                camluv_loop);
+  idle = camluv_copy_idle(camluv_idle);
 
-  return camluv_copy_idle(camluv_idle);
+  CAMLreturn(idle);
 }
 
 CAMLprim value
 camluv_idle_start(value idle, value idle_cb)
 {
   CAMLparam2(idle, idle_cb);
-  int rc = -1;
+  CAMLlocal1(camluv_rc);
 
+  int rc = -1;
   camluv_idle_t *camluv_idle = camluv_idle_struct_val(idle);
   camluv_idle->idle_cb = idle_cb;
   rc = uv_idle_start(&(camluv_idle->uv_idle), camluv_idle_cb);
+  camluv_rc = camluv_errno_c2ml(rc);
 
-  return camluv_errno_c2ml(rc);
+  CAMLreturn(camluv_rc);
 }
 
 CAMLprim value
 camluv_idle_stop(value idle)
 {
   CAMLparam1(idle);
-  int rc = -1;
+  CAMLlocal1(camluv_rc);
 
+  int rc = -1;
   camluv_idle_t *camluv_idle = camluv_idle_struct_val(idle);
   rc = uv_idle_stop(&(camluv_idle->uv_idle));
+  camluv_rc = camluv_errno_c2ml(rc);
 
-  return camluv_errno_c2ml(rc);
+  CAMLreturn(camluv_rc);
 }
 

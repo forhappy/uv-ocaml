@@ -37,6 +37,11 @@
 #include "camluv_loop.h"
 #include "camluv_threadpool.h"
 
+#if defined(CAMLUV_USE_CUMSTOM_OPERATIONS)
+/**
+ * TODO: we will use ocaml cumstom operations later to support
+ * user-provided finalization, comparision, hashing.
+ */
 static void
 camluv_threadpool_struct_finalize(value v)
 {
@@ -57,6 +62,7 @@ camluv_threadpool_struct_hash(value v)
 {
   return (long)camluv_threadpool_struct_val(v);
 }
+#endif /* CAMLUV_USE_CUMSTOM_OPERATIONS */
 
 static struct custom_operations camluv_threadpool_struct_ops = {
   "camluv.threadpool",
@@ -117,9 +123,9 @@ CAMLprim value
 camluv_loop_queue_work(value loop, value work_cb, value after_work_cb)
 {
   CAMLparam3(loop, work_cb, after_work_cb);
+  CAMLlocal1(camluv_rc);
 
   int rc = -1;
-
   camluv_loop_t *camluv_loop = camluv_loop_struct_val(loop);
   if (camluv_loop->uv_loop != NULL) {
     camluv_threadpool_t *threadpool =
@@ -139,7 +145,8 @@ camluv_loop_queue_work(value loop, value work_cb, value after_work_cb)
     ((camluv_request_t *)threadpool)->uv_request =
                               (uv_req_t *)&(threadpool->uv_work);
   }
+  camluv_rc = camluv_errno_c2ml(rc);
 
-  return camluv_errno_c2ml(rc);
+  CAMLreturn(camluv_rc);
 }
 

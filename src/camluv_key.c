@@ -38,6 +38,11 @@
 #include "camluv_loop.h"
 #include "camluv_key.h"
 
+#if defined(CAMLUV_USE_CUMSTOM_OPERATIONS)
+/**
+ * TODO: we will use ocaml cumstom operations later to support
+ * user-provided finalization, comparision, hashing.
+ */
 static void
 camluv_key_struct_finalize(value v)
 {
@@ -58,6 +63,7 @@ camluv_key_struct_hash(value v)
 {
   return (long)camluv_key_struct_val(v);
 }
+#endif /* CAMLUV_USE_CUMSTOM_OPERATIONS */
 
 static struct custom_operations camluv_key_struct_ops = {
   "camluv.key",
@@ -94,16 +100,19 @@ camluv_key_new(void)
 CAMLprim value
 camluv_key_init(value unit)
 {
+  CAMLparam0();
+  CAMLlocal1(key);
 
+  int rc = -1;
   camluv_key_t *camluv_key = camluv_key_new();
-
-  int rc = uv_key_create(&(camluv_key->uv_key));
+  rc = uv_key_create(&(camluv_key->uv_key));
   if (rc != UV_OK) {
     // TODO: error handling.
   }
   camluv_key->initialized = 1;
+  key = camluv_copy_key(camluv_key);
 
-  return camluv_errno_c2ml(rc);
+  CAMLreturn(key);
 }
 
 CAMLprim value
@@ -114,7 +123,7 @@ camluv_key_delete(value key)
   camluv_key_t *camluv_key = camluv_key_struct_val(key);
   uv_key_delete(&(camluv_key->uv_key));
 
-  return Val_unit;
+  CAMLreturn(Val_unit);
 }
 
 CAMLprim value
@@ -127,7 +136,7 @@ camluv_key_get(value key)
   void *p = uv_key_get(&(camluv_key->uv_key));
   key_value = (value)p;
 
-  return key_value;
+  CAMLreturn(key_value);
 }
 
 CAMLprim value
@@ -138,6 +147,6 @@ camluv_key_set(value key, value key_value)
   camluv_key_t *camluv_key = camluv_key_struct_val(key);
   uv_key_set(&(camluv_key->uv_key), (void *)key_value);
 
-  return Val_unit;
+  CAMLreturn(Val_unit);
 }
 

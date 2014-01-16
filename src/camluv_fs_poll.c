@@ -38,6 +38,11 @@
 #include "camluv_loop.h"
 #include "camluv_fs_poll.h"
 
+#if defined(CAMLUV_USE_CUMSTOM_OPERATIONS)
+/**
+ * TODO: we will use ocaml cumstom operations later to support
+ * user-provided finalization, comparision, hashing.
+ */
 static void
 camluv_fs_poll_struct_finalize(value v)
 {
@@ -58,6 +63,7 @@ camluv_fs_poll_struct_hash(value v)
 {
   return (long)camluv_fs_poll_struct_val(v);
 }
+#endif /* CAMLUV_USE_CUMSTOM_OPERATIONS */
 
 static struct custom_operations camluv_fs_poll_struct_ops = {
   "camluv.fs_poll",
@@ -71,6 +77,7 @@ static struct custom_operations camluv_fs_poll_struct_ops = {
 static value
 camluv_build_stat(const uv_stat_t *stat)
 {
+  CAMLparam0();
   CAMLlocal5(result_stat,
              ts_atim,
              ts_mtim,
@@ -111,7 +118,7 @@ camluv_build_stat(const uv_stat_t *stat)
   Store_field(ts_birthtim, 0, Val_long(stat->st_birthtim.tv_nsec));
   Store_field(result_stat, 15, ts_birthtim);
 
-  return result_stat;
+  CAMLreturn(result_stat);
 }
 
 static value
@@ -174,6 +181,7 @@ CAMLprim value
 camluv_fs_poll_init(value loop)
 {
   CAMLparam1(loop);
+  CAMLlocal1(fs_poll);
 
   camluv_loop_t *camluv_loop = camluv_loop_struct_val(loop);
   camluv_fs_poll_t *camluv_fs_poll = camluv_fs_poll_new();
@@ -190,8 +198,9 @@ camluv_fs_poll_init(value loop)
   camluv_init_handle_with_loop((camluv_handle_t *)
                                (&(camluv_fs_poll->camluv_handle)),
                                camluv_loop);
+  fs_poll = camluv_copy_fs_poll(camluv_fs_poll);
 
-  return camluv_copy_fs_poll(camluv_fs_poll);
+  CAMLreturn(fs_poll);
 }
 
 CAMLprim value
@@ -201,28 +210,32 @@ camluv_fs_poll_start(value fs_poll,
                       value interval)
 {
   CAMLparam4(fs_poll, fs_poll_cb, path, interval);
-  int rc = -1;
+  CAMLlocal1(camluv_rc);
 
+  int rc = -1;
   camluv_fs_poll_t *camluv_fs_poll = camluv_fs_poll_struct_val(fs_poll);
   camluv_fs_poll->fs_poll_cb = fs_poll_cb;
   rc = uv_fs_poll_start(&(camluv_fs_poll->uv_fs_poll),
                          camluv_fs_poll_cb,
                          String_val(path),
                          Int_val(interval));
+  camluv_rc = camluv_errno_c2ml(rc);
 
-  return camluv_errno_c2ml(rc);
+  CAMLreturn(camluv_rc);
 }
 
 CAMLprim value
 camluv_fs_poll_stop(value fs_poll)
 {
   CAMLparam1(fs_poll);
-  int rc = -1;
+  CAMLlocal1(camluv_rc);
 
+  int rc = -1;
   camluv_fs_poll_t *camluv_fs_poll =
           camluv_fs_poll_struct_val(fs_poll);
   rc = uv_fs_poll_stop(&(camluv_fs_poll->uv_fs_poll));
+  camluv_rc = camluv_errno_c2ml(rc);
 
-  return camluv_errno_c2ml(rc);
+  CAMLreturn(camluv_rc);
 }
 

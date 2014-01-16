@@ -39,6 +39,11 @@
 #include "camluv_mutex.h"
 #include "camluv_condition.h"
 
+#if defined(CAMLUV_USE_CUMSTOM_OPERATIONS)
+/**
+ * TODO: we will use ocaml cumstom operations later to support
+ * user-provided finalization, comparision, hashing.
+ */
 static void
 camluv_condition_struct_finalize(value v)
 {
@@ -59,6 +64,7 @@ camluv_condition_struct_hash(value v)
 {
   return (long)camluv_condition_struct_val(v);
 }
+#endif /* CAMLUV_USE_CUMSTOM_OPERATIONS */
 
 static struct custom_operations camluv_condition_struct_ops = {
   "camluv.condition",
@@ -95,16 +101,19 @@ camluv_condition_new(void)
 CAMLprim value
 camluv_condition_init(value unit)
 {
+  CAMLparam0();
+  CAMLlocal1(condition);
+
   camluv_condition_t *camluv_condition = camluv_condition_new();
 
   int rc = uv_cond_init(&(camluv_condition->uv_condition));
   if (rc != UV_OK) {
     // TODO: error handling.
   }
-
   camluv_condition->initialized = 1;
+  condition = camluv_copy_condition(camluv_condition);
 
-  return camluv_copy_condition(camluv_condition);
+  CAMLreturn(condition);
 }
 
 CAMLprim value
@@ -115,7 +124,7 @@ camluv_condition_destroy(value condition)
   camluv_condition_t *camluv_condition = camluv_condition_struct_val(condition);
   uv_cond_destroy(&(camluv_condition->uv_condition));
 
-  return Val_unit;
+  CAMLreturn(Val_unit);
 }
 
 CAMLprim value
@@ -126,7 +135,7 @@ camluv_condition_signal(value condition)
   camluv_condition_t *camluv_condition = camluv_condition_struct_val(condition);
   uv_cond_signal(&(camluv_condition->uv_condition));
 
-  return Val_unit;
+  CAMLreturn(Val_unit);
 }
 
 CAMLprim value
@@ -137,7 +146,7 @@ camluv_condition_broadcast(value condition)
   camluv_condition_t *camluv_condition = camluv_condition_struct_val(condition);
   uv_cond_broadcast(&(camluv_condition->uv_condition));
 
-  return Val_unit;
+  CAMLreturn(Val_unit);
 }
 
 CAMLprim value
@@ -149,6 +158,6 @@ camluv_condition_wait(value condition, value mutex)
   camluv_mutex_t *camluv_mutex = camluv_mutex_struct_val(mutex);
   uv_cond_wait(&(camluv_condition->uv_condition), &(camluv_mutex->uv_mutex));
 
-  return Val_unit;
+  CAMLreturn(Val_unit);
 }
 
