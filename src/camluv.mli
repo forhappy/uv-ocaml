@@ -5,6 +5,7 @@ type timer
 type async
 type check
 type prepare
+type poll
 type signal
 type fs_event
 type fs_poll
@@ -107,6 +108,7 @@ type uv_errno =
   | UV_UNKNOWN
   | UV_EOF
 type uv_run_mode = UV_RUN_DEFAULT | UV_RUN_ONCE | UV_RUN_NOWAIT
+type uv_poll_event = UV_READABLE | UV_WRITABLE | UV_RDWRABLE
 type uv_walk_cb = handle -> string -> unit
 type uv_close_cb = handle -> unit
 type uv_idle_cb = idle -> int -> unit
@@ -114,6 +116,7 @@ type uv_timer_cb = timer -> int -> unit
 type uv_async_cb = async -> int -> unit
 type uv_check_cb = check -> int -> unit
 type uv_prepare_cb = prepare -> int -> unit
+type uv_poll_cb = poll -> int -> uv_poll_event -> unit
 type uv_signal_cb = signal -> int -> unit
 type uv_fs_event_cb = fs_event -> string -> int -> int -> unit
 type uv_fs_poll_cb = fs_poll -> int -> stat -> stat -> unit
@@ -183,6 +186,15 @@ module Prepare :
     external start : prepare -> uv_prepare_cb -> uv_errno
       = "camluv_prepare_start"
     external stop : prepare -> uv_errno = "camluv_prepare_stop"
+  end
+module Poll :
+  sig
+    external init : loop -> int -> poll = "camluv_poll_init"
+    external create : loop -> int -> poll = "camluv_poll_init"
+    external start : poll -> uv_poll_event -> uv_poll_cb -> uv_errno
+      = "camluv_poll_start"
+    external fileno : poll -> int = "camluv_poll_fileno"
+    external stop : poll -> uv_errno = "camluv_poll_stop"
   end
 module Signal :
   sig

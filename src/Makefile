@@ -12,6 +12,7 @@ C_OBJECTS=camluv.o\
 		  camluv_async.o\
 		  camluv_check.o\
 		  camluv_idle.o\
+		  camluv_poll.o\
 		  camluv_prepare.o\
 		  camluv_timer.o\
 		  camluv_signal.o\

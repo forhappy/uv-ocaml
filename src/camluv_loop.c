@@ -39,7 +39,7 @@
 
 static camluv_loop_t *default_loop = NULL;
 
-static const uv_run_mode UV_RUN_MODE_TABLE[] = {
+static const uv_run_mode CAMLUV_RUN_MODE_TABLE[] = {
   UV_RUN_DEFAULT,
   UV_RUN_ONCE,
   UV_RUN_NOWAIT
@@ -77,7 +77,7 @@ camluv_uv_run_mode_ml2c(value v)
 {
   CAMLparam1(v);
 
-  uv_run_mode mode = UV_RUN_MODE_TABLE[Long_val(v)];
+  uv_run_mode mode = CAMLUV_RUN_MODE_TABLE[Long_val(v)];
 
   CAMLreturn(mode);
 }

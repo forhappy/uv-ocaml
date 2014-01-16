@@ -12,6 +12,8 @@ type check
 
 type prepare
 
+type poll
+
 type signal
 
 type fs_event
@@ -134,6 +136,11 @@ type uv_run_mode =
   | UV_RUN_ONCE
   | UV_RUN_NOWAIT
 
+type uv_poll_event =
+    UV_READABLE
+  | UV_WRITABLE
+  | UV_RDWRABLE
+
 type uv_walk_cb = handle -> string -> unit
 
 type uv_close_cb = handle -> unit
@@ -147,6 +154,8 @@ type uv_async_cb  = async -> int -> unit
 type uv_check_cb  = check -> int -> unit
 
 type uv_prepare_cb = prepare -> int -> unit
+
+type uv_poll_cb = poll -> int -> uv_poll_event -> unit
 
 type uv_signal_cb = signal -> int -> unit
 
@@ -225,6 +234,15 @@ module Prepare =
     external create: loop -> prepare = "camluv_prepare_init"
     external start: prepare -> uv_prepare_cb -> uv_errno = "camluv_prepare_start"
     external stop: prepare -> uv_errno = "camluv_prepare_stop"
+  end
+
+module Poll =
+  struct
+    external init: loop -> int -> poll = "camluv_poll_init"
+    external create: loop -> int -> poll = "camluv_poll_init"
+    external start: poll -> uv_poll_event -> uv_poll_cb -> uv_errno = "camluv_poll_start"
+    external fileno: poll -> int = "camluv_poll_fileno"
+    external stop: poll -> uv_errno = "camluv_poll_stop"
   end
 
 module Signal =
