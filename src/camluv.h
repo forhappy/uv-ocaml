@@ -26,6 +26,10 @@
 
 #include <caml/threads.h>
 
+#define CAMLUV_SLAB_SIZE  65535
+
+#define CAMLUV_UNUSED_ARG(arg)  (void)arg
+
 #ifndef UV_OK
   #define UV_OK 0
 #endif
@@ -51,6 +55,12 @@
      } \
    } while(0)
 #endif
+
+/**
+ * Comment CAMLUV_USE_CUMSTOM_OPERATIONS out to use user-provided
+ * ocaml custom block operations.
+ */
+/* #define CAMLUV_USE_CUMSTOM_OPERATIONS */
 
 #define camluv_table_len(v) \
   sizeof(v) / sizeof(v[0])

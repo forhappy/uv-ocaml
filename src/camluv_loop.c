@@ -45,11 +45,41 @@ static const uv_run_mode UV_RUN_MODE_TABLE[] = {
   UV_RUN_NOWAIT
 };
 
+#if defined(CAMLUV_USE_CUMSTOM_OPERATIONS)
+/**
+ * TODO: we will use ocaml cumstom operations later to support
+ * user-provided finalization, comparision, hashing.
+ */
+static void
+camluv_loop_struct_finalize(value v)
+{
+}
+
+static int
+camluv_loop_struct_compare(value v1, value v2)
+{
+  camluv_loop_t *loop1 = camluv_loop_struct_val(v1);
+  camluv_loop_t *loop2 = camluv_loop_struct_val(v2);
+  if (loop1 == loop2) return 0;
+  else if (loop1 < loop2) return -1;
+  return 1;
+}
+
+static long
+camluv_loop_struct_hash(value v)
+{
+  return (long)camluv_loop_struct_val(v);
+}
+#endif /* CAMLUV_NO_CUMSTOM_OPERATIONS */
+
 static uv_run_mode
 camluv_uv_run_mode_ml2c(value v)
 {
   CAMLparam1(v);
-  return UV_RUN_MODE_TABLE[Long_val(v)];
+
+  uv_run_mode mode = UV_RUN_MODE_TABLE[Long_val(v)];
+
+  CAMLreturn(mode);
 }
 
 static void
@@ -71,27 +101,6 @@ camluv_walk_cb(uv_handle_t* handle, void* arg)
   callback2(walk_cb, walk_cb_handle, walk_cb_arg);
 
   camluv_leave_callback();
-}
-
-static void
-camluv_loop_struct_finalize(value v)
-{
-}
-
-static int
-camluv_loop_struct_compare(value v1, value v2)
-{
-  camluv_loop_t *loop1 = camluv_loop_struct_val(v1);
-  camluv_loop_t *loop2 = camluv_loop_struct_val(v2);
-  if (loop1 == loop2) return 0;
-  else if (loop1 < loop2) return -1;
-  return 1;
-}
-
-static long
-camluv_loop_struct_hash(value v)
-{
-  return (long)camluv_loop_struct_val(v);
 }
 
 static struct custom_operations camluv_loop_struct_ops = {
@@ -179,19 +188,31 @@ camluv_new_loop(int is_default)
 CAMLprim value
 camluv_loop_new(value unit)
 {
-  camluv_loop_t *camluv_loop = camluv_new_loop(0);
-  if (!camluv_loop) return Val_unit;
+  CAMLparam0();
+  CAMLlocal1(loop);
 
-  return camluv_copy_loop(camluv_loop);
+  camluv_loop_t *camluv_loop = camluv_new_loop(0);
+  if (!camluv_loop) {
+    // TODO: error handling.
+  }
+  loop = camluv_copy_loop(camluv_loop);
+
+  CAMLreturn(loop);
 }
 
 CAMLprim value
 camluv_loop_default(value unit)
 {
-  camluv_loop_t *camluv_loop = camluv_new_loop(1);
-  if (!camluv_loop) return Val_unit;
+  CAMLparam0();
+  CAMLlocal1(loop);
 
-  return camluv_copy_loop(camluv_loop);
+  camluv_loop_t *camluv_loop = camluv_new_loop(1);
+  if (!camluv_loop) {
+    // TODO: error handling.
+  }
+  loop = camluv_copy_loop(camluv_loop);
+
+  CAMLreturn(loop);
 }
 
 CAMLprim value
@@ -205,21 +226,23 @@ camluv_loop_delete(value loop)
     uv_loop_delete(camluv_loop->uv_loop);
   }
 
-  return Val_unit;
+  CAMLreturn(Val_unit);
 }
 
 CAMLprim value
 camluv_loop_run(value loop, value mode)
 {
   CAMLparam2(loop, mode);
+  CAMLlocal1(camluv_rc);
 
   int rc = -1;
   camluv_loop_t *camluv_loop = camluv_loop_struct_val(loop);
   if (camluv_loop->uv_loop != NULL) {
     rc = uv_run(camluv_loop->uv_loop, camluv_uv_run_mode_ml2c(mode));
   }
+  camluv_rc = camluv_errno_c2ml(rc);
 
-  return camluv_errno_c2ml(rc);
+  CAMLreturn(camluv_rc);
 }
 
 CAMLprim value
@@ -232,21 +255,23 @@ camluv_loop_stop(value loop)
     uv_stop(camluv_loop->uv_loop);
   }
 
-  return Val_unit;
+  CAMLreturn(Val_unit);
 }
 
 CAMLprim value
 camluv_loop_now(value loop)
 {
   CAMLparam1(loop);
-  uint64 now = 0;
+  CAMLlocal1(camluv_now);
 
+  uint64_t now = 0;
   camluv_loop_t *camluv_loop = camluv_loop_struct_val(loop);
   if (camluv_loop->uv_loop != NULL) {
     now = uv_now(camluv_loop->uv_loop);
   }
+  camluv_now = caml_copy_int64(now);
 
-  return caml_copy_int64(now);
+  CAMLreturn(camluv_now);
 }
 
 CAMLprim value
@@ -259,35 +284,39 @@ camluv_loop_update_time(value loop)
     uv_update_time(camluv_loop->uv_loop);
   }
 
-  return Val_unit;
+  CAMLreturn(Val_unit);
 }
 
 CAMLprim value
 camluv_loop_backend_fd(value loop)
 {
   CAMLparam1(loop);
-  int fd = -1;
+  CAMLlocal1(camluv_fd);
 
+  int fd = -1;
   camluv_loop_t *camluv_loop = camluv_loop_struct_val(loop);
   if (camluv_loop->uv_loop != NULL) {
     fd = uv_backend_fd(camluv_loop->uv_loop);
   }
+  camluv_fd = Val_int(fd);
 
-  return caml_copy_int32(fd);
+  CAMLreturn(camluv_fd);
 }
 
 CAMLprim value
 camluv_loop_backend_timeout(value loop)
 {
   CAMLparam1(loop);
-  int timeout = -1;
+  CAMLlocal1(camluv_timeout);
 
+  int timeout = -1;
   camluv_loop_t *camluv_loop = camluv_loop_struct_val(loop);
   if (camluv_loop->uv_loop != NULL) {
     timeout = uv_backend_timeout(camluv_loop->uv_loop);
   }
+  camluv_timeout = Val_int(timeout);
 
-  return caml_copy_int32(timeout);
+  CAMLreturn(camluv_timeout);
 }
 
 CAMLprim value
@@ -306,6 +335,6 @@ camluv_loop_walk(value loop, value callback, value arg)
     uv_walk(camluv_loop->uv_loop, camluv_walk_cb, walk_cb_ctx);
   }
 
-  return Val_unit;
+  CAMLreturn(Val_unit);
 }
 

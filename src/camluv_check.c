@@ -38,6 +38,11 @@
 #include "camluv_loop.h"
 #include "camluv_check.h"
 
+#if defined(CAMLUV_USE_CUMSTOM_OPERATIONS)
+/**
+ * TODO: we will use ocaml cumstom operations later to support
+ * user-provided finalization, comparision, hashing.
+ */
 static void
 camluv_check_struct_finalize(value v)
 {
@@ -58,6 +63,7 @@ camluv_check_struct_hash(value v)
 {
   return (long)camluv_check_struct_val(v);
 }
+#endif /* CAMLUV_NO_CUMSTOM_OPERATIONS */
 
 static struct custom_operations camluv_check_struct_ops = {
   "camluv.check",
@@ -111,6 +117,7 @@ CAMLprim value
 camluv_check_init(value loop)
 {
   CAMLparam1(loop);
+  CAMLlocal1(check);
 
   camluv_loop_t *camluv_loop = camluv_loop_struct_val(loop);
   camluv_check_t *camluv_check = camluv_check_new();
@@ -127,32 +134,37 @@ camluv_check_init(value loop)
   camluv_init_handle_with_loop((camluv_handle_t *)
                                (&(camluv_check->camluv_handle)),
                                camluv_loop);
+  check = camluv_copy_check(camluv_check);
 
-  return camluv_copy_check(camluv_check);
+  CAMLreturn(check);
 }
 
 CAMLprim value
 camluv_check_start(value check, value check_cb)
 {
   CAMLparam2(check, check_cb);
-  int rc = -1;
+  CAMLlocal1(camluv_rc);
 
+  int rc = -1;
   camluv_check_t *camluv_check = camluv_check_struct_val(check);
   camluv_check->check_cb = check_cb;
   rc = uv_check_start(&(camluv_check->uv_check), camluv_check_cb);
+  camluv_rc = camluv_errno_c2ml(rc);
 
-  return camluv_errno_c2ml(rc);
+  CAMLreturn(camluv_rc);
 }
 
 CAMLprim value
 camluv_check_stop(value check)
 {
   CAMLparam1(check);
-  int rc = -1;
+  CAMLlocal1(camluv_rc);
 
+  int rc = -1;
   camluv_check_t *camluv_check = camluv_check_struct_val(check);
   rc = uv_check_stop(&(camluv_check->uv_check));
+  camluv_rc = camluv_errno_c2ml(rc);
 
-  return camluv_errno_c2ml(rc);
+  CAMLreturn(camluv_rc);
 }
 

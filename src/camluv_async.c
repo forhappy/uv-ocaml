@@ -38,6 +38,11 @@
 #include "camluv_loop.h"
 #include "camluv_async.h"
 
+#if defined(CAMLUV_USE_CUMSTOM_OPERATIONS)
+/**
+ * TODO: we will use ocaml cumstom operations later to support
+ * user-provided finalization, comparision, hashing.
+ */
 static void
 camluv_async_struct_finalize(value v)
 {
@@ -58,6 +63,7 @@ camluv_async_struct_hash(value v)
 {
   return (long)camluv_async_struct_val(v);
 }
+#endif /* CAMLUV_NO_CUMSTOM_OPERATIONS */
 
 static struct custom_operations camluv_async_struct_ops = {
   "camluv.async",
@@ -129,7 +135,7 @@ camluv_async_init(value loop, value async_cb)
     // TODO: error handling.
   }
 
-  return camluv_copy_async(camluv_async);
+  CAMLreturn(camluv_copy_async(camluv_async));
 }
 
 CAMLprim value
@@ -141,6 +147,6 @@ camluv_async_stop(value async)
   camluv_async_t *camluv_async = camluv_async_struct_val(async);
   rc = uv_async_send(&(camluv_async->uv_async));
 
-  return camluv_errno_c2ml(rc);
+  CAMLreturn(camluv_errno_c2ml(rc));
 }
 

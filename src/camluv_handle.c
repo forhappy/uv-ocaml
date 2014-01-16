@@ -37,6 +37,12 @@
 #include "camluv_handle.h"
 #include "camluv_loop.h"
 
+
+#if defined(CAMLUV_USE_CUMSTOM_OPERATIONS)
+/**
+ * TODO: we will use ocaml cumstom operations later to support
+ * user-provided finalization, comparision, hashing.
+ */
 static void
 camluv_handle_struct_finalize(value v)
 {
@@ -57,6 +63,7 @@ camluv_handle_struct_hash(value v)
 {
   return (long)camluv_handle_struct_val(v);
 }
+#endif /* CAMLUV_NO_CUMSTOM_OPERATIONS */
 
 static struct custom_operations camluv_handle_struct_ops = {
   "camluv.handle",
@@ -155,33 +162,39 @@ camluv_close(value handle, value close_cb)
   camluv_handle->close_cb = close_cb;
   uv_close(camluv_handle->uv_handle, camluv_close_cb);
 
-  return Val_unit;
+  CAMLreturn(Val_unit);
 }
 
 CAMLprim value
 camluv_is_closing(value handle)
 {
   CAMLparam1(handle);
+  CAMLlocal1(is_closing);
 
   camluv_handle_t *camluv_handle = camluv_handle_struct_val(handle);
   if (uv_is_closing(camluv_handle->uv_handle)) {
-    return Val_int(1);
+    is_closing = Val_int(1);
+    CAMLreturn(is_closing);
+  } else {
+    is_closing = Val_int(0);
+    CAMLreturn(is_closing);
   }
-
-  return Val_int(0);
 }
 
 CAMLprim value
 camluv_is_active(value handle)
 {
   CAMLparam1(handle);
+  CAMLlocal1(is_active);
 
   camluv_handle_t *camluv_handle = camluv_handle_struct_val(handle);
   if (uv_is_active(camluv_handle->uv_handle)) {
-    return Val_int(1);
+    is_active = Val_int(1);
+    CAMLreturn(is_active);
+  } else {
+    is_active = Val_int(0);
+    CAMLreturn(is_active);
   }
-
-  return Val_int(0);
 }
 
 CAMLprim value
@@ -201,7 +214,7 @@ camluv_ref(value handle)
 
   uv_ref(camluv_handle->uv_handle);
 
-  return Val_unit;
+  CAMLreturn(Val_unit);
 }
 
 CAMLprim value
@@ -212,34 +225,38 @@ camluv_unref(value handle)
   camluv_handle_t *camluv_handle = camluv_handle_struct_val(handle);
   if (camluv_handle_initialized(camluv_handle)) {
     // TODO: this handle is not initialized.
-    return Val_unit;
+    CAMLreturn(Val_unit);
   }
   if (uv_is_closing(camluv_handle->uv_handle)) {
     // TODO: this handle is closing.
-    return Val_unit;
+    CAMLreturn(Val_unit);
   }
 
   uv_unref(camluv_handle->uv_handle);
 
-  return Val_unit;
+  CAMLreturn(Val_unit);
 }
 
 CAMLprim value
 camluv_has_ref(value handle)
 {
   CAMLparam1(handle);
+  CAMLlocal1(has_ref);
 
   camluv_handle_t *camluv_handle = camluv_handle_struct_val(handle);
   if (camluv_handle_initialized(camluv_handle)) {
     // TODO: this handle is not initialized.
-    return Val_int(0);
+    has_ref = Val_int(0);
+    CAMLreturn(has_ref);
   }
   if (uv_is_closing(camluv_handle->uv_handle)) {
     // TODO: this handle is closing.
-    return Val_int(0);
+    has_ref = Val_int(0);
+    CAMLreturn(has_ref);
   }
+  has_ref = Val_int(uv_has_ref(camluv_handle->uv_handle));
 
-  return Val_int(uv_has_ref(camluv_handle->uv_handle));
+  CAMLreturn(has_ref);
 }
 
 CAMLprim value
@@ -250,13 +267,13 @@ camluv_loop(value handle)
   camluv_handle_t *camluv_handle = camluv_handle_struct_val(handle);
   if (camluv_handle_initialized(camluv_handle)) {
     // TODO: this handle is not initialized.
-    return Val_unit;
+    CAMLreturn(Val_unit);
   }
   if (uv_is_closing(camluv_handle->uv_handle)) {
     // TODO: this handle is closing.
-    return Val_unit;
+    CAMLreturn(Val_unit);
   }
 
-  return camluv_copy_loop(camluv_handle->camluv_loop);
+  CAMLreturn(camluv_copy_loop(camluv_handle->camluv_loop));
 }
 

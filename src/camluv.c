@@ -115,21 +115,28 @@ uv_errno_t
 camluv_errno_ml2c(value v)
 {
   CAMLparam1(v);
-  return CAMLUV_ERRNO_TABLE[Long_val(v)];
+
+  uv_errno_t err = CAMLUV_ERRNO_TABLE[Long_val(v)];
+
+  CAMLreturn(err);
 }
 
 value
 camluv_errno_c2ml(uv_errno_t error)
 {
+  CAMLparam0();
   CAMLlocal1(v);
   int i = 0, index = -1;
+
   for (; i < camluv_table_len(CAMLUV_ERRNO_TABLE); i++) {
     if (error == CAMLUV_ERRNO_TABLE[i]) {
       index = i;
       break;
     }
   }
-  return Val_int(index);
+  v = Val_int(index);
+
+  CAMLreturn(v);
 }
 
 CAMLprim value
@@ -141,7 +148,7 @@ camluv_strerror(value err)
   const char *strerror = uv_strerror(Int_val(err));
   strerr = caml_copy_string(strerror);
 
-  return strerr;
+  CAMLreturn(strerr);
 }
 
 CAMLprim value
@@ -153,6 +160,6 @@ camluv_err_name(value err)
   const char *strname = uv_err_name(Int_val(err));
   errname = caml_copy_string(strname);
 
-  return errname;
+  CAMLreturn(errname);
 }
 
