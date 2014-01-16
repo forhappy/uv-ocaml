@@ -117,6 +117,8 @@ type uv_prepare_cb = prepare -> int -> unit
 type uv_signal_cb = signal -> int -> unit
 type uv_fs_event_cb = fs_event -> string -> int -> int -> unit
 type uv_fs_poll_cb = fs_poll -> int -> stat -> stat -> unit
+type uv_work_cb = unit -> unit
+type uv_after_work_cb = int -> unit
 module Loop :
   sig
     external create : unit -> loop = "camluv_loop_new"
@@ -129,6 +131,8 @@ module Loop :
     external backend_fd : loop -> int32 = "camluv_loop_backend_fd"
     external backend_timeout : loop -> int32 = "camluv_loop_backend_timeout"
     external walk : loop -> uv_walk_cb -> string -> unit = "camluv_loop_walk"
+    external queue_work : loop -> uv_work_cb -> uv_after_work_cb -> uv_errno
+      = "camluv_loop_queue_work"
   end
 module Handle :
   sig
