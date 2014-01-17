@@ -77,8 +77,6 @@ static struct custom_operations camluv_tcp_struct_ops = {
 static uv_buf_t *
 camluv_parse_uv_bufs(value bufs, int *nbufs)
 {
-  CAMLparam1(bufs);
-
   int i = 0;
   uv_buf_t *pbufs = NULL;
   int buf_size= Wosize_val(bufs);
@@ -97,7 +95,7 @@ camluv_parse_uv_bufs(value bufs, int *nbufs)
     pbufs[i].len  = Int_val(Field(Field(bufs, i), 1));
   }
 
-  CAMLreturn(pbufs);
+  return pbufs;
 }
 
 
@@ -590,7 +588,7 @@ camluv_tcp_connect(value server, value addr, value connect_cb)
 }
 
 CAMLprim value
-camluv_close(value server, value close_cb)
+camluv_tcp_close(value server, value close_cb)
 {
   CAMLparam2(server, close_cb);
 
@@ -738,7 +736,7 @@ camluv_tcp_write_queue_size(value tcp)
   camluv_tcp_t *camluv_tcp = camluv_tcp_struct_val(tcp);
 
   write_queue_size =
-          Val_int(((uv_stream_t *)&(camluv_tcp->uv_tcp))->write_queue_size);
+          Val_int((camluv_tcp->uv_tcp).write_queue_size);
 
   CAMLreturn(write_queue_size);
 }
@@ -779,7 +777,7 @@ camluv_tcp_is_closing(value tcp)
 }
 
 CAMLprim value
-camluv_is_active(value tcp)
+camluv_tcp_is_active(value tcp)
 {
   CAMLparam1(tcp);
   CAMLlocal1(is_active);
@@ -796,7 +794,7 @@ camluv_is_active(value tcp)
 }
 
 CAMLprim value
-camluv_ref(value tcp)
+camluv_tcp_ref(value tcp)
 {
   CAMLparam1(tcp);
 
@@ -808,7 +806,7 @@ camluv_ref(value tcp)
 }
 
 CAMLprim value
-camluv_unref(value tcp)
+camluv_tcp_unref(value tcp)
 {
   CAMLparam1(tcp);
 
@@ -820,7 +818,7 @@ camluv_unref(value tcp)
 }
 
 CAMLprim value
-camluv_has_ref(value tcp)
+camluv_tcp_has_ref(value tcp)
 {
   CAMLparam1(tcp);
   CAMLlocal1(has_ref);
@@ -833,7 +831,7 @@ camluv_has_ref(value tcp)
 }
 
 CAMLprim value
-camluv_loop(value tcp)
+camluv_tcp_loop(value tcp)
 {
   CAMLparam1(tcp);
   CAMLlocal1(loop);

@@ -18,6 +18,7 @@ C_OBJECTS=camluv.o\
 		  camluv_signal.o\
 		  camluv_fs_event.o\
 		  camluv_fs_poll.o\
+		  camluv_tcp.o\
 		  camluv_barrier.o\
 		  camluv_condition.o\
 		  camluv_key.o\
