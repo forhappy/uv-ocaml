@@ -98,7 +98,6 @@ camluv_parse_uv_bufs(value bufs, int *nbufs)
   return pbufs;
 }
 
-
 /**
  * Parse a OCaml tuple containing host, port, flowinfo, scope_id
  * into a sockaddr struct
