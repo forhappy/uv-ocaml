@@ -74,6 +74,32 @@ static struct custom_operations camluv_tcp_struct_ops = {
   custom_deserialize_default
 };
 
+static uv_buf_t *
+camluv_parse_uv_bufs(value bufs, int *nbufs)
+{
+  CAMLparam1(bufs);
+
+  int i = 0;
+  uv_buf_t *pbufs = NULL;
+  int buf_size= Wosize_val(bufs);
+
+  if (buf_size== 0) {
+    // TODO: error handling, no buf here.
+  }
+  *nbufs = buf_size;
+  pbufs = (uv_buf_t *)malloc(sizeof(uv_buf_t) * buf_size);
+  if (pbufs == NULL) {
+    // TODO: error handling, out of memory.
+  }
+
+  for (i = 0; i < buf_size; i++) {
+    pbufs[i].base = String_val(Field(Field(bufs, i), 0));
+    pbufs[i].len  = Int_val(Field(Field(bufs, i), 1));
+  }
+
+  CAMLreturn(pbufs);
+}
+
 
 /**
  * Parse a OCaml tuple containing host, port, flowinfo, scope_id
@@ -126,6 +152,20 @@ camluv_parse_sockaddr(value addr, struct sockaddr_storage *ss)
   } else {
     CAMLreturn(-1);
   }
+}
+
+static value
+camluv_make_uv_buf(const uv_buf_t *buf)
+{
+  CAMLparam0();
+  CAMLlocal1(camluv_buf);
+
+  camluv_buf = caml_alloc(2, 0);
+
+  Store_field(camluv_buf, 0, caml_copy_string(buf->base));
+  Store_field(camluv_buf, 1, Val_int(buf->len));
+
+  CAMLreturn(camluv_buf);
 }
 
 static value
@@ -187,7 +227,7 @@ camluv_copy_tcp(camluv_tcp_t *camluv_tcp)
 }
 
 static void
-camluv_alloc_cb(uv_tcp_t *handle, size_t suggested_size, uv_buf_t *buf)
+camluv_alloc_cb(uv_handle_t *handle, size_t suggested_size, uv_buf_t *buf)
 {
   camluv_enter_callback();
 
@@ -195,6 +235,98 @@ camluv_alloc_cb(uv_tcp_t *handle, size_t suggested_size, uv_buf_t *buf)
   static char slab[CAMLUV_SLAB_SIZE];
   buf->base = slab;
   buf->len = sizeof(slab);
+
+  camluv_leave_callback();
+}
+
+static void
+camluv_connect_cb(uv_connect_t *req, int status)
+{
+  camluv_enter_callback();
+
+  CAMLlocal3(connect_cb, camluv_server, camluv_status);
+
+  camluv_tcp_connect_ctx_t *ctx = (camluv_tcp_connect_ctx_t *)(req->data);
+  camluv_tcp_t *tcp = ctx->handle;
+  camluv_server = camluv_copy_tcp(tcp);
+  connect_cb = ctx->connect_cb;
+  camluv_status = Val_int(status);
+
+  callback2(connect_cb, camluv_server, camluv_status);
+
+  camluv_leave_callback();
+}
+
+static void
+camluv_close_cb(uv_handle_t* stream)
+{
+  camluv_enter_callback();
+
+  CAMLlocal2(close_cb, camluv_server);
+
+  camluv_tcp_t *tcp = (camluv_tcp_t *)(stream->data);
+  close_cb = tcp->close_cb;
+  camluv_server = camluv_copy_tcp(tcp);
+
+  callback(close_cb, camluv_server);
+
+  camluv_leave_callback();
+}
+
+static void
+camluv_shutdown_cb(uv_shutdown_t *req, int status)
+{
+  camluv_enter_callback();
+
+  CAMLlocal3(shutdown_cb, camluv_server, camluv_status);
+
+  camluv_tcp_shutdown_ctx_t *ctx = (camluv_tcp_shutdown_ctx_t *)(req->data);
+  camluv_tcp_t *tcp = (camluv_tcp_t *)(req->data);
+  camluv_server = camluv_copy_tcp(tcp);
+  shutdown_cb = ctx->shutdown_cb;
+  camluv_status = Val_int(status);
+
+  callback2(shutdown_cb, camluv_server, camluv_status);
+
+  camluv_leave_callback();
+}
+
+static void camluv_read_cb(uv_stream_t *stream,
+                           ssize_t nread,
+                           const uv_buf_t *buf)
+{
+  camluv_enter_callback();
+
+  CAMLlocal4(read_cb, camluv_server, camluv_nread, camluv_buf);
+
+  camluv_tcp_t *tcp = (camluv_tcp_t *)(stream->data);
+  read_cb = tcp->read_cb;
+  camluv_server = camluv_copy_tcp(tcp);
+
+  // TODO: nread has type ssize_t, maybe we need
+  // higher integer precisive conversion here.
+  camluv_nread = Int_val(nread);
+  camluv_buf = camluv_make_uv_buf(buf);
+
+  callback3(read_cb, camluv_server, camluv_nread, camluv_buf);
+
+  camluv_leave_callback();
+}
+
+static void camluv_write_cb(uv_write_t *req, int status)
+{
+  camluv_enter_callback();
+
+  CAMLlocal3(write_cb, camluv_tcp, camluv_status);
+
+  camluv_tcp_write_ctx_t *ctx = (camluv_tcp_write_ctx_t *)req->data;
+  camluv_tcp_t *tcp = ctx->handle;
+  write_cb = ctx->write_cb;
+  camluv_tcp = camluv_copy_tcp(tcp);
+  camluv_status = Val_int(status);
+  if (ctx->bufs != NULL) free(ctx->bufs);
+
+  callback2(write_cb, camluv_tcp, camluv_status);
 
   camluv_leave_callback();
 }
@@ -211,38 +343,6 @@ camluv_connection_cb(uv_stream_t *server, int status)
   camluv_status = Val_int(status);
 
   callback2(connection_cb, camluv_server, camluv_status);
-
-  camluv_leave_callback();
-}
-
-static void
-camluv_connect_cb(uv_connect_t *req, int status)
-{
-  camluv_enter_callback();
-  CAMLlocal3(connect_cb, camluv_server, camluv_status);
-
-  camluv_tcp_t *tcp = (camluv_tcp_t *)(req->data);
-  camluv_server = camluv_copy_tcp(tcp);
-  connect_cb = tcp->connect_cb;
-  camluv_status = Val_int(status);
-
-  callback2(connect_cb, camluv_server, camluv_status);
-
-  camluv_leave_callback();
-}
-
-static void
-camluv_shutdown_cb(uv_shutdown_t *req, int status)
-{
-  camluv_enter_callback();
-  CAMLlocal3(shutdown_cb, camluv_server, camluv_status);
-
-  camluv_tcp_t *tcp = (camluv_tcp_t *)(req->data);
-  camluv_server = camluv_copy_tcp(tcp);
-  shutdown_cb = tcp->shutdown_cb;
-  camluv_status = Val_int(status);
-
-  callback2(shutdown_cb, camluv_server, camluv_status);
 
   camluv_leave_callback();
 }
@@ -273,6 +373,7 @@ camluv_tcp_init(value loop)
   // TODO: other initialization here.
   //
   (camluv_tcp->uv_tcp).data = camluv_tcp;
+  camluv_tcp->camluv_loop = camluv_loop;
 
   tcp = camluv_copy_tcp(camluv_tcp);
 
@@ -466,13 +567,17 @@ camluv_tcp_connect(value server, value addr, value connect_cb)
   CAMLlocal1(camluv_rc);
 
   struct sockaddr_storage ss;
-  uv_connect_t *connect_req = (uv_connect_t *)malloc(sizeof(uv_connect_t));
   camluv_tcp_t *camluv_server = camluv_tcp_struct_val(server);
-  camluv_server->connect_cb = connect_cb;
-  connect_req->data = camluv_server;
+
+  camluv_tcp_connect_ctx_t *connect_req =
+          (camluv_tcp_connect_ctx_t *)malloc(sizeof(camluv_tcp_connect_ctx_t));
+  // TODO: free connect_req in camluv_connect_cb.
+  connect_req->uv_connect.data = connect_req;
+  connect_req->handle = camluv_server;
+  connect_req->connect_cb = connect_cb;
 
   camluv_parse_sockaddr(addr, &ss);
-  int rc = uv_tcp_connect(connect_req,
+  int rc = uv_tcp_connect(&(connect_req->uv_connect),
                           (uv_tcp_t *)&(camluv_server->uv_tcp),
                           (const struct sockaddr*)&ss,
                           camluv_connect_cb);
@@ -485,17 +590,33 @@ camluv_tcp_connect(value server, value addr, value connect_cb)
 }
 
 CAMLprim value
+camluv_close(value server, value close_cb)
+{
+  CAMLparam2(server, close_cb);
+
+  camluv_tcp_t *camluv_server = camluv_tcp_struct_val(server);
+
+  uv_close((uv_handle_t *)&(camluv_server->uv_tcp), camluv_close_cb);
+
+  CAMLreturn(Val_unit);
+}
+
+CAMLprim value
 camluv_tcp_shutdown(value tcp, value shutdown_cb)
 {
   CAMLparam2(tcp, shutdown_cb);
   CAMLlocal1(camluv_rc);
 
-  uv_shutdown_t *shutdown_req = (uv_shutdown_t *)malloc(sizeof(uv_shutdown_t));
   camluv_tcp_t *camluv_server = camluv_tcp_struct_val(tcp);
-  camluv_server->shutdown_cb = shutdown_cb;
-  shutdown_req->data = camluv_server;
 
-  int rc = uv_shutdown(shutdown_req,
+  camluv_tcp_shutdown_ctx_t *shutdown_req =
+          (camluv_tcp_shutdown_ctx_t *)malloc(sizeof(camluv_tcp_shutdown_ctx_t));
+  // TODO: free shutdown_req in camluv_shutdown_cb.
+  shutdown_req->uv_shutdown.data = shutdown_req;
+  shutdown_req->handle = camluv_server;
+  shutdown_req->shutdown_cb = shutdown_cb;
+
+  int rc = uv_shutdown(&(shutdown_req->uv_shutdown),
                        (uv_stream_t *)&(camluv_server->uv_tcp),
                        camluv_shutdown_cb);
   if (rc != UV_OK) {
@@ -504,5 +625,222 @@ camluv_tcp_shutdown(value tcp, value shutdown_cb)
   camluv_rc = camluv_errno_c2ml(rc);
 
   CAMLreturn(camluv_rc);
+}
+
+CAMLprim value
+camluv_tcp_start_read(value tcp, value read_cb)
+{
+  CAMLparam2(tcp, read_cb);
+  CAMLlocal1(camluv_rc);
+
+  camluv_tcp_t *camluv_tcp = camluv_tcp_struct_val(tcp);
+  camluv_tcp->read_cb = read_cb;
+
+  int rc = uv_read_start((uv_stream_t *)&(camluv_tcp->uv_tcp),
+                         camluv_alloc_cb,
+                         camluv_read_cb);
+  if (rc != UV_OK) {
+    // TODO: error handling.
+  }
+  camluv_rc = camluv_errno_c2ml(rc);
+
+  CAMLreturn(camluv_rc);
+}
+
+CAMLprim value
+camluv_tcp_start_stop(value tcp)
+{
+  CAMLparam1(tcp);
+  CAMLlocal1(camluv_rc);
+
+  camluv_tcp_t *camluv_tcp = camluv_tcp_struct_val(tcp);
+
+  int rc = uv_read_stop((uv_stream_t *)&(camluv_tcp->uv_tcp));
+  if (rc != UV_OK) {
+    // TODO: error handling.
+  }
+  camluv_rc = camluv_errno_c2ml(rc);
+
+  CAMLreturn(camluv_rc);
+}
+
+CAMLprim value
+camluv_tcp_start_write(value tcp, value bufs, value write_cb)
+{
+  CAMLparam3(tcp, bufs, write_cb);
+  CAMLlocal1(camluv_rc);
+
+  int nbufs = 0;
+  camluv_tcp_t *camluv_tcp = camluv_tcp_struct_val(tcp);
+  uv_buf_t *camluv_bufs = camluv_parse_uv_bufs(bufs, &nbufs);
+
+  camluv_tcp_write_ctx_t *write_req =
+          (camluv_tcp_write_ctx_t *)malloc(sizeof(camluv_tcp_write_ctx_t));
+  // TODO: free write_req in camluv_write_cb.
+  write_req->uv_write.data = write_req;
+  write_req->handle = camluv_tcp;
+  write_req->write_cb = write_cb;
+  write_req->bufs = camluv_bufs;
+
+  int rc = uv_write(&(write_req->uv_write),
+                    (uv_stream_t *)&(camluv_tcp->uv_tcp),
+                    camluv_bufs,
+                    nbufs,
+                    camluv_write_cb);
+  if (rc != UV_OK) {
+    // TODO: error handling.
+  }
+  camluv_rc = camluv_errno_c2ml(rc);
+
+  CAMLreturn(camluv_rc);
+}
+
+CAMLprim value
+camluv_tcp_is_readable(value tcp)
+{
+  CAMLparam1(tcp);
+  CAMLlocal1(camluv_rc);
+
+  camluv_tcp_t *camluv_tcp = camluv_tcp_struct_val(tcp);
+
+  int rc = uv_is_readable((uv_stream_t *)&(camluv_tcp->uv_tcp));
+  if (rc != UV_OK) {
+    // TODO: error handling.
+  }
+  camluv_rc = camluv_errno_c2ml(rc);
+
+  CAMLreturn(camluv_rc);
+}
+
+CAMLprim value
+camluv_tcp_is_writable(value tcp)
+{
+  CAMLparam1(tcp);
+  CAMLlocal1(camluv_rc);
+
+  camluv_tcp_t *camluv_tcp = camluv_tcp_struct_val(tcp);
+
+  int rc = uv_is_writable((uv_stream_t *)&(camluv_tcp->uv_tcp));
+  if (rc != UV_OK) {
+    // TODO: error handling.
+  }
+  camluv_rc = camluv_errno_c2ml(rc);
+
+  CAMLreturn(camluv_rc);
+}
+
+CAMLprim value
+camluv_tcp_write_queue_size(value tcp)
+{
+  CAMLparam1(tcp);
+  CAMLlocal1(write_queue_size);
+
+  camluv_tcp_t *camluv_tcp = camluv_tcp_struct_val(tcp);
+
+  write_queue_size =
+          Val_int(((uv_stream_t *)&(camluv_tcp->uv_tcp))->write_queue_size);
+
+  CAMLreturn(write_queue_size);
+}
+
+CAMLprim value
+camluv_tcp_set_blocking(value tcp, value blocking)
+{
+  CAMLparam1(tcp);
+  CAMLlocal1(camluv_rc);
+
+  camluv_tcp_t *camluv_tcp = camluv_tcp_struct_val(tcp);
+
+  int rc = uv_stream_set_blocking((uv_stream_t *)&(camluv_tcp->uv_tcp),
+                                  Int_val(blocking));
+  if (rc != UV_OK) {
+    // TODO: error handling.
+  }
+  camluv_rc = camluv_errno_c2ml(rc);
+
+  CAMLreturn(camluv_rc);
+}
+
+CAMLprim value
+camluv_tcp_is_closing(value tcp)
+{
+  CAMLparam1(tcp);
+  CAMLlocal1(is_closing);
+
+  camluv_tcp_t *camluv_tcp = camluv_tcp_struct_val(tcp);
+
+  if (uv_is_closing((uv_handle_t *)&(camluv_tcp->uv_tcp))) {
+    is_closing = Val_int(1);
+    CAMLreturn(is_closing);
+  } else {
+    is_closing = Val_int(0);
+    CAMLreturn(is_closing);
+  }
+}
+
+CAMLprim value
+camluv_is_active(value tcp)
+{
+  CAMLparam1(tcp);
+  CAMLlocal1(is_active);
+
+  camluv_tcp_t *camluv_tcp = camluv_tcp_struct_val(tcp);
+
+  if (uv_is_active((uv_handle_t *)&(camluv_tcp->uv_tcp))) {
+    is_active = Val_int(1);
+    CAMLreturn(is_active);
+  } else {
+    is_active = Val_int(0);
+    CAMLreturn(is_active);
+  }
+}
+
+CAMLprim value
+camluv_ref(value tcp)
+{
+  CAMLparam1(tcp);
+
+  camluv_tcp_t *camluv_tcp = camluv_tcp_struct_val(tcp);
+
+  uv_ref((uv_handle_t *)&(camluv_tcp->uv_tcp));
+
+  CAMLreturn(Val_unit);
+}
+
+CAMLprim value
+camluv_unref(value tcp)
+{
+  CAMLparam1(tcp);
+
+  camluv_tcp_t *camluv_tcp = camluv_tcp_struct_val(tcp);
+
+  uv_unref((uv_handle_t *)&(camluv_tcp->uv_tcp));
+
+  CAMLreturn(Val_unit);
+}
+
+CAMLprim value
+camluv_has_ref(value tcp)
+{
+  CAMLparam1(tcp);
+  CAMLlocal1(has_ref);
+
+  camluv_tcp_t *camluv_tcp = camluv_tcp_struct_val(tcp);
+
+  has_ref = Val_int(uv_has_ref((uv_handle_t *)&(camluv_tcp->uv_tcp)));
+
+  CAMLreturn(has_ref);
+}
+
+CAMLprim value
+camluv_loop(value tcp)
+{
+  CAMLparam1(tcp);
+  CAMLlocal1(loop);
+
+  camluv_tcp_t *camluv_tcp = camluv_tcp_struct_val(tcp);
+  loop = camluv_copy_loop(camluv_tcp->camluv_loop);
+
+  CAMLreturn(loop);
 }
 

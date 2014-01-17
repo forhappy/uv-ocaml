@@ -33,24 +33,33 @@
 typedef struct camluv_tcp_s_ camluv_tcp_t;
 struct camluv_tcp_s_ {
   uv_tcp_t uv_tcp;
+  camluv_loop_t *camluv_loop;
   value connection_cb;
-  value connect_cb;
-  value shutdown_cb;
+  value read_cb;
+  value close_cb;
 };
 
-typedef struct camluv_stream_write_ctx_s_ camluv_stream_write_ctx_t;
-struct camluv_stream_write_ctx_s_ {
-    uv_write_t uv_write;
-    camluv_tcp_t *send_handle;
+typedef struct camluv_tcp_connect_ctx_s_ camluv_tcp_connect_ctx_t;
+struct camluv_tcp_connect_ctx_s_ {
+    uv_connect_t uv_connect;
     camluv_tcp_t *handle;
-    value write_cb;
+    value connect_cb;
 };
 
-typedef struct camluv_stream_shutdown_ctx_s_ camluv_stream_shutdown_ctx_t;
-struct camluv_stream_shutdown_ctx_s_ {
+typedef struct camluv_tcp_shutdown_ctx_s_ camluv_tcp_shutdown_ctx_t;
+struct camluv_tcp_shutdown_ctx_s_ {
     uv_shutdown_t uv_shutdown;
     camluv_tcp_t *handle;
     value shutdown_cb;
+};
+
+typedef struct camluv_tcp_write_ctx_s_ camluv_tcp_write_ctx_t;
+struct camluv_tcp_write_ctx_s_ {
+    uv_write_t uv_write;
+    uv_buf_t *bufs;
+    camluv_tcp_t *send_handle;
+    camluv_tcp_t *handle;
+    value write_cb;
 };
 
 #endif /* _CAMLUV_tcp_H_*/
