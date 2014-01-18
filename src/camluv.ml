@@ -394,8 +394,18 @@ module FsPoll=
 
 module TCP =
   struct
-    external init: loop -> int -> int -> tcp = "camluv_tcp_init"
-    external create: loop -> int -> int = "camluv_tcp_init"
+    external init: loop -> tcp = "camluv_tcp_init"
+    external create: loop -> tcp = "camluv_tcp_init"
+    external open_fd: tcp -> int -> uv_errno = "camluv_tcp_open"
+    external bind: tcp -> uv_sockaddr -> uv_errno = "camluv_tcp_bind"
+    external listen: tcp -> int -> uv_tcp_connection_cb -> uv_errno = "camluv_tcp_listen"
+    external accept: tcp -> tcp = "camluv_tcp_accept"
+    external connect: tcp -> uv_sockaddr -> uv_tcp_connect_cb -> uv_errno = "camluv_tcp_connect"
+    external getsockname: tcp -> uv_sockaddr = "camluv_tcp_getsockname"
+    external getpeername: tcp -> uv_sockaddr = "camluv_tcp_getpeername"
+    external nodelay: tcp -> int -> uv_errno = "camluv_tcp_nodelay"
+    external keepalive: tcp -> int -> int -> uv_errno = "camluv_tcp_nodelay"
+    external simultaneous_accepts: loop -> int -> uv_errno = "camluv_tcp_simultaneous_accepts"
     external start_read: tcp -> uv_tcp_read_cb -> uv_errno = "camluv_tcp_start_read"
     external stop_read: tcp -> uv_errno = "camluv_tcp_stop_read"
     external write: tcp -> uv_buffer_array -> uv_tcp_write_cb -> uv_errno = "camluv_tcp_start_write"
