@@ -98,59 +98,6 @@ camluv_parse_uv_bufs(value bufs, int *nbufs)
   return pbufs;
 }
 
-/**
- * Parse a OCaml tuple containing host, port, flowinfo, scope_id
- * into a sockaddr struct
- */
-static int
-camluv_parse_sockaddr(value addr, struct sockaddr_storage *ss)
-{
-  CAMLparam1(addr);
-  char *host;
-  int port;
-  unsigned int scope_id = 0, flowinfo = 0;
-
-  struct in_addr addr4;
-  struct in6_addr addr6;
-  struct sockaddr_in *sa4;
-  struct sockaddr_in6 *sa6;
-
-  host = String_val(Field(addr, 0));
-  port = Int_val(Field(addr, 1));
-  scope_id = Int_val(Field(addr, 2));
-  flowinfo = Int_val(Field(addr, 3));
-
-  if (port < 0 || port > 0xffff) {
-    CAMLreturn(-1);
-  }
-
-  if (flowinfo > 0xfffff) {
-    CAMLreturn(-1);
-  }
-
-  memset(ss, 0, sizeof(struct sockaddr_storage));
-
-  if (uv_inet_pton(AF_INET, host, &addr4) == 0) {
-    /* it's an IPv4 address */
-    sa4 = (struct sockaddr_in *)ss;
-    sa4->sin_family = AF_INET;
-    sa4->sin_port = htons((short)port);
-    sa4->sin_addr = addr4;
-    CAMLreturn(0);
-  } else if (uv_inet_pton(AF_INET6, host, &addr6) == 0) {
-    /* it's an IPv6 address */
-    sa6 = (struct sockaddr_in6 *)ss;
-    sa6->sin6_family = AF_INET6;
-    sa6->sin6_port = htons((short)port);
-    sa6->sin6_addr = addr6;
-    sa6->sin6_flowinfo = flowinfo;
-    sa6->sin6_scope_id = scope_id;
-    CAMLreturn(0);
-  } else {
-    CAMLreturn(-1);
-  }
-}
-
 static value
 camluv_make_uv_buf(const uv_buf_t *buf)
 {
@@ -163,51 +110,6 @@ camluv_make_uv_buf(const uv_buf_t *buf)
   Store_field(camluv_buf, 1, Val_int(buf->len));
 
   CAMLreturn(camluv_buf);
-}
-
-static value
-camluv_make_sockaddr(struct sockaddr *addr, int addrlen)
-{
-  CAMLparam0();
-  CAMLlocal1(camluv_addr);
-
-  static char buf[INET6_ADDRSTRLEN + 1];
-  struct sockaddr_in *addr4;
-  struct sockaddr_in6 *addr6;
-
-  if (addrlen == 0) {
-      /* TODO: No address handling. */
-  }
-
-  camluv_addr = caml_alloc(4, 0);
-
-  switch (addr->sa_family) {
-
-  case AF_INET:
-  {
-    addr4 = (struct sockaddr_in*)addr;
-    uv_ip4_name(addr4, buf, sizeof(buf));
-    Store_field(camluv_addr, 0, caml_copy_string(buf));
-    Store_field(camluv_addr, 1, ntohs(addr4->sin_port));
-    Store_field(camluv_addr, 2, 0);
-    Store_field(camluv_addr, 3, 0);
-  }
-
-  case AF_INET6:
-  {
-    addr6 = (struct sockaddr_in6*)addr;
-    uv_ip6_name(addr6, buf, sizeof(buf));
-    Store_field(camluv_addr, 0, caml_copy_string(buf));
-    Store_field(camluv_addr, 1, ntohs(addr6->sin6_port));
-    Store_field(camluv_addr, 2, ntohl(addr6->sin6_flowinfo));
-    Store_field(camluv_addr, 3, addr6->sin6_scope_id);
-  }
-
-  default:;
-    /* TODO: If we don't know the address family. */
-  }
-
-  CAMLreturn(camluv_addr);
 }
 
 static value

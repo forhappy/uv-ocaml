@@ -21,6 +21,7 @@ C_OBJECTS=camluv.o\
 		  camluv_tcp.o\
 		  camluv_udp.o\
 		  camluv_pipe.o\
+		  camluv_tty.o\
 		  camluv_barrier.o\
 		  camluv_condition.o\
 		  camluv_key.o\
