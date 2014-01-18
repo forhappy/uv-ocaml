@@ -1,0 +1,5 @@
+name="camluv"
+version="0.0.1"
+description="Libuv ocaml binding"
+archive(byte)="camluv.cma"
+archive(native)="camluv.cmxa"
