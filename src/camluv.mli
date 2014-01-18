@@ -108,7 +108,19 @@ type uv_errno =
   | UV_UNKNOWN
   | UV_EOF
 type uv_run_mode = UV_RUN_DEFAULT | UV_RUN_ONCE | UV_RUN_NOWAIT
+type uv_udp_flags = UV_UDP_IPV6ONLY | UV_UDP_PARTIAL
+type uv_membership = UV_LEAVE_GROUP | UV_JOIN_GROUP
 type uv_poll_event = UV_READABLE | UV_WRITABLE | UV_RDWRABLE
+type uv_fs_event_flags =
+    UV_FS_EVENT_WATCH_ENTRY
+  | UV_FS_EVENT_STAT
+  | UV_FS_EVENT_RECURSIVE
+type uv_process_flags =
+    UV_PROCESS_SETUID
+  | UV_PROCESS_SETGID
+  | UV_PROCESS_WINDOWS_VERBATIM_ARGUMENTS
+  | UV_PROCESS_DETACHED
+  | UV_PROCESS_WINDOWS_HIDE
 type uv_walk_cb = handle -> string -> unit
 type uv_close_cb = handle -> unit
 type uv_idle_cb = idle -> int -> unit
