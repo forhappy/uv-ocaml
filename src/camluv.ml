@@ -20,6 +20,8 @@ type fs_event
 
 type fs_poll
 
+type tty
+
 type thread
 
 type key
@@ -34,12 +36,16 @@ type condition
 
 type barrier
 
-type timestamp = {
+type uv_buffer = {base: string; len: int}
+
+type uv_buffer_array = uv_buffer array
+
+type uv_timestamp = {
   tv_sec: int32;
   tv_nsec: int32;
 }
 
-type stat = {
+type uv_stat = {
   st_dev: int64;
   st_mode: int64;
   st_nlink: int64;
@@ -52,10 +58,10 @@ type stat = {
   st_blocks: int64;
   st_flags: int64;
   st_gen: int64;
-  st_atim: timestamp;
-  st_mtim: timestamp;
-  st_ctim: timestamp;
-  st_birthtim: timestamp;
+  st_atim: uv_timestamp;
+  st_mtim: uv_timestamp;
+  st_ctim: uv_timestamp;
+  st_birthtim: uv_timestamp;
 }
 
 type uv_errno =
@@ -182,7 +188,9 @@ type uv_signal_cb = signal -> int -> unit
 
 type uv_fs_event_cb = fs_event -> string -> int -> int -> unit
 
-type uv_fs_poll_cb = fs_poll -> int -> stat -> stat -> unit
+type uv_fs_poll_cb = fs_poll -> int -> uv_stat -> uv_stat -> unit
+
+type uv_tty_write_cb = tty -> int -> unit
 
 type uv_work_cb = unit -> unit
 
@@ -284,10 +292,19 @@ module FsEvent =
 
 module FsPoll=
   struct
-    external init: loop -> fs_poll= "camluv_fs_poll_init"
-    external create: loop -> fs_poll= "camluv_fs_poll_init"
+    external init: loop -> fs_poll = "camluv_fs_poll_init"
+    external create: loop -> fs_poll = "camluv_fs_poll_init"
     external start: fs_poll -> uv_fs_poll_cb -> string -> int -> uv_errno = "camluv_fs_poll_start"
     external stop: fs_poll -> uv_errno = "camluv_fs_poll_stop"
+  end
+
+module TTY =
+  struct
+    external init: loop -> int -> int -> tty = "camluv_tty_init"
+    external create: loop -> int -> int = "camluv_tty_init"
+    external set_mode: tty -> int -> uv_errno = "camluv_tty_set_mode"
+    external reset_mode: unit -> uv_errno = "camluv_tty_reset_mode"
+    external write: tty -> uv_buffer_array -> uv_tty_write_cb -> uv_errno = "camluv_tty_start_write"
   end
 
 module Thread =
