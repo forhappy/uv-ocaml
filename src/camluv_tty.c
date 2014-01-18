@@ -363,7 +363,7 @@ camluv_tty_start_read(value tty, value read_cb)
 }
 
 CAMLprim value
-camluv_tty_start_stop(value tty)
+camluv_tty_stop_read(value tty)
 {
   CAMLparam1(tty);
   CAMLlocal1(camluv_rc);

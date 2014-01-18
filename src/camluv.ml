@@ -20,6 +20,12 @@ type fs_event
 
 type fs_poll
 
+type tcp
+
+type udp
+
+type pipe
+
 type tty
 
 type thread
@@ -38,7 +44,11 @@ type barrier
 
 type uv_buffer = {base: string; len: int}
 
+type uv_sockaddr = {host: string; port: int; scope_id: int; flowinfo: int}
+
 type uv_buffer_array = uv_buffer array
+
+type uv_win_size = int * int
 
 type uv_timestamp = {
   tv_sec: int32;
@@ -137,6 +147,56 @@ type uv_errno =
   | UV_UNKNOWN
   | UV_EOF
 
+type uv_fs_type =
+    UV_FS_UNKNOWN
+  | UV_FS_CUSTOM
+  | UV_FS_OPEN
+  | UV_FS_CLOSE
+  | UV_FS_READ
+  | UV_FS_WRITE
+  | UV_FS_SENDFILE
+  | UV_FS_STAT
+  | UV_FS_LSTAT
+  | UV_FS_FSTAT
+  | UV_FS_FTRUNCATE
+  | UV_FS_UTIME
+  | UV_FS_FUTIME
+  | UV_FS_CHMOD
+  | UV_FS_FCHMOD
+  | UV_FS_FSYNC
+  | UV_FS_FDATASYNC
+  | UV_FS_UNLINK
+  | UV_FS_RMDIR
+  | UV_FS_MKDIR
+  | UV_FS_RENAME
+  | UV_FS_READDIR
+  | UV_FS_LINK
+  | UV_FS_SYMLINK
+  | UV_FS_READLINK
+  | UV_FS_CHOWN
+  | UV_FS_FCHOWN
+
+type uv_handle_type =
+    UV_UNKNOWN_HANDLE
+  | UV_ASYNC
+  | UV_CHECK
+  | UV_FS_EVENT
+  | UV_FS_POLL
+  | UV_HANDLE
+  | UV_IDLE
+  | UV_NAMED_PIPE
+  | UV_POLL
+  | UV_PREPARE
+  | UV_PROCESS
+  | UV_STREAM
+  | UV_TCP
+  | UV_TIMER
+  | UV_TTY
+  | UV_UDP
+  | UV_SIGNAL
+  | UV_FILE
+  | UV_HANDLE_TYPE_MAX
+
 type uv_run_mode =
     UV_RUN_DEFAULT
   | UV_RUN_ONCE
@@ -160,7 +220,6 @@ type uv_fs_event_flags =
   | UV_FS_EVENT_STAT
   | UV_FS_EVENT_RECURSIVE
 
-
 type uv_process_flags =
     UV_PROCESS_SETUID
   | UV_PROCESS_SETGID
@@ -172,28 +231,63 @@ type uv_walk_cb = handle -> string -> unit
 
 type uv_close_cb = handle -> unit
 
+(* Idle callback type definition *)
 type uv_idle_cb = idle -> int -> unit
 
+(* Timer callback type definition *)
 type uv_timer_cb = timer -> int -> unit
 
+(* Async callback type definition *)
 type uv_async_cb  = async -> int -> unit
 
+(* Check callback type definition *)
 type uv_check_cb  = check -> int -> unit
 
+(* Prepare callback type definition *)
 type uv_prepare_cb = prepare -> int -> unit
 
+(* Poll callback type definition *)
 type uv_poll_cb = poll -> int -> uv_poll_event -> unit
 
+(* Signal callback type definition *)
 type uv_signal_cb = signal -> int -> unit
 
+(* FsEvent callback type definition *)
 type uv_fs_event_cb = fs_event -> string -> int -> int -> unit
 
+(* FsPoll callback type definition *)
 type uv_fs_poll_cb = fs_poll -> int -> uv_stat -> uv_stat -> unit
 
+(* TCP callback type definition *)
+type uv_tcp_connect_cb = tcp -> int -> unit
+type uv_tcp_connection_cb = tcp -> int -> unit
+type uv_tcp_close_cb = tcp -> unit
+type uv_tcp_shutdown_cb = tcp -> int -> unit
+type uv_tcp_read_cb = tcp -> int -> uv_buffer_array -> unit
+type uv_tcp_write_cb = tcp -> int -> unit
+
+(* UDP callback type definition *)
+type uv_udp_close_cb = udp -> unit
+type uv_udp_send_cb = udp -> int -> unit
+type uv_udp_recv_cb = udp -> int -> uv_buffer_array -> uv_sockaddr -> uv_udp_flags -> unit
+
+(* Pipe callback type definition *)
+type uv_pipe_connect_cb = pipe -> int -> unit
+type uv_pipe_connection_cb = pipe -> int -> unit
+type uv_pipe_close_cb = pipe -> unit
+type uv_pipe_shutdown_cb = pipe -> int -> unit
+type uv_pipe_read_cb = pipe -> int -> uv_buffer_array -> unit
+type uv_pipe_read2_cb = pipe -> int -> uv_buffer_array -> uv_handle_type -> unit
+type uv_pipe_write_cb = pipe -> int -> unit
+
+(* TTY callback type definition *)
+type uv_tty_read_cb = tty -> int -> uv_buffer_array -> unit
 type uv_tty_write_cb = tty -> int -> unit
+type uv_tty_close_cb = tty -> unit
+type uv_tty_shutdown_cb = tty -> int -> unit
 
+(* Thread pool callback type definition *)
 type uv_work_cb = unit -> unit
-
 type uv_after_work_cb = int -> unit
 
 module Loop =
@@ -298,13 +392,50 @@ module FsPoll=
     external stop: fs_poll -> uv_errno = "camluv_fs_poll_stop"
   end
 
+module TCP =
+  struct
+    external init: loop -> int -> int -> tcp = "camluv_tcp_init"
+    external create: loop -> int -> int = "camluv_tcp_init"
+    external start_read: tcp -> uv_tcp_read_cb -> uv_errno = "camluv_tcp_start_read"
+    external stop_read: tcp -> uv_errno = "camluv_tcp_stop_read"
+    external write: tcp -> uv_buffer_array -> uv_tcp_write_cb -> uv_errno = "camluv_tcp_start_write"
+    external window_size: tcp -> uv_win_size = "camluv_tcp_get_winsize"
+    external close: tcp -> uv_tcp_close_cb -> unit = "camluv_tcp_close"
+    external shutdown: tcp -> uv_tcp_shutdown_cb -> uv_errno = "camluv_tcp_shutdown"
+    external is_readable: tcp -> int = "camluv_tcp_is_readable"
+    external is_writable: tcp -> int = "camluv_tcp_is_writable"
+    external write_queue_size: tcp -> int = "camluv_tcp_write_queue_size"
+    external set_blocking: tcp -> int = "camluv_tcp_set_blocking"
+    external is_closing: tcp -> int = "camluv_tcp_is_closing"
+    external is_active: tcp -> int = "camluv_tcp_is_active"
+    external ref: tcp -> unit = "camluv_tcp_ref"
+    external unref: tcp -> unit = "camluv_tcp_unref"
+    external has_ref: tcp -> int = "camluv_tcp_has_ref"
+    external loop: tcp -> loop = "camluv_tcp_loop"
+  end
+
 module TTY =
   struct
     external init: loop -> int -> int -> tty = "camluv_tty_init"
     external create: loop -> int -> int = "camluv_tty_init"
     external set_mode: tty -> int -> uv_errno = "camluv_tty_set_mode"
     external reset_mode: unit -> uv_errno = "camluv_tty_reset_mode"
+    external start_read: tty -> uv_tty_read_cb -> uv_errno = "camluv_tty_start_read"
+    external stop_read: tty -> uv_errno = "camluv_tty_stop_read"
     external write: tty -> uv_buffer_array -> uv_tty_write_cb -> uv_errno = "camluv_tty_start_write"
+    external window_size: tty -> uv_win_size = "camluv_tty_get_winsize"
+    external close: tty -> uv_tty_close_cb -> unit = "camluv_tty_close"
+    external shutdown: tty -> uv_tty_shutdown_cb -> uv_errno = "camluv_tty_shutdown"
+    external is_readable: tty -> int = "camluv_tty_is_readable"
+    external is_writable: tty -> int = "camluv_tty_is_writable"
+    external write_queue_size: tty -> int = "camluv_tty_write_queue_size"
+    external set_blocking: tty -> int = "camluv_tty_set_blocking"
+    external is_closing: tty -> int = "camluv_tty_is_closing"
+    external is_active: tty -> int = "camluv_tty_is_active"
+    external ref: tty -> unit = "camluv_tty_ref"
+    external unref: tty -> unit = "camluv_tty_unref"
+    external has_ref: tty -> int = "camluv_tty_has_ref"
+    external loop: tty -> loop = "camluv_tty_loop"
   end
 
 module Thread =
