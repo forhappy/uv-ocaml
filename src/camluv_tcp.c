@@ -321,6 +321,7 @@ static void camluv_write_cb(uv_write_t *req, int status)
   write_cb = ctx->write_cb;
   camluv_tcp = camluv_copy_tcp(tcp);
   camluv_status = Val_int(status);
+
   if (ctx->bufs != NULL) free(ctx->bufs);
 
   callback2(write_cb, camluv_tcp, camluv_status);
