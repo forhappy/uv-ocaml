@@ -206,7 +206,7 @@ static void camluv_read_cb(uv_stream_t *stream,
 
   // TODO: nread has type ssize_t, maybe we need
   // higher integer precisive conversion here.
-  camluv_nread = Int_val(nread);
+  camluv_nread = Val_int(nread);
   camluv_buf = camluv_make_uv_buf(buf);
 
   callback3(read_cb, camluv_server, camluv_nread, camluv_buf);
@@ -235,9 +235,9 @@ static void camluv_read2_cb(uv_pipe_t *stream,
 
   // TODO: nread has type ssize_t, maybe we need
   // higher integer precisive conversion here.
-  camluv_nread = Int_val(nread);
+  camluv_nread = Val_int(nread);
   camluv_buf = camluv_make_uv_buf(buf);
-  camluv_pending = Int_val(pending); // TODO: parse uv_handle_type.
+  camluv_pending = Val_int(pending); // TODO: parse uv_handle_type.
 
   Store_field(args, 0, camluv_pipe);
   Store_field(args, 1, camluv_nread);

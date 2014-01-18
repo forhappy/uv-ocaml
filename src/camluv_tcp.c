@@ -302,7 +302,7 @@ static void camluv_read_cb(uv_stream_t *stream,
 
   // TODO: nread has type ssize_t, maybe we need
   // higher integer precisive conversion here.
-  camluv_nread = Int_val(nread);
+  camluv_nread = Val_int(nread);
   camluv_buf = camluv_make_uv_buf(buf);
 
   callback3(read_cb, camluv_server, camluv_nread, camluv_buf);
