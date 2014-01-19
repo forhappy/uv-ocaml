@@ -605,7 +605,7 @@ camluv_udp_start_recv(value udp, value udp_recv_cb)
 }
 
 CAMLprim value
-camluv_udp_start_stop(value udp)
+camluv_udp_stop_recv(value udp)
 {
   CAMLparam1(udp);
   CAMLlocal1(camluv_rc);

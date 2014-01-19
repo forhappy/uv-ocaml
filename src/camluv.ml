@@ -423,6 +423,30 @@ module TCP =
     external loop: tcp -> loop = "camluv_tcp_loop"
   end
 
+module UDP =
+  struct
+    external init: loop -> udp = "camluv_udp_init"
+    external create: loop -> udp = "camluv_udp_init"
+    external open_fd: udp -> int -> uv_errno = "camluv_udp_open"
+    external bind: udp -> uv_sockaddr -> uv_errno = "camluv_udp_bind"
+    external getsockname: udp -> uv_sockaddr = "camluv_udp_getsockname"
+    external set_multicast_loop: udp-> int -> uv_errno = "camluv_udp_set_multicast_loop"
+    external set_multicast_ttl: udp-> int -> uv_errno = "camluv_udp_set_multicast_ttl"
+    external set_broadcast: udp -> int -> uv_errno = "camluv_udp_set_broadcast"
+    external set_ttl: udp -> int -> uv_errno = "camluv_udp_set_ttl"
+    external set_membership: udp -> string -> string -> uv_membership -> uv_errno = "camluv_udp_set_membership"
+    external start_recv: udp -> uv_udp_recv_cb -> uv_errno = "camluv_udp_start_recv"
+    external stop_recv: udp -> uv_errno = "camluv_udp_stop_recv"
+    external send: udp -> uv_sockaddr -> uv_buffer_array -> uv_udp_send_cb -> uv_errno = "camluv_udp_send"
+    external close: udp -> uv_udp_close_cb -> unit = "camluv_udp_close"
+    external is_closing: udp -> int = "camluv_udp_is_closing"
+    external is_active: udp -> int = "camluv_udp_is_active"
+    external ref: udp -> unit = "camluv_udp_ref"
+    external unref: udp -> unit = "camluv_udp_unref"
+    external has_ref: udp -> int = "camluv_udp_has_ref"
+    external loop: udp -> loop = "camluv_udp_loop"
+  end
+
 module Pipe =
   struct
     external init: loop -> pipe = "camluv_pipe_init"
