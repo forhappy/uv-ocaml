@@ -337,7 +337,6 @@ module TCP :
     external stop_read : tcp -> uv_errno = "camluv_tcp_stop_read"
     external write : tcp -> uv_buffer_array -> uv_tcp_write_cb -> uv_errno
       = "camluv_tcp_start_write"
-    external window_size : tcp -> uv_win_size = "camluv_tcp_get_winsize"
     external close : tcp -> uv_tcp_close_cb -> unit = "camluv_tcp_close"
     external shutdown : tcp -> uv_tcp_shutdown_cb -> uv_errno
       = "camluv_tcp_shutdown"
@@ -351,6 +350,51 @@ module TCP :
     external unref : tcp -> unit = "camluv_tcp_unref"
     external has_ref : tcp -> int = "camluv_tcp_has_ref"
     external loop : tcp -> loop = "camluv_tcp_loop"
+  end
+module Pipe :
+  sig
+    external init : loop -> pipe = "camluv_pipe_init"
+    external create : loop -> pipe = "camluv_pipe_init"
+    external open_fd : pipe -> int -> uv_errno = "camluv_pipe_open"
+    external bind : pipe -> string -> uv_errno = "camluv_pipe_bind"
+    external listen : pipe -> int -> uv_pipe_connection_cb -> uv_errno
+      = "camluv_pipe_listen"
+    external accept : pipe -> pipe = "camluv_pipe_accept"
+    external connect : pipe -> string -> uv_pipe_connect_cb -> uv_errno
+      = "camluv_pipe_connect"
+    external getsockname : pipe -> uv_sockaddr = "camluv_pipe_getsockname"
+    external getpeername : pipe -> uv_sockaddr = "camluv_pipe_getpeername"
+    external nodelay : pipe -> int -> uv_errno = "camluv_pipe_nodelay"
+    external keepalive : pipe -> int -> int -> uv_errno
+      = "camluv_pipe_nodelay"
+    external simultaneous_accepts : loop -> int -> uv_errno
+      = "camluv_pipe_simultaneous_accepts"
+    external start_read : pipe -> uv_pipe_read_cb -> uv_errno
+      = "camluv_pipe_start_read"
+    external start_read2 : pipe -> uv_pipe_read2_cb -> uv_errno
+      = "camluv_pipe_start_read2"
+    external stop_read : pipe -> uv_errno = "camluv_pipe_stop_read"
+    external write : pipe -> uv_buffer_array -> uv_pipe_write_cb -> uv_errno
+      = "camluv_pipe_start_write"
+    external write_tcp :
+      pipe -> uv_buffer_array -> tcp -> uv_pipe_write_cb -> uv_errno
+      = "camluv_pipe_start_write2_tcp"
+    external write_pipe :
+      pipe -> uv_buffer_array -> pipe -> uv_pipe_write_cb -> uv_errno
+      = "camluv_pipe_start_write"
+    external close : pipe -> uv_pipe_close_cb -> unit = "camluv_pipe_close"
+    external shutdown : pipe -> uv_pipe_shutdown_cb -> uv_errno
+      = "camluv_pipe_shutdown"
+    external is_readable : pipe -> int = "camluv_pipe_is_readable"
+    external is_writable : pipe -> int = "camluv_pipe_is_writable"
+    external write_queue_size : pipe -> int = "camluv_pipe_write_queue_size"
+    external set_blocking : pipe -> int = "camluv_pipe_set_blocking"
+    external is_closing : pipe -> int = "camluv_pipe_is_closing"
+    external is_active : pipe -> int = "camluv_pipe_is_active"
+    external ref : pipe -> unit = "camluv_pipe_ref"
+    external unref : pipe -> unit = "camluv_pipe_unref"
+    external has_ref : pipe -> int = "camluv_pipe_has_ref"
+    external loop : pipe -> loop = "camluv_pipe_loop"
   end
 module TTY :
   sig
