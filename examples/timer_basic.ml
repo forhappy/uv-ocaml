@@ -4,22 +4,16 @@ open Int64
 let counter = ref 0;;
 
 let incr_counter_cb timer status =
-  if !counter < 100 then
+  if !counter < 10 then
     counter := !counter + 1
-  else print_int (Timer.stop timer);;
+  else let _ = Timer.stop timer
+    in Printf.printf "Timer stoped.\n%!";;
 
-print_endline "The original counter is: ";;
-print_int !counter;;
-print_endline "\n";;
+Printf.printf "The original counter is: %d\n%!" !counter;;
 
-let loop = Loop.default ();;
-let timer = Timer.init loop;;
+let loop = Loop.default () in
+  let timer = Timer.init loop in
+    let _ = Timer.start timer incr_counter_cb (of_int 0) (of_int 100) in
+      Loop.run loop UV_RUN_DEFAULT;;
 
-Timer.start timer incr_counter_cb (of_int 0) (of_int 100);;
-
-let rc = Loop.run loop UV_RUN_DEFAULT;;
-print_endline "\n";;
-
-print_endline "The last counter is: ";;
-print_int !counter;;
-print_endline "\n";;
+Printf.printf "The last counter is: %d\n%!" !counter;;
