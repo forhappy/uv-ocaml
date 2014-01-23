@@ -37,9 +37,6 @@ struct camluv_fs_s_ {
   uv_fs_t uv_fs;
   camluv_loop_t *camluv_loop;
   value fs_cb;
-  value result;
-  value error;
-  value path;
 };
 
 #endif /* _CAMLUV_FS_H_ */

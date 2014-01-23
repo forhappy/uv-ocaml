@@ -86,6 +86,53 @@ camluv_copy_fs(camluv_fs_t *camluv_fs)
   CAMLreturn(fs);
 }
 
+static value
+camluv_build_stat(const uv_stat_t *stat)
+{
+  CAMLparam0();
+  CAMLlocal5(result_stat,
+             ts_atim,
+             ts_mtim,
+             ts_ctim,
+             ts_birthtim);
+
+  result_stat = caml_alloc(16, 0);
+  Store_field(result_stat, 0, caml_copy_int64(stat->st_dev));
+  Store_field(result_stat, 1, caml_copy_int64(stat->st_mode));
+  Store_field(result_stat, 2, caml_copy_int64(stat->st_nlink));
+  Store_field(result_stat, 3, caml_copy_int64(stat->st_uid));
+  Store_field(result_stat, 4, caml_copy_int64(stat->st_gid));
+  Store_field(result_stat, 5, caml_copy_int64(stat->st_rdev));
+  Store_field(result_stat, 6, caml_copy_int64(stat->st_ino));
+  Store_field(result_stat, 7, caml_copy_int64(stat->st_size));
+  Store_field(result_stat, 8, caml_copy_int64(stat->st_blksize));
+  Store_field(result_stat, 9, caml_copy_int64(stat->st_blocks));
+  Store_field(result_stat, 10, caml_copy_int64(stat->st_flags));
+  Store_field(result_stat, 11, caml_copy_int64(stat->st_gen));
+
+  ts_atim = caml_alloc(2, 0);
+  Store_field(ts_atim, 0, Val_long(stat->st_atim.tv_sec));
+  Store_field(ts_atim, 0, Val_long(stat->st_atim.tv_nsec));
+  Store_field(result_stat, 12, ts_atim);
+
+  ts_mtim = caml_alloc(2, 0);
+  Store_field(ts_mtim, 0, Val_long(stat->st_mtim.tv_sec));
+  Store_field(ts_mtim, 0, Val_long(stat->st_mtim.tv_nsec));
+  Store_field(result_stat, 13, ts_mtim);
+
+  ts_ctim = caml_alloc(2, 0);
+  Store_field(ts_ctim, 0, Val_long(stat->st_ctim.tv_sec));
+  Store_field(ts_ctim, 0, Val_long(stat->st_ctim.tv_nsec));
+  Store_field(result_stat, 14, ts_ctim);
+
+  ts_birthtim = caml_alloc(2, 0);
+  Store_field(ts_birthtim, 0, Val_long(stat->st_birthtim.tv_sec));
+  Store_field(ts_birthtim, 0, Val_long(stat->st_birthtim.tv_nsec));
+  Store_field(result_stat, 15, ts_birthtim);
+
+  CAMLreturn(result_stat);
+}
+
 static void
 camluv_fs_cb(uv_fs_t * req)
 {
@@ -115,6 +162,42 @@ camluv_fs_req_cleanup(value fs)
 }
 
 CAMLprim value
+camluv_fs_get_result(value fs)
+{
+  CAMLparam1(fs);
+  CAMLlocal1(result);
+
+  camluv_fs_t *camluv_fs = camluv_fs_struct_val(fs);
+  result = Val_int((camluv_fs->uv_fs).result);
+
+  CAMLreturn(result);
+}
+
+CAMLprim value
+camluv_fs_get_path(value fs)
+{
+  CAMLparam1(fs);
+  CAMLlocal1(path);
+
+  camluv_fs_t *camluv_fs = camluv_fs_struct_val(fs);
+  path = caml_copy_string((camluv_fs->uv_fs).path);
+
+  CAMLreturn(path);
+}
+
+CAMLprim value
+camluv_fs_get_stat(value fs)
+{
+  CAMLparam1(fs);
+  CAMLlocal1(stat);
+
+  camluv_fs_t *camluv_fs = camluv_fs_struct_val(fs);
+  stat = camluv_build_stat(&((camluv_fs->uv_fs).statbuf));
+
+  CAMLreturn(stat);
+}
+
+CAMLprim value
 camluv_fs_close(value loop, value file, value fs_cb)
 {
   CAMLparam3(loop, file, fs_cb);
@@ -127,18 +210,22 @@ camluv_fs_close(value loop, value file, value fs_cb)
             (camluv_fs_t *)malloc(sizeof(camluv_fs_t));
     // TODO: where to free this fs, in the camluv_fs_cb?
 
-    rc = uv_fs_close(camluv_loop->uv_loop,
-                     &(fs->uv_fs),
-                     Int_val(file),
-                     camluv_fs_cb);
 
     camluv_init_request_with_loop((camluv_request_t *)
                                   &(fs->camluv_request),
                                   camluv_loop);
-
     (fs->uv_fs).data = fs;
+    fs->fs_cb = fs_cb;
     ((camluv_request_t *)fs)->uv_request =
                               (uv_req_t *)&(fs->uv_fs);
+
+    rc = uv_fs_close(camluv_loop->uv_loop,
+                     &(fs->uv_fs),
+                     Int_val(file),
+                     camluv_fs_cb);
+    if (rc != UV_OK) {
+      // TODO: error handling.
+    }
   }
 
   camluv_rc = camluv_errno_c2ml(rc);
@@ -163,20 +250,23 @@ camluv_fs_open_native(value loop,
             (camluv_fs_t *)malloc(sizeof(camluv_fs_t));
     // TODO: where to free this fs, in the camluv_fs_cb?
 
+    camluv_init_request_with_loop((camluv_request_t *)
+                                  &(fs->camluv_request),
+                                  camluv_loop);
+    (fs->uv_fs).data = fs;
+    fs->fs_cb = fs_cb;
+    ((camluv_request_t *)fs)->uv_request =
+                              (uv_req_t *)&(fs->uv_fs);
+
     rc = uv_fs_open(camluv_loop->uv_loop,
                     &(fs->uv_fs),
                     String_val(path),
                     Int_val(flags),
                     Int_val(mode),
                     camluv_fs_cb);
-
-    camluv_init_request_with_loop((camluv_request_t *)
-                                  &(fs->camluv_request),
-                                  camluv_loop);
-
-    (fs->uv_fs).data = fs;
-    ((camluv_request_t *)fs)->uv_request =
-                              (uv_req_t *)&(fs->uv_fs);
+    if (rc != UV_OK) {
+      // TODO: error handling.
+    }
   }
 
   camluv_rc = camluv_errno_c2ml(rc);
@@ -210,6 +300,14 @@ camluv_fs_read_native(value loop,
     readbuf = (char *)malloc(sizeof(char) * length_hint);
     // TODO: where to free this fs, in the camluv_fs_cb?
 
+    camluv_init_request_with_loop((camluv_request_t *)
+                                  &(fs->camluv_request),
+                                  camluv_loop);
+    (fs->uv_fs).data = fs;
+    fs->fs_cb = fs_cb;
+    ((camluv_request_t *)fs)->uv_request =
+                              (uv_req_t *)&(fs->uv_fs);
+
     rc = uv_fs_read(camluv_loop->uv_loop,
                     &(fs->uv_fs),
                     Int_val(file),
@@ -220,14 +318,6 @@ camluv_fs_read_native(value loop,
     if (rc != UV_OK) {
       // TODO: error handling.
     }
-
-    camluv_init_request_with_loop((camluv_request_t *)
-                                  &(fs->camluv_request),
-                                  camluv_loop);
-
-    (fs->uv_fs).data = fs;
-    ((camluv_request_t *)fs)->uv_request =
-                              (uv_req_t *)&(fs->uv_fs);
   }
 
   camluv_buf = caml_copy_string(readbuf);
@@ -258,18 +348,21 @@ camluv_fs_unlink(value loop,
             (camluv_fs_t *)malloc(sizeof(camluv_fs_t));
     // TODO: where to free this , in the camluv_fs_cb?
 
-    rc = uv_fs_unlink(camluv_loop->uv_loop,
-                    &(fs->uv_fs),
-                    String_val(path),
-                    camluv_fs_cb);
-
     camluv_init_request_with_loop((camluv_request_t *)
                                   &(fs->camluv_request),
                                   camluv_loop);
-
     (fs->uv_fs).data = fs;
+    fs->fs_cb = fs_cb;
     ((camluv_request_t *)fs)->uv_request =
                               (uv_req_t *)&(fs->uv_fs);
+
+    rc = uv_fs_unlink(camluv_loop->uv_loop,
+                      &(fs->uv_fs),
+                      String_val(path),
+                      camluv_fs_cb);
+    if (rc != UV_OK) {
+      // TODO: error handling.
+    }
   }
 
   camluv_rc = camluv_errno_c2ml(rc);
@@ -296,6 +389,14 @@ camluv_fs_write_native(value loop,
             (camluv_fs_t *)malloc(sizeof(camluv_fs_t));
     // TODO: where to free this fs, in the camluv_fs_cb?
 
+    camluv_init_request_with_loop((camluv_request_t *)
+                                  &(fs->camluv_request),
+                                  camluv_loop);
+    (fs->uv_fs).data = fs;
+    fs->fs_cb = fs_cb;
+    ((camluv_request_t *)fs)->uv_request =
+                              (uv_req_t *)&(fs->uv_fs);
+
     rc = uv_fs_write(camluv_loop->uv_loop,
                     &(fs->uv_fs),
                     Int_val(file),
@@ -303,14 +404,9 @@ camluv_fs_write_native(value loop,
                     Int_val(length),
                     Int_val(offset),
                     camluv_fs_cb);
-
-    camluv_init_request_with_loop((camluv_request_t *)
-                                  &(fs->camluv_request),
-                                  camluv_loop);
-
-    (fs->uv_fs).data = fs;
-    ((camluv_request_t *)fs)->uv_request =
-                              (uv_req_t *)&(fs->uv_fs);
+    if (rc != UV_OK) {
+      // TODO: error handling.
+    }
   }
 
   camluv_rc = camluv_errno_c2ml(rc);
@@ -341,19 +437,22 @@ camluv_fs_mkdir(value loop,
             (camluv_fs_t *)malloc(sizeof(camluv_fs_t));
     // TODO: where to free this fs, in the camluv_fs_cb?
 
+    camluv_init_request_with_loop((camluv_request_t *)
+                                  &(fs->camluv_request),
+                                  camluv_loop);
+    (fs->uv_fs).data = fs;
+    fs->fs_cb = fs_cb;
+    ((camluv_request_t *)fs)->uv_request =
+                              (uv_req_t *)&(fs->uv_fs);
+
     rc = uv_fs_mkdir(camluv_loop->uv_loop,
                      &(fs->uv_fs),
                      String_val(path),
                      Int_val(mode),
                      camluv_fs_cb);
-
-    camluv_init_request_with_loop((camluv_request_t *)
-                                  &(fs->camluv_request),
-                                  camluv_loop);
-
-    (fs->uv_fs).data = fs;
-    ((camluv_request_t *)fs)->uv_request =
-                              (uv_req_t *)&(fs->uv_fs);
+    if (rc != UV_OK) {
+      // TODO: error handling.
+    }
   }
 
   camluv_rc = camluv_errno_c2ml(rc);
@@ -376,18 +475,21 @@ camluv_fs_rmdir(value loop,
             (camluv_fs_t *)malloc(sizeof(camluv_fs_t));
     // TODO: where to free this fs, in the camluv_fs_cb?
 
+    camluv_init_request_with_loop((camluv_request_t *)
+                                  &(fs->camluv_request),
+                                  camluv_loop);
+    (fs->uv_fs).data = fs;
+    fs->fs_cb = fs_cb;
+    ((camluv_request_t *)fs)->uv_request =
+                              (uv_req_t *)&(fs->uv_fs);
+
     rc = uv_fs_rmdir(camluv_loop->uv_loop,
                      &(fs->uv_fs),
                      String_val(path),
                      camluv_fs_cb);
-
-    camluv_init_request_with_loop((camluv_request_t *)
-                                  &(fs->camluv_request),
-                                  camluv_loop);
-
-    (fs->uv_fs).data = fs;
-    ((camluv_request_t *)fs)->uv_request =
-                              (uv_req_t *)&(fs->uv_fs);
+    if (rc != UV_OK) {
+      // TODO: error handling.
+    }
   }
 
   camluv_rc = camluv_errno_c2ml(rc);
@@ -411,19 +513,22 @@ camluv_fs_readdir(value loop,
             (camluv_fs_t *)malloc(sizeof(camluv_fs_t));
     // TODO: where to free this fs, in the camluv_fs_cb?
 
-    rc = uv_fs_readdir(camluv_loop->uv_loop,
-                     &(fs->uv_fs),
-                     String_val(path),
-                     Int_val(flags),
-                     camluv_fs_cb);
-
     camluv_init_request_with_loop((camluv_request_t *)
                                   &(fs->camluv_request),
                                   camluv_loop);
-
     (fs->uv_fs).data = fs;
+    fs->fs_cb = fs_cb;
     ((camluv_request_t *)fs)->uv_request =
                               (uv_req_t *)&(fs->uv_fs);
+
+    rc = uv_fs_readdir(camluv_loop->uv_loop,
+                       &(fs->uv_fs),
+                       String_val(path),
+                       Int_val(flags),
+                       camluv_fs_cb);
+    if (rc != UV_OK) {
+      // TODO: error handling.
+    }
   }
 
   camluv_rc = camluv_errno_c2ml(rc);
@@ -446,18 +551,21 @@ camluv_fs_stat(value loop,
             (camluv_fs_t *)malloc(sizeof(camluv_fs_t));
     // TODO: where to free this fs, in the camluv_fs_cb?
 
-    rc = uv_fs_stat(camluv_loop->uv_loop,
-                     &(fs->uv_fs),
-                     String_val(path),
-                     camluv_fs_cb);
-
     camluv_init_request_with_loop((camluv_request_t *)
                                   &(fs->camluv_request),
                                   camluv_loop);
-
     (fs->uv_fs).data = fs;
+    fs->fs_cb = fs_cb;
     ((camluv_request_t *)fs)->uv_request =
                               (uv_req_t *)&(fs->uv_fs);
+
+    rc = uv_fs_stat(camluv_loop->uv_loop,
+                    &(fs->uv_fs),
+                    String_val(path),
+                    camluv_fs_cb);
+    if (rc != UV_OK) {
+      // TODO: error handling.
+    }
   }
 
   camluv_rc = camluv_errno_c2ml(rc);
@@ -480,18 +588,21 @@ camluv_fs_fstat(value loop,
             (camluv_fs_t *)malloc(sizeof(camluv_fs_t));
     // TODO: where to free this fs, in the camluv_fs_cb?
 
+    camluv_init_request_with_loop((camluv_request_t *)
+                                  &(fs->camluv_request),
+                                  camluv_loop);
+    (fs->uv_fs).data = fs;
+    fs->fs_cb = fs_cb;
+    ((camluv_request_t *)fs)->uv_request =
+                              (uv_req_t *)&(fs->uv_fs);
+
     rc = uv_fs_fstat(camluv_loop->uv_loop,
                      &(fs->uv_fs),
                      Int_val(file),
                      camluv_fs_cb);
-
-    camluv_init_request_with_loop((camluv_request_t *)
-                                  &(fs->camluv_request),
-                                  camluv_loop);
-
-    (fs->uv_fs).data = fs;
-    ((camluv_request_t *)fs)->uv_request =
-                              (uv_req_t *)&(fs->uv_fs);
+    if (rc != UV_OK) {
+      // TODO: error handling.
+    }
   }
 
   camluv_rc = camluv_errno_c2ml(rc);
@@ -515,19 +626,22 @@ camluv_fs_rename(value loop,
             (camluv_fs_t *)malloc(sizeof(camluv_fs_t));
     // TODO: where to free this fs, in the camluv_fs_cb?
 
+    camluv_init_request_with_loop((camluv_request_t *)
+                                  &(fs->camluv_request),
+                                  camluv_loop);
+    (fs->uv_fs).data = fs;
+    fs->fs_cb = fs_cb;
+    ((camluv_request_t *)fs)->uv_request =
+                              (uv_req_t *)&(fs->uv_fs);
+
     rc = uv_fs_rename(camluv_loop->uv_loop,
                       &(fs->uv_fs),
                       String_val(path),
                       String_val(new_path),
                       camluv_fs_cb);
-
-    camluv_init_request_with_loop((camluv_request_t *)
-                                  &(fs->camluv_request),
-                                  camluv_loop);
-
-    (fs->uv_fs).data = fs;
-    ((camluv_request_t *)fs)->uv_request =
-                              (uv_req_t *)&(fs->uv_fs);
+    if (rc != UV_OK) {
+      // TODO: error handling.
+    }
   }
 
   camluv_rc = camluv_errno_c2ml(rc);
@@ -550,18 +664,21 @@ camluv_fs_fsync(value loop,
             (camluv_fs_t *)malloc(sizeof(camluv_fs_t));
     // TODO: where to free this fs, in the camluv_fs_cb?
 
+    camluv_init_request_with_loop((camluv_request_t *)
+                                  &(fs->camluv_request),
+                                  camluv_loop);
+    (fs->uv_fs).data = fs;
+    fs->fs_cb = fs_cb;
+    ((camluv_request_t *)fs)->uv_request =
+                              (uv_req_t *)&(fs->uv_fs);
+
     rc = uv_fs_fsync(camluv_loop->uv_loop,
                      &(fs->uv_fs),
                      Int_val(file),
                      camluv_fs_cb);
-
-    camluv_init_request_with_loop((camluv_request_t *)
-                                  &(fs->camluv_request),
-                                  camluv_loop);
-
-    (fs->uv_fs).data = fs;
-    ((camluv_request_t *)fs)->uv_request =
-                              (uv_req_t *)&(fs->uv_fs);
+    if (rc != UV_OK) {
+      // TODO: error handling.
+    }
   }
 
   camluv_rc = camluv_errno_c2ml(rc);
@@ -584,18 +701,21 @@ camluv_fs_fdatasync(value loop,
             (camluv_fs_t *)malloc(sizeof(camluv_fs_t));
     // TODO: where to free this fs, in the camluv_fs_cb?
 
+    camluv_init_request_with_loop((camluv_request_t *)
+                                  &(fs->camluv_request),
+                                  camluv_loop);
+    (fs->uv_fs).data = fs;
+    fs->fs_cb = fs_cb;
+    ((camluv_request_t *)fs)->uv_request =
+                              (uv_req_t *)&(fs->uv_fs);
+
     rc = uv_fs_fdatasync(camluv_loop->uv_loop,
                          &(fs->uv_fs),
                          Int_val(file),
                          camluv_fs_cb);
-
-    camluv_init_request_with_loop((camluv_request_t *)
-                                  &(fs->camluv_request),
-                                  camluv_loop);
-
-    (fs->uv_fs).data = fs;
-    ((camluv_request_t *)fs)->uv_request =
-                              (uv_req_t *)&(fs->uv_fs);
+    if (rc != UV_OK) {
+      // TODO: error handling.
+    }
   }
 
   camluv_rc = camluv_errno_c2ml(rc);
@@ -619,19 +739,22 @@ camluv_fs_ftruncate(value loop,
             (camluv_fs_t *)malloc(sizeof(camluv_fs_t));
     // TODO: where to free this fs, in the camluv_fs_cb?
 
+    camluv_init_request_with_loop((camluv_request_t *)
+                                  &(fs->camluv_request),
+                                  camluv_loop);
+    (fs->uv_fs).data = fs;
+    fs->fs_cb = fs_cb;
+    ((camluv_request_t *)fs)->uv_request =
+                              (uv_req_t *)&(fs->uv_fs);
+
     rc = uv_fs_ftruncate(camluv_loop->uv_loop,
                          &(fs->uv_fs),
                          Int_val(file),
                          Int_val(offset),
                          camluv_fs_cb);
-
-    camluv_init_request_with_loop((camluv_request_t *)
-                                  &(fs->camluv_request),
-                                  camluv_loop);
-
-    (fs->uv_fs).data = fs;
-    ((camluv_request_t *)fs)->uv_request =
-                              (uv_req_t *)&(fs->uv_fs);
+    if (rc != UV_OK) {
+      // TODO: error handling.
+    }
   }
 
   camluv_rc = camluv_errno_c2ml(rc);
@@ -658,21 +781,24 @@ camluv_fs_sendfile_native(value loop,
             (camluv_fs_t *)malloc(sizeof(camluv_fs_t));
     // TODO: where to free this fs, in the camluv_fs_cb?
 
-    rc = uv_fs_sendfile(camluv_loop->uv_loop,
-                         &(fs->uv_fs),
-                         Int_val(out_fd),
-                         Int_val(in_fd),
-                         Int_val(in_offset),
-                         Int_val(length),
-                         camluv_fs_cb);
-
     camluv_init_request_with_loop((camluv_request_t *)
                                   &(fs->camluv_request),
                                   camluv_loop);
-
     (fs->uv_fs).data = fs;
+    fs->fs_cb = fs_cb;
     ((camluv_request_t *)fs)->uv_request =
                               (uv_req_t *)&(fs->uv_fs);
+
+    rc = uv_fs_sendfile(camluv_loop->uv_loop,
+                        &(fs->uv_fs),
+                        Int_val(out_fd),
+                        Int_val(in_fd),
+                        Int_val(in_offset),
+                        Int_val(length),
+                        camluv_fs_cb);
+    if (rc != UV_OK) {
+      // TODO: error handling.
+    }
   }
 
   camluv_rc = camluv_errno_c2ml(rc);
@@ -687,8 +813,6 @@ camluv_fs_sendfile_bytecode(value *argv, int argn)
   return camluv_fs_sendfile_native(argv[0], argv[1], argv[2],
                                    argv[3], argv[4], argv[5]);
 }
-
-
 
 CAMLprim value
 camluv_fs_chmod(value loop,
@@ -706,19 +830,22 @@ camluv_fs_chmod(value loop,
             (camluv_fs_t *)malloc(sizeof(camluv_fs_t));
     // TODO: where to free this fs, in the camluv_fs_cb?
 
+    camluv_init_request_with_loop((camluv_request_t *)
+                                  &(fs->camluv_request),
+                                  camluv_loop);
+    (fs->uv_fs).data = fs;
+    fs->fs_cb = fs_cb;
+    ((camluv_request_t *)fs)->uv_request =
+                              (uv_req_t *)&(fs->uv_fs);
+
     rc = uv_fs_chmod(camluv_loop->uv_loop,
                      &(fs->uv_fs),
                      String_val(path),
                      Int_val(mode),
                      camluv_fs_cb);
-
-    camluv_init_request_with_loop((camluv_request_t *)
-                                  &(fs->camluv_request),
-                                  camluv_loop);
-
-    (fs->uv_fs).data = fs;
-    ((camluv_request_t *)fs)->uv_request =
-                              (uv_req_t *)&(fs->uv_fs);
+    if (rc != UV_OK) {
+      // TODO: error handling.
+    }
   }
 
   camluv_rc = camluv_errno_c2ml(rc);
@@ -743,20 +870,23 @@ camluv_fs_utime_native(value loop,
             (camluv_fs_t *)malloc(sizeof(camluv_fs_t));
     // TODO: where to free this fs, in the camluv_fs_cb?
 
-    rc = uv_fs_utime(camluv_loop->uv_loop,
-                      &(fs->uv_fs),
-                      String_val(path),
-                      caml_copy_double(atime),
-                      caml_copy_double(mtime),
-                      camluv_fs_cb);
-
     camluv_init_request_with_loop((camluv_request_t *)
                                   &(fs->camluv_request),
                                   camluv_loop);
-
     (fs->uv_fs).data = fs;
+    fs->fs_cb = fs_cb;
     ((camluv_request_t *)fs)->uv_request =
                               (uv_req_t *)&(fs->uv_fs);
+
+    rc = uv_fs_utime(camluv_loop->uv_loop,
+                     &(fs->uv_fs),
+                     String_val(path),
+                     caml_copy_double(atime),
+                     caml_copy_double(mtime),
+                     camluv_fs_cb);
+    if (rc != UV_OK) {
+      // TODO: error handling.
+    }
   }
 
   camluv_rc = camluv_errno_c2ml(rc);
@@ -788,20 +918,23 @@ camluv_fs_futime_native(value loop,
             (camluv_fs_t *)malloc(sizeof(camluv_fs_t));
     // TODO: where to free this fs, in the camluv_fs_cb?
 
+    camluv_init_request_with_loop((camluv_request_t *)
+                                  &(fs->camluv_request),
+                                  camluv_loop);
+    (fs->uv_fs).data = fs;
+    fs->fs_cb = fs_cb;
+    ((camluv_request_t *)fs)->uv_request =
+                              (uv_req_t *)&(fs->uv_fs);
+
     rc = uv_fs_futime(camluv_loop->uv_loop,
                       &(fs->uv_fs),
                       Int_val(file),
                       caml_copy_double(atime),
                       caml_copy_double(mtime),
                       camluv_fs_cb);
-
-    camluv_init_request_with_loop((camluv_request_t *)
-                                  &(fs->camluv_request),
-                                  camluv_loop);
-
-    (fs->uv_fs).data = fs;
-    ((camluv_request_t *)fs)->uv_request =
-                              (uv_req_t *)&(fs->uv_fs);
+    if (rc != UV_OK) {
+      // TODO: error handling.
+    }
   }
 
   camluv_rc = camluv_errno_c2ml(rc);
@@ -831,18 +964,21 @@ camluv_fs_lstat(value loop,
             (camluv_fs_t *)malloc(sizeof(camluv_fs_t));
     // TODO: where to free this fs, in the camluv_fs_cb?
 
-    rc = uv_fs_lstat(camluv_loop->uv_loop,
-                         &(fs->uv_fs),
-                         String_val(path),
-                         camluv_fs_cb);
-
     camluv_init_request_with_loop((camluv_request_t *)
                                   &(fs->camluv_request),
                                   camluv_loop);
-
     (fs->uv_fs).data = fs;
+    fs->fs_cb = fs_cb;
     ((camluv_request_t *)fs)->uv_request =
                               (uv_req_t *)&(fs->uv_fs);
+
+    rc = uv_fs_lstat(camluv_loop->uv_loop,
+                     &(fs->uv_fs),
+                     String_val(path),
+                     camluv_fs_cb);
+    if (rc != UV_OK) {
+      // TODO: error handling.
+    }
   }
 
   camluv_rc = camluv_errno_c2ml(rc);
@@ -866,19 +1002,22 @@ camluv_fs_link(value loop,
             (camluv_fs_t *)malloc(sizeof(camluv_fs_t));
     // TODO: where to free this fs, in the camluv_fs_cb?
 
-    rc = uv_fs_link(camluv_loop->uv_loop,
-                         &(fs->uv_fs),
-                         String_val(path),
-                         String_val(new_path),
-                         camluv_fs_cb);
-
     camluv_init_request_with_loop((camluv_request_t *)
                                   &(fs->camluv_request),
                                   camluv_loop);
-
     (fs->uv_fs).data = fs;
+    fs->fs_cb = fs_cb;
     ((camluv_request_t *)fs)->uv_request =
                               (uv_req_t *)&(fs->uv_fs);
+
+    rc = uv_fs_link(camluv_loop->uv_loop,
+                    &(fs->uv_fs),
+                    String_val(path),
+                    String_val(new_path),
+                    camluv_fs_cb);
+    if (rc != UV_OK) {
+      // TODO: error handling.
+    }
   }
 
   camluv_rc = camluv_errno_c2ml(rc);
@@ -903,20 +1042,23 @@ camluv_fs_symlink_native(value loop,
             (camluv_fs_t *)malloc(sizeof(camluv_fs_t));
     // TODO: where to free this fs, in the camluv_fs_cb?
 
-    rc = uv_fs_symlink(camluv_loop->uv_loop,
-                         &(fs->uv_fs),
-                         String_val(path),
-                         String_val(new_path),
-                         Int_val(flags),
-                         camluv_fs_cb);
-
     camluv_init_request_with_loop((camluv_request_t *)
                                   &(fs->camluv_request),
                                   camluv_loop);
-
     (fs->uv_fs).data = fs;
+    fs->fs_cb = fs_cb;
     ((camluv_request_t *)fs)->uv_request =
                               (uv_req_t *)&(fs->uv_fs);
+
+    rc = uv_fs_symlink(camluv_loop->uv_loop,
+                       &(fs->uv_fs),
+                       String_val(path),
+                       String_val(new_path),
+                       Int_val(flags),
+                       camluv_fs_cb);
+    if (rc != UV_OK) {
+      // TODO: error handling.
+    }
   }
 
   camluv_rc = camluv_errno_c2ml(rc);
@@ -946,18 +1088,21 @@ camluv_fs_readlink(value loop,
             (camluv_fs_t *)malloc(sizeof(camluv_fs_t));
     // TODO: where to free this fs, in the camluv_fs_cb?
 
-    rc = uv_fs_readlink(camluv_loop->uv_loop,
-                         &(fs->uv_fs),
-                         String_val(path),
-                         camluv_fs_cb);
-
     camluv_init_request_with_loop((camluv_request_t *)
                                   &(fs->camluv_request),
                                   camluv_loop);
-
     (fs->uv_fs).data = fs;
+    fs->fs_cb = fs_cb;
     ((camluv_request_t *)fs)->uv_request =
                               (uv_req_t *)&(fs->uv_fs);
+
+    rc = uv_fs_readlink(camluv_loop->uv_loop,
+                        &(fs->uv_fs),
+                        String_val(path),
+                        camluv_fs_cb);
+    if (rc != UV_OK) {
+      // TODO: error handling.
+    }
   }
 
   camluv_rc = camluv_errno_c2ml(rc);
@@ -981,19 +1126,22 @@ camluv_fs_fchmod(value loop,
             (camluv_fs_t *)malloc(sizeof(camluv_fs_t));
     // TODO: where to free this fs, in the camluv_fs_cb?
 
-    rc = uv_fs_fchmod(camluv_loop->uv_loop,
-                         &(fs->uv_fs),
-                         Int_val(file),
-                         Int_val(mode),
-                         camluv_fs_cb);
-
     camluv_init_request_with_loop((camluv_request_t *)
                                   &(fs->camluv_request),
                                   camluv_loop);
-
     (fs->uv_fs).data = fs;
+    fs->fs_cb = fs_cb;
     ((camluv_request_t *)fs)->uv_request =
                               (uv_req_t *)&(fs->uv_fs);
+
+    rc = uv_fs_fchmod(camluv_loop->uv_loop,
+                      &(fs->uv_fs),
+                      Int_val(file),
+                      Int_val(mode),
+                      camluv_fs_cb);
+    if (rc != UV_OK) {
+      // TODO: error handling.
+    }
   }
 
   camluv_rc = camluv_errno_c2ml(rc);
@@ -1018,20 +1166,23 @@ camluv_fs_chown_native(value loop,
             (camluv_fs_t *)malloc(sizeof(camluv_fs_t));
     // TODO: where to free this fs, in the camluv_fs_cb?
 
+    camluv_init_request_with_loop((camluv_request_t *)
+                                  &(fs->camluv_request),
+                                  camluv_loop);
+    (fs->uv_fs).data = fs;
+    fs->fs_cb = fs_cb;
+    ((camluv_request_t *)fs)->uv_request =
+                              (uv_req_t *)&(fs->uv_fs);
+
     rc = uv_fs_chown(camluv_loop->uv_loop,
                      &(fs->uv_fs),
                      String_val(path),
                      Int_val(uid),
                      Int_val(gid),
                      camluv_fs_cb);
-
-    camluv_init_request_with_loop((camluv_request_t *)
-                                  &(fs->camluv_request),
-                                  camluv_loop);
-
-    (fs->uv_fs).data = fs;
-    ((camluv_request_t *)fs)->uv_request =
-                              (uv_req_t *)&(fs->uv_fs);
+    if (rc != UV_OK) {
+      // TODO: error handling.
+    }
   }
 
   camluv_rc = camluv_errno_c2ml(rc);
@@ -1063,20 +1214,23 @@ camluv_fs_fchown_native(value loop,
             (camluv_fs_t *)malloc(sizeof(camluv_fs_t));
     // TODO: where to free this fs, in the camluv_fs_cb?
 
-    rc = uv_fs_fchown(camluv_loop->uv_loop,
-                         &(fs->uv_fs),
-                         Int_val(file),
-                         Int_val(uid),
-                         Int_val(gid),
-                         camluv_fs_cb);
-
     camluv_init_request_with_loop((camluv_request_t *)
                                   &(fs->camluv_request),
                                   camluv_loop);
-
     (fs->uv_fs).data = fs;
+    fs->fs_cb = fs_cb;
     ((camluv_request_t *)fs)->uv_request =
                               (uv_req_t *)&(fs->uv_fs);
+
+    rc = uv_fs_fchown(camluv_loop->uv_loop,
+                      &(fs->uv_fs),
+                      Int_val(file),
+                      Int_val(uid),
+                      Int_val(gid),
+                      camluv_fs_cb);
+    if (rc != UV_OK) {
+      // TODO: error handling.
+    }
   }
 
   camluv_rc = camluv_errno_c2ml(rc);

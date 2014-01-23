@@ -16,6 +16,8 @@ type poll
 
 type signal
 
+type fs
+
 type fs_event
 
 type fs_poll
@@ -249,6 +251,9 @@ type uv_prepare_cb = prepare -> int -> unit
 (* Poll callback type definition *)
 type uv_poll_cb = poll -> int -> uv_poll_event -> unit
 
+(* Filesystem callback type definition *)
+type uv_fs_cb = fs -> unit
+
 (* Signal callback type definition *)
 type uv_signal_cb = signal -> int -> unit
 
@@ -368,6 +373,46 @@ module Poll =
     external stop: poll -> uv_errno = "camluv_poll_stop"
   end
 
+module Fs =
+  struct
+    external close: loop -> int -> uv_fs_cb = "camluv_fs_close"
+    external openfile: loop -> string -> int -> int -> uv_errno =
+        "camluv_fs_open_bytecode" "camluv_fs_open_native"
+    external read: loop -> int -> int -> int -> uv_fs_cb -> string =
+        "camluv_fs_read_bytecode" "camluv_fs_read_native"
+    external unlink: loop -> string -> uv_fs_cb -> uv_errno = "camluv_fs_unlink"
+    external write: loop -> int -> string -> int -> int ->uv_fs_cb -> uv_errno =
+        "camluv_fs_write_bytecode" "camluv_fs_write_native"
+    external mkdir: loop -> string -> int ->uv_fs_cb -> uv_errno = "camluv_fs_mkdir"
+    external rmdir: loop -> string ->uv_fs_cb -> uv_errno = "camluv_fs_rmdir"
+    external readdir: loop -> string -> int ->uv_fs_cb -> uv_errno = "camluv_fs_readdir"
+    external stat: loop -> string ->uv_fs_cb -> uv_errno = "camluv_fs_stat"
+    external fstat: loop -> int ->uv_fs_cb -> uv_errno = "camluv_fs_fstat"
+    external rename: loop -> string -> string ->uv_fs_cb -> uv_errno = "camluv_fs_rename"
+    external fsync: loop -> int -> uv_fs_cb -> uv_errno = "camluv_fs_fsync"
+    external fdatasync: loop -> int -> uv_fs_cb -> uv_errno = "camluv_fs_fdatasync"
+    external ftruncate: loop -> int -> int -> uv_fs_cb -> uv_errno = "camluv_fs_ftruncate"
+    external sendfile: loop -> int -> int -> int -> int -> uv_fs_cb -> uv_errno =
+        "camluv_fs_sendfile_bytecode" "camluv_fs_sendfile_native"
+    external chmod: loop -> string -> int -> uv_fs_cb -> uv_errno = "camluv_fs_chmod"
+    external utime: loop -> string -> float -> float -> uv_fs_cb -> uv_errno = "camluv_fs_utime"
+    external futime: loop -> int -> float -> float -> uv_fs_cb -> uv_errno = "camluv_fs_futime"
+    external lstat: loop -> string -> uv_fs_cb -> uv_errno = "camluv_fs_lstat"
+    external link: loop -> string -> string -> uv_fs_cb -> uv_errno = "camluv_fs_link"
+    external symlink: loop -> string -> string -> int -> uv_fs_cb -> uv_errno =
+        "camluv_fs_symlink_bytecode" "camluv_fs_symlink_native"
+    external readlink: loop -> string -> uv_fs_cb -> uv_errno = "camluv_fs_readlink"
+    external fchmod: loop -> int -> int -> uv_fs_cb -> uv_errno = "camluv_fs_fchmod"
+    external chown: loop -> string -> int -> int -> uv_fs_cb -> uv_errno =
+        "camluv_fs_chown_bytecode" "camluv_fs_chown_native"
+    external fchown: loop -> int -> int -> int -> uv_fs_cb -> uv_errno =
+        "camluv_fs_fchown_bytecode" "camluv_fs_fchown_native"
+    external get_result: fs -> int = "camluv_fs_get_result"
+    external get_path: fs -> string = "camluv_fs_get_path"
+    external get_stat: fs -> uv_stat = "camluv_fs_get_stat"
+    external clean: fs -> unit = "camluv_fs_req_cleanup"
+  end
+
 module Signal =
   struct
     external init: loop -> signal = "camluv_signal_init"
@@ -396,7 +441,7 @@ module TCP =
   struct
     external init: loop -> tcp = "camluv_tcp_init"
     external create: loop -> tcp = "camluv_tcp_init"
-    external open_fd: tcp -> int -> uv_errno = "camluv_tcp_open"
+    external openfd: tcp -> int -> uv_errno = "camluv_tcp_open"
     external bind: tcp -> uv_sockaddr -> uv_errno = "camluv_tcp_bind"
     external listen: tcp -> int -> uv_tcp_connection_cb -> uv_errno = "camluv_tcp_listen"
     external accept: tcp -> tcp = "camluv_tcp_accept"
@@ -427,7 +472,7 @@ module UDP =
   struct
     external init: loop -> udp = "camluv_udp_init"
     external create: loop -> udp = "camluv_udp_init"
-    external open_fd: udp -> int -> uv_errno = "camluv_udp_open"
+    external openfd: udp -> int -> uv_errno = "camluv_udp_open"
     external bind: udp -> uv_sockaddr -> uv_errno = "camluv_udp_bind"
     external getsockname: udp -> uv_sockaddr = "camluv_udp_getsockname"
     external set_multicast_loop: udp-> int -> uv_errno = "camluv_udp_set_multicast_loop"
@@ -451,7 +496,7 @@ module Pipe =
   struct
     external init: loop -> pipe = "camluv_pipe_init"
     external create: loop -> pipe = "camluv_pipe_init"
-    external open_fd: pipe -> int -> uv_errno = "camluv_pipe_open"
+    external openfd: pipe -> int -> uv_errno = "camluv_pipe_open"
     external bind: pipe -> string -> uv_errno = "camluv_pipe_bind"
     external listen: pipe -> int -> uv_pipe_connection_cb -> uv_errno = "camluv_pipe_listen"
     external accept: pipe -> pipe = "camluv_pipe_accept"
