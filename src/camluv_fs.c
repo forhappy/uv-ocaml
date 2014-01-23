@@ -34,6 +34,7 @@
 #include <uv.h>
 
 #include "camluv.h"
+#include "camluv_handle.h"
 #include "camluv_loop.h"
 #include "camluv_fs.h"
 
@@ -145,7 +146,7 @@ camluv_fs_cb(uv_fs_t * req)
 
   callback(fs_cb, camluv_req);
 
-  if (req != NULL) free(req);
+  if (camluv_fs != NULL) free(camluv_fs);
 
   camluv_leave_callback();
 }
@@ -198,6 +199,19 @@ camluv_fs_get_stat(value fs)
 }
 
 CAMLprim value
+camluv_fs_get_loop(value fs)
+{
+  CAMLparam1(fs);
+  CAMLlocal1(loop);
+
+  camluv_fs_t *camluv_fs = camluv_fs_struct_val(fs);
+  loop = camluv_copy_loop(camluv_fs->camluv_loop);
+
+  CAMLreturn(loop);
+}
+
+
+CAMLprim value
 camluv_fs_close(value loop, value file, value fs_cb)
 {
   CAMLparam3(loop, file, fs_cb);
@@ -215,6 +229,7 @@ camluv_fs_close(value loop, value file, value fs_cb)
                                   &(fs->camluv_request),
                                   camluv_loop);
     (fs->uv_fs).data = fs;
+    fs->camluv_loop = camluv_loop;
     fs->fs_cb = fs_cb;
     ((camluv_request_t *)fs)->uv_request =
                               (uv_req_t *)&(fs->uv_fs);
@@ -245,6 +260,7 @@ camluv_fs_open_native(value loop,
 
   int rc = -1;
   camluv_loop_t *camluv_loop = camluv_loop_struct_val(loop);
+  printf("camluv_loop: %p.\n", camluv_loop);
   if (camluv_loop->uv_loop != NULL) {
     camluv_fs_t *fs =
             (camluv_fs_t *)malloc(sizeof(camluv_fs_t));
@@ -254,6 +270,7 @@ camluv_fs_open_native(value loop,
                                   &(fs->camluv_request),
                                   camluv_loop);
     (fs->uv_fs).data = fs;
+    fs->camluv_loop = camluv_loop;
     fs->fs_cb = fs_cb;
     ((camluv_request_t *)fs)->uv_request =
                               (uv_req_t *)&(fs->uv_fs);
@@ -304,6 +321,7 @@ camluv_fs_read_native(value loop,
                                   &(fs->camluv_request),
                                   camluv_loop);
     (fs->uv_fs).data = fs;
+    fs->camluv_loop = camluv_loop;
     fs->fs_cb = fs_cb;
     ((camluv_request_t *)fs)->uv_request =
                               (uv_req_t *)&(fs->uv_fs);
@@ -352,6 +370,7 @@ camluv_fs_unlink(value loop,
                                   &(fs->camluv_request),
                                   camluv_loop);
     (fs->uv_fs).data = fs;
+    fs->camluv_loop = camluv_loop;
     fs->fs_cb = fs_cb;
     ((camluv_request_t *)fs)->uv_request =
                               (uv_req_t *)&(fs->uv_fs);
@@ -384,6 +403,7 @@ camluv_fs_write_native(value loop,
 
   int rc = -1;
   camluv_loop_t *camluv_loop = camluv_loop_struct_val(loop);
+  printf("camluv_loop: %p.\n", camluv_loop);
   if (camluv_loop->uv_loop != NULL) {
     camluv_fs_t *fs =
             (camluv_fs_t *)malloc(sizeof(camluv_fs_t));
@@ -393,6 +413,7 @@ camluv_fs_write_native(value loop,
                                   &(fs->camluv_request),
                                   camluv_loop);
     (fs->uv_fs).data = fs;
+    fs->camluv_loop = camluv_loop;
     fs->fs_cb = fs_cb;
     ((camluv_request_t *)fs)->uv_request =
                               (uv_req_t *)&(fs->uv_fs);
@@ -441,6 +462,7 @@ camluv_fs_mkdir(value loop,
                                   &(fs->camluv_request),
                                   camluv_loop);
     (fs->uv_fs).data = fs;
+    fs->camluv_loop = camluv_loop;
     fs->fs_cb = fs_cb;
     ((camluv_request_t *)fs)->uv_request =
                               (uv_req_t *)&(fs->uv_fs);
@@ -479,6 +501,7 @@ camluv_fs_rmdir(value loop,
                                   &(fs->camluv_request),
                                   camluv_loop);
     (fs->uv_fs).data = fs;
+    fs->camluv_loop = camluv_loop;
     fs->fs_cb = fs_cb;
     ((camluv_request_t *)fs)->uv_request =
                               (uv_req_t *)&(fs->uv_fs);
@@ -517,6 +540,7 @@ camluv_fs_readdir(value loop,
                                   &(fs->camluv_request),
                                   camluv_loop);
     (fs->uv_fs).data = fs;
+    fs->camluv_loop = camluv_loop;
     fs->fs_cb = fs_cb;
     ((camluv_request_t *)fs)->uv_request =
                               (uv_req_t *)&(fs->uv_fs);
@@ -555,6 +579,7 @@ camluv_fs_stat(value loop,
                                   &(fs->camluv_request),
                                   camluv_loop);
     (fs->uv_fs).data = fs;
+    fs->camluv_loop = camluv_loop;
     fs->fs_cb = fs_cb;
     ((camluv_request_t *)fs)->uv_request =
                               (uv_req_t *)&(fs->uv_fs);
@@ -592,6 +617,7 @@ camluv_fs_fstat(value loop,
                                   &(fs->camluv_request),
                                   camluv_loop);
     (fs->uv_fs).data = fs;
+    fs->camluv_loop = camluv_loop;
     fs->fs_cb = fs_cb;
     ((camluv_request_t *)fs)->uv_request =
                               (uv_req_t *)&(fs->uv_fs);
@@ -630,6 +656,7 @@ camluv_fs_rename(value loop,
                                   &(fs->camluv_request),
                                   camluv_loop);
     (fs->uv_fs).data = fs;
+    fs->camluv_loop = camluv_loop;
     fs->fs_cb = fs_cb;
     ((camluv_request_t *)fs)->uv_request =
                               (uv_req_t *)&(fs->uv_fs);
@@ -668,6 +695,7 @@ camluv_fs_fsync(value loop,
                                   &(fs->camluv_request),
                                   camluv_loop);
     (fs->uv_fs).data = fs;
+    fs->camluv_loop = camluv_loop;
     fs->fs_cb = fs_cb;
     ((camluv_request_t *)fs)->uv_request =
                               (uv_req_t *)&(fs->uv_fs);
@@ -705,6 +733,7 @@ camluv_fs_fdatasync(value loop,
                                   &(fs->camluv_request),
                                   camluv_loop);
     (fs->uv_fs).data = fs;
+    fs->camluv_loop = camluv_loop;
     fs->fs_cb = fs_cb;
     ((camluv_request_t *)fs)->uv_request =
                               (uv_req_t *)&(fs->uv_fs);
@@ -743,6 +772,7 @@ camluv_fs_ftruncate(value loop,
                                   &(fs->camluv_request),
                                   camluv_loop);
     (fs->uv_fs).data = fs;
+    fs->camluv_loop = camluv_loop;
     fs->fs_cb = fs_cb;
     ((camluv_request_t *)fs)->uv_request =
                               (uv_req_t *)&(fs->uv_fs);
@@ -785,6 +815,7 @@ camluv_fs_sendfile_native(value loop,
                                   &(fs->camluv_request),
                                   camluv_loop);
     (fs->uv_fs).data = fs;
+    fs->camluv_loop = camluv_loop;
     fs->fs_cb = fs_cb;
     ((camluv_request_t *)fs)->uv_request =
                               (uv_req_t *)&(fs->uv_fs);
@@ -834,6 +865,7 @@ camluv_fs_chmod(value loop,
                                   &(fs->camluv_request),
                                   camluv_loop);
     (fs->uv_fs).data = fs;
+    fs->camluv_loop = camluv_loop;
     fs->fs_cb = fs_cb;
     ((camluv_request_t *)fs)->uv_request =
                               (uv_req_t *)&(fs->uv_fs);
@@ -874,6 +906,7 @@ camluv_fs_utime_native(value loop,
                                   &(fs->camluv_request),
                                   camluv_loop);
     (fs->uv_fs).data = fs;
+    fs->camluv_loop = camluv_loop;
     fs->fs_cb = fs_cb;
     ((camluv_request_t *)fs)->uv_request =
                               (uv_req_t *)&(fs->uv_fs);
@@ -922,6 +955,7 @@ camluv_fs_futime_native(value loop,
                                   &(fs->camluv_request),
                                   camluv_loop);
     (fs->uv_fs).data = fs;
+    fs->camluv_loop = camluv_loop;
     fs->fs_cb = fs_cb;
     ((camluv_request_t *)fs)->uv_request =
                               (uv_req_t *)&(fs->uv_fs);
@@ -968,6 +1002,7 @@ camluv_fs_lstat(value loop,
                                   &(fs->camluv_request),
                                   camluv_loop);
     (fs->uv_fs).data = fs;
+    fs->camluv_loop = camluv_loop;
     fs->fs_cb = fs_cb;
     ((camluv_request_t *)fs)->uv_request =
                               (uv_req_t *)&(fs->uv_fs);
@@ -1006,6 +1041,7 @@ camluv_fs_link(value loop,
                                   &(fs->camluv_request),
                                   camluv_loop);
     (fs->uv_fs).data = fs;
+    fs->camluv_loop = camluv_loop;
     fs->fs_cb = fs_cb;
     ((camluv_request_t *)fs)->uv_request =
                               (uv_req_t *)&(fs->uv_fs);
@@ -1046,6 +1082,7 @@ camluv_fs_symlink_native(value loop,
                                   &(fs->camluv_request),
                                   camluv_loop);
     (fs->uv_fs).data = fs;
+    fs->camluv_loop = camluv_loop;
     fs->fs_cb = fs_cb;
     ((camluv_request_t *)fs)->uv_request =
                               (uv_req_t *)&(fs->uv_fs);
@@ -1092,6 +1129,7 @@ camluv_fs_readlink(value loop,
                                   &(fs->camluv_request),
                                   camluv_loop);
     (fs->uv_fs).data = fs;
+    fs->camluv_loop = camluv_loop;
     fs->fs_cb = fs_cb;
     ((camluv_request_t *)fs)->uv_request =
                               (uv_req_t *)&(fs->uv_fs);
@@ -1130,6 +1168,7 @@ camluv_fs_fchmod(value loop,
                                   &(fs->camluv_request),
                                   camluv_loop);
     (fs->uv_fs).data = fs;
+    fs->camluv_loop = camluv_loop;
     fs->fs_cb = fs_cb;
     ((camluv_request_t *)fs)->uv_request =
                               (uv_req_t *)&(fs->uv_fs);
@@ -1170,6 +1209,7 @@ camluv_fs_chown_native(value loop,
                                   &(fs->camluv_request),
                                   camluv_loop);
     (fs->uv_fs).data = fs;
+    fs->camluv_loop = camluv_loop;
     fs->fs_cb = fs_cb;
     ((camluv_request_t *)fs)->uv_request =
                               (uv_req_t *)&(fs->uv_fs);
@@ -1218,6 +1258,7 @@ camluv_fs_fchown_native(value loop,
                                   &(fs->camluv_request),
                                   camluv_loop);
     (fs->uv_fs).data = fs;
+    fs->camluv_loop = camluv_loop;
     fs->fs_cb = fs_cb;
     ((camluv_request_t *)fs)->uv_request =
                               (uv_req_t *)&(fs->uv_fs);

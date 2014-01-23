@@ -375,14 +375,14 @@ module Poll =
 
 module Fs =
   struct
-    external close: loop -> int -> uv_fs_cb = "camluv_fs_close"
-    external openfile: loop -> string -> int -> int -> uv_errno =
-        "camluv_fs_open_bytecode" "camluv_fs_open_native"
+    external close: loop -> int -> uv_fs_cb -> unit= "camluv_fs_close"
+    external openfile: loop -> string -> int -> int -> uv_fs_cb -> uv_errno =
+        "camluv_fs_open_native" "camluv_fs_open_bytecode"
     external read: loop -> int -> int -> int -> uv_fs_cb -> string =
-        "camluv_fs_read_bytecode" "camluv_fs_read_native"
+        "camluv_fs_read_native" "camluv_fs_read_bytecode"
     external unlink: loop -> string -> uv_fs_cb -> uv_errno = "camluv_fs_unlink"
-    external write: loop -> int -> string -> int -> int ->uv_fs_cb -> uv_errno =
-        "camluv_fs_write_bytecode" "camluv_fs_write_native"
+    external write: loop -> int -> string -> int -> int -> uv_fs_cb -> uv_errno =
+        "camluv_fs_write_native" "camluv_fs_write_bytecode"
     external mkdir: loop -> string -> int ->uv_fs_cb -> uv_errno = "camluv_fs_mkdir"
     external rmdir: loop -> string ->uv_fs_cb -> uv_errno = "camluv_fs_rmdir"
     external readdir: loop -> string -> int ->uv_fs_cb -> uv_errno = "camluv_fs_readdir"
@@ -393,23 +393,24 @@ module Fs =
     external fdatasync: loop -> int -> uv_fs_cb -> uv_errno = "camluv_fs_fdatasync"
     external ftruncate: loop -> int -> int -> uv_fs_cb -> uv_errno = "camluv_fs_ftruncate"
     external sendfile: loop -> int -> int -> int -> int -> uv_fs_cb -> uv_errno =
-        "camluv_fs_sendfile_bytecode" "camluv_fs_sendfile_native"
+        "camluv_fs_sendfile_native" "camluv_fs_sendfile_bytecode"
     external chmod: loop -> string -> int -> uv_fs_cb -> uv_errno = "camluv_fs_chmod"
     external utime: loop -> string -> float -> float -> uv_fs_cb -> uv_errno = "camluv_fs_utime"
     external futime: loop -> int -> float -> float -> uv_fs_cb -> uv_errno = "camluv_fs_futime"
     external lstat: loop -> string -> uv_fs_cb -> uv_errno = "camluv_fs_lstat"
     external link: loop -> string -> string -> uv_fs_cb -> uv_errno = "camluv_fs_link"
     external symlink: loop -> string -> string -> int -> uv_fs_cb -> uv_errno =
-        "camluv_fs_symlink_bytecode" "camluv_fs_symlink_native"
+        "camluv_fs_symlink_native" "camluv_fs_symlink_bytecode"
     external readlink: loop -> string -> uv_fs_cb -> uv_errno = "camluv_fs_readlink"
     external fchmod: loop -> int -> int -> uv_fs_cb -> uv_errno = "camluv_fs_fchmod"
     external chown: loop -> string -> int -> int -> uv_fs_cb -> uv_errno =
-        "camluv_fs_chown_bytecode" "camluv_fs_chown_native"
+        "camluv_fs_chown_native" "camluv_fs_chown_bytecode"
     external fchown: loop -> int -> int -> int -> uv_fs_cb -> uv_errno =
-        "camluv_fs_fchown_bytecode" "camluv_fs_fchown_native"
+        "camluv_fs_fchown_native" "camluv_fs_fchown_bytecode"
     external get_result: fs -> int = "camluv_fs_get_result"
     external get_path: fs -> string = "camluv_fs_get_path"
     external get_stat: fs -> uv_stat = "camluv_fs_get_stat"
+    external get_loop: fs -> loop = "camluv_fs_get_loop"
     external clean: fs -> unit = "camluv_fs_req_cleanup"
   end
 

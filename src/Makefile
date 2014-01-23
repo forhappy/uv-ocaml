@@ -9,6 +9,7 @@ XOBJECTS=$(OBJECTS:.cmo=.cmx)
 C_OBJECTS=camluv.o\
 		  camluv_loop.o\
 		  camluv_handle.o\
+		  camluv_request.o\
 		  camluv_async.o\
 		  camluv_check.o\
 		  camluv_idle.o\

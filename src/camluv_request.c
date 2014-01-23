@@ -125,6 +125,7 @@ CAMLprim value
 camluv_cancel(value request)
 {
   CAMLparam1(request);
+  CAMLlocal1(camluv_rc);
 
   camluv_request_t *camluv_request = camluv_request_struct_val(request);
   if (camluv_request_initialized(camluv_request)) {
@@ -133,6 +134,8 @@ camluv_cancel(value request)
 
   int rc = uv_cancel(camluv_request->uv_request);
 
-  return camluv_errno_c2ml(rc);
+  camluv_rc = camluv_errno_c2ml(rc);
+
+  CAMLreturn(camluv_rc);
 }
 
