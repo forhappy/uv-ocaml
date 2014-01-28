@@ -595,9 +595,12 @@ module Barrier :
 module Process :
   sig
     external init : loop -> uv_process_options -> process
-      = "camluv_process_spwan"
-    external create : loop -> int -> int = "camluv_process_spwan"
-    external spawn : loop -> int -> int = "camluv_process_spwan"
+      = "camluv_process_spawn"
+    external create : loop -> uv_process_options -> process
+      = "camluv_process_spawn"
+    external spawn : loop -> uv_process_options -> process
+      = "camluv_process_spawn"
+    external getpid : process -> int = "camluv_process_getpid"
     external kill : process -> int -> uv_errno = "camluv_process_kill"
     external kill2 : int -> int -> uv_errno = "camluv_kill"
   end

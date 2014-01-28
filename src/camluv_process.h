@@ -37,7 +37,6 @@ typedef struct camluv_process_s_ camluv_process_t;
 struct camluv_process_s_ {
   camluv_handle_t camluv_handle;
   uv_process_t uv_process;
-  int pid;
   value exit_cb;
 };
 

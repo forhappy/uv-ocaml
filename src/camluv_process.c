@@ -38,6 +38,11 @@
 #include "camluv_loop.h"
 #include "camluv_process.h"
 
+static void
+camluv_exit_cb(uv_process_t* uv_handle,
+               int64_t exit_status,
+               int term_signal);
+
 #if defined(CAMLUV_USE_CUMSTOM_OPERATIONS)
 /**
  * TODO: we will use ocaml cumstom operations later to support
@@ -99,6 +104,8 @@ camluv_parse_process_options(value camluv_options,
   int args_len = 0, env_len = 0;
 
   if (uv_options == NULL) return -1;
+
+  uv_options->exit_cb = camluv_exit_cb;
 
   uv_options->file = String_val(Field(camluv_options, 1));
 
@@ -218,5 +225,18 @@ camluv_kill(value pid, value signum)
   camluv_rc = camluv_errno_c2ml(rc);
 
   CAMLreturn(camluv_rc);
+}
+
+CAMLprim value
+camluv_process_getpid(value process)
+{
+  CAMLparam1(process);
+  CAMLlocal1(camluv_pid);
+
+  camluv_process_t *camluv_process = camluv_process_struct_val(process);
+
+  camluv_pid = Val_int((camluv_process->uv_process).pid);
+
+  CAMLreturn(camluv_pid);
 }
 
