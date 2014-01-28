@@ -21,6 +21,7 @@ type rwlock
 type sem
 type condition
 type barrier
+type process
 type uv_buffer = { base : string; len : int; }
 type uv_sockaddr = {
   host : string;
@@ -177,6 +178,13 @@ type uv_fs_event_flags =
     UV_FS_EVENT_WATCH_ENTRY
   | UV_FS_EVENT_STAT
   | UV_FS_EVENT_RECURSIVE
+type uv_stdio_flags =
+    UV_IGNORE
+  | UV_CREATE_PIPE
+  | UV_INHERIT_FD
+  | UV_INHERIT_STREAM
+  | UV_READABLE_PIPE
+  | UV_WRITABLE_PIPE
 type uv_process_flags =
     UV_PROCESS_SETUID
   | UV_PROCESS_SETGID
@@ -219,6 +227,17 @@ type uv_tty_close_cb = tty -> unit
 type uv_tty_shutdown_cb = tty -> int -> unit
 type uv_work_cb = unit -> unit
 type uv_after_work_cb = int -> unit
+type uv_exit_cb = process -> int64 -> int -> unit
+type uv_process_options = {
+  exit_cb : uv_exit_cb;
+  file : string;
+  args : string array;
+  env : string array;
+  cwd : string;
+  flags : int;
+  uid : int;
+  gid : int;
+}
 module Loop :
   sig
     external create : unit -> loop = "camluv_loop_new"
@@ -572,6 +591,15 @@ module Barrier :
     external create : int -> barrier = "camluv_barrier_init"
     external destroy : barrier -> unit = "camluv_barrier_destroy"
     external wait : barrier -> unit = "camluv_barrier_wait"
+  end
+module Process :
+  sig
+    external init : loop -> uv_process_options -> process
+      = "camluv_process_spwan"
+    external create : loop -> int -> int = "camluv_process_spwan"
+    external spawn : loop -> int -> int = "camluv_process_spwan"
+    external kill : process -> int -> uv_errno = "camluv_process_kill"
+    external kill2 : int -> int -> uv_errno = "camluv_kill"
   end
 module Util :
   sig

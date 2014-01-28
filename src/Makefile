@@ -30,7 +30,8 @@ C_OBJECTS=camluv.o\
 		  camluv_rwlock.o\
 		  camluv_sem.o\
 		  camluv_thread.o\
-		  camluv_threadpool.o
+		  camluv_threadpool.o\
+		  camluv_process.o
 
 ARCHIVE=$(NAME).cma
 XARCHIVE=$(ARCHIVE:.cma=.cmxa)
