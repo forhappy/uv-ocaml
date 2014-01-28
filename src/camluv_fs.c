@@ -260,7 +260,6 @@ camluv_fs_open_native(value loop,
 
   int rc = -1;
   camluv_loop_t *camluv_loop = camluv_loop_struct_val(loop);
-  printf("camluv_loop: %p.\n", camluv_loop);
   if (camluv_loop->uv_loop != NULL) {
     camluv_fs_t *fs =
             (camluv_fs_t *)malloc(sizeof(camluv_fs_t));
@@ -403,7 +402,6 @@ camluv_fs_write_native(value loop,
 
   int rc = -1;
   camluv_loop_t *camluv_loop = camluv_loop_struct_val(loop);
-  printf("camluv_loop: %p.\n", camluv_loop);
   if (camluv_loop->uv_loop != NULL) {
     camluv_fs_t *fs =
             (camluv_fs_t *)malloc(sizeof(camluv_fs_t));

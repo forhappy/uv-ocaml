@@ -382,7 +382,7 @@ module Fs =
         "camluv_fs_read_native" "camluv_fs_read_bytecode"
     external unlink: loop -> string -> uv_fs_cb -> uv_errno = "camluv_fs_unlink"
     external write: loop -> int -> string -> int -> int -> uv_fs_cb -> uv_errno =
-        "camluv_fs_write_native" "camluv_fs_write_bytecode"
+        "camluv_fs_write_bytecode" "camluv_fs_write_native"
     external mkdir: loop -> string -> int -> uv_fs_cb -> uv_errno = "camluv_fs_mkdir"
     external rmdir: loop -> string -> uv_fs_cb -> uv_errno = "camluv_fs_rmdir"
     external readdir: loop -> string -> int -> uv_fs_cb -> uv_errno = "camluv_fs_readdir"
