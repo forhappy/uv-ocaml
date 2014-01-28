@@ -314,6 +314,7 @@ camluv_fs_read_native(value loop,
     camluv_fs_t *fs =
             (camluv_fs_t *)malloc(sizeof(camluv_fs_t));
     readbuf = (char *)malloc(sizeof(char) * length_hint);
+    memset(readbuf, 0, sizeof(char) * length_hint);
     // TODO: where to free this fs, in the camluv_fs_cb?
 
     camluv_init_request_with_loop((camluv_request_t *)
