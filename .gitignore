@@ -1,9 +1,5 @@
-*.annot
-*.cmo
-*.cma
-*.cmi
-*.a
-*.o
-*.cmx
-*.cmxs
-*.cmxa
+_build/
+setup.*
+*.native
+*.byte
+*.docdir
