@@ -462,7 +462,8 @@ camluv_tcp_bind(value tcp, value addr)
   camluv_tcp_t *camluv_tcp = camluv_tcp_struct_val(tcp);
   camluv_parse_sockaddr(addr, &ss);
 
-  int rc = uv_tcp_bind(&(camluv_tcp->uv_tcp), (struct sockaddr *)&ss);
+  // TODO: add argument 'flag' below (set to zero currently)
+  int rc = uv_tcp_bind(&(camluv_tcp->uv_tcp), (struct sockaddr *)&ss,0);
   if (rc != UV_OK) {
     // TODO: error handling.
   }

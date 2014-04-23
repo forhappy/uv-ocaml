@@ -1,0 +1,29 @@
+# OASIS_START
+# DO NOT EDIT (digest: 8f17d1f41db11ceea0cdad2120a035d5)
+camluv.o
+camluv_async.o
+camluv_barrier.o
+camluv_check.o
+camluv_condition.o
+camluv_fs.o
+camluv_fs_event.o
+camluv_fs_poll.o
+camluv_handle.o
+camluv_idle.o
+camluv_key.o
+camluv_loop.o
+camluv_mutex.o
+camluv_pipe.o
+camluv_poll.o
+camluv_prepare.o
+camluv_process.o
+camluv_request.o
+camluv_rwlock.o
+camluv_sem.o
+camluv_signal.o
+camluv_tcp.o
+camluv_thread.o
+camluv_timer.o
+camluv_tty.o
+camluv_udp.o
+# OASIS_STOP

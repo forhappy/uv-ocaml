@@ -1,5 +1,11 @@
-name="camluv"
-version="0.0.1"
-description="Libuv ocaml binding"
-archive(byte)="camluv.cma"
-archive(native)="camluv.cmxa"
+# OASIS_START
+# DO NOT EDIT (digest: ad4103c0e238010b2be67d788260e6f8)
+version = "0.0.1"
+description = "OCaml bindings to libuv"
+archive(byte) = "camluv.cma"
+archive(byte, plugin) = "camluv.cma"
+archive(native) = "camluv.cmxa"
+archive(native, plugin) = "camluv.cmxs"
+exists_if = "camluv.cma"
+# OASIS_STOP
+

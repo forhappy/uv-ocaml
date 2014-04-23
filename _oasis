@@ -1,0 +1,55 @@
+OASISFormat: 0.3
+Name: camluv
+Version: 0.0.1
+Synopsis: OCaml bindings to libuv
+Authors:
+Maintainers:
+License: MIT
+OCamlVersion: >= 3.12.0
+FindlibVersion: >= 1.3.1
+BuildTools: ocamlbuild, ocamldoc
+Plugins: META (0.3)
+
+Flag strict
+  Description: Strict compile-time checks
+  Default: true
+
+Library camluv
+  Path: src
+  Pack: true
+  Modules: Uv
+  CSources: camluv.c,           camluv.h,
+            camluv_async.c,     camluv_async.h,
+            camluv_barrier.c,   camluv_barrier.h,
+            camluv_check.c,     camluv_check.h,
+            camluv_condition.c, camluv_condition.h,
+            camluv_fs.c,        camluv_fs.h,
+            camluv_fs_event.c,  camluv_fs_event.h,
+            camluv_fs_poll.c,   camluv_fs_poll.h,
+            camluv_handle.c,    camluv_handle.h,
+            camluv_idle.c,      camluv_idle.h,
+            camluv_key.c,       camluv_key.h,
+            camluv_loop.c,      camluv_loop.h,
+            camluv_mutex.c,     camluv_mutex.h,
+#           camluv_once.c,      camluv_once.h,
+            camluv_pipe.c,      camluv_pipe.h,
+            camluv_poll.c,      camluv_poll.h,
+            camluv_prepare.c,   camluv_prepare.h,
+            camluv_process.c,   camluv_process.h,
+            camluv_request.c,   camluv_request.h,
+            camluv_rwlock.c,    camluv_rwlock.h,
+            camluv_sem.c,       camluv_sem.h,
+            camluv_signal.c,    camluv_signal.h,
+            camluv_tcp.c,       camluv_tcp.h,
+            camluv_thread.c,    camluv_thread.h,
+#           camluv_threadpool.c,camluv_threadpool.h,
+            camluv_timer.c,     camluv_timer.h,
+            camluv_tty.c,       camluv_tty.h,
+            camluv_udp.c,       camluv_udp.h
+  CCOpt: -O2 -g
+  if flag(strict) && ccomp_type(cc)
+    CCOpt+: -Wall -pedantic -Wextra -Wunused
+  if flag(strict)
+    NativeOpt: -w @a -warn-error -a
+    ByteOpt: -w @a -warn-error -a
+
