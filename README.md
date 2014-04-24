@@ -36,16 +36,9 @@ Run,
   make
   make install
 
-To compile Examples and Tests,
+To compile Tests,
 
-  make tests.[native|byte]
-  make examples.[native|byte]
-
-to run the tests,
-
-  ./test.[native|byte]
-
-and examples, once compiled, are located in the examples/ directory.
+  make tests
 
 # Contributing #
 
