@@ -1,5 +1,5 @@
 # OASIS_START
-# DO NOT EDIT (digest: 8f17d1f41db11ceea0cdad2120a035d5)
+# DO NOT EDIT (digest: 660962590ac6ebdc0ab0e3d50eb816c1)
 camluv.o
 camluv_async.o
 camluv_barrier.o
@@ -23,6 +23,7 @@ camluv_sem.o
 camluv_signal.o
 camluv_tcp.o
 camluv_thread.o
+camluv_threadpool.o
 camluv_timer.o
 camluv_tty.o
 camluv_udp.o

@@ -199,7 +199,7 @@ and Handle :
     external loop: t -> Loop.t = "camluv_loop"
   end
 
-module Idle = (** DONE **)
+module Idle =
   struct
     type t
   
@@ -211,7 +211,7 @@ module Idle = (** DONE **)
     external stop: t -> uv_errno = "camluv_idle_stop"
   end
 
-module Timer = (** DONE **)
+module Timer =
   struct
     type t
 
@@ -226,7 +226,7 @@ module Timer = (** DONE **)
     external get_repeat: t -> int64 = "camluv_timer_get_repeat"
   end
 
-module Async = (** DONE **)
+module Async =
   struct
     type t
 
@@ -234,11 +234,12 @@ module Async = (** DONE **)
 
     external init: Loop.t -> t = "camluv_async_init"
     external create: Loop.t -> t = "camluv_async_init"
-    external start: t -> cb -> uv_errno = "camluv_async_start"
+    (* Does Not Exist
+     * external start: t -> cb -> uv_errno = "camluv_async_start" *)
     external stop: t -> uv_errno = "camluv_async_stop"
   end
 
-module Check = (** DONE **)
+module Check =
   struct
 
     type t
@@ -251,7 +252,7 @@ module Check = (** DONE **)
     external stop: t -> uv_errno = "camluv_check_stop"
   end
 
-module Prepare = (** DONE **)
+module Prepare =
   struct
 
     type t
@@ -264,7 +265,7 @@ module Prepare = (** DONE **)
     external stop: t -> uv_errno = "camluv_prepare_stop"
   end
 
-module Poll = (** DONE **)
+module Poll =
   struct
     type t
 
@@ -279,7 +280,7 @@ module Poll = (** DONE **)
     external stop: t -> uv_errno = "camluv_poll_stop"
   end
 
-module Fs = (** DONE **)
+module Fs =
   struct
     type t
 
@@ -325,8 +326,8 @@ module Fs = (** DONE **)
     external ftruncate: Loop.t -> int -> int -> cb -> uv_errno = "camluv_fs_ftruncate"
     external sendfile: Loop.t -> int -> int -> int -> int -> cb -> uv_errno = "camluv_fs_sendfile_native" "camluv_fs_sendfile_bytecode"
     external chmod: Loop.t -> string -> int -> cb -> uv_errno = "camluv_fs_chmod"
-    external utime: Loop.t -> string -> float -> float -> cb -> uv_errno = "camluv_fs_utime"
-    external futime: Loop.t -> int -> float -> float -> cb -> uv_errno = "camluv_fs_futime"
+    external utime: Loop.t -> string -> float -> float -> cb -> uv_errno = "camluv_fs_utime_native" "camluv_fs_utime_bytecode"
+    external futime: Loop.t -> int -> float -> float -> cb -> uv_errno = "camluv_fs_futime_native" "camluv_fs_futime_bytecode"
     external lstat: Loop.t -> string -> cb -> uv_errno = "camluv_fs_lstat"
     external link: Loop.t -> string -> string -> cb -> uv_errno = "camluv_fs_link"
     external symlink: Loop.t -> string -> string -> int -> cb -> uv_errno = "camluv_fs_symlink_native" "camluv_fs_symlink_bytecode"
@@ -341,7 +342,7 @@ module Fs = (** DONE **)
     external clean: t -> unit = "camluv_fs_req_cleanup"
   end
 
-module Signal =  (** DONE **)
+module Signal =
   struct
     type t
 
@@ -353,7 +354,7 @@ module Signal =  (** DONE **)
     external stop: t -> uv_errno = "camluv_signal_stop"
   end
 
-module FsEvent = (** DONE **)
+module FsEvent =
   struct
     type t
 
@@ -399,7 +400,7 @@ module FsEvent = (** DONE **)
     external stop: t -> uv_errno = "camluv_fs_event_stop"
   end
 
-module FsPoll = (** DONE **)
+module FsPoll =
   struct
     type t
 
@@ -411,7 +412,7 @@ module FsPoll = (** DONE **)
     external stop: t -> uv_errno = "camluv_fs_poll_stop"
   end
 
-module TCP = (** DONE **)
+module TCP =
   struct
     type t
 
@@ -435,7 +436,8 @@ module TCP = (** DONE **)
     external keepalive: t -> int -> int -> uv_errno = "camluv_tcp_nodelay"
     external simultaneous_accepts: Loop.t -> int -> uv_errno = "camluv_tcp_simultaneous_accepts"
     external start_read: t -> cb_read -> uv_errno = "camluv_tcp_start_read"
-    external stop_read: t -> uv_errno = "camluv_tcp_stop_read"
+    (* DOES NOT EXIST
+     * external stop_read: t -> uv_errno = "camluv_tcp_stop_read" *)
     external write: t -> uv_buffer array-> cb_write -> uv_errno = "camluv_tcp_start_write"
     external close: t -> cb_close -> unit = "camluv_tcp_close"
     external shutdown: t -> cb_shutdown -> uv_errno = "camluv_tcp_shutdown"
@@ -451,7 +453,7 @@ module TCP = (** DONE **)
     external loop: t -> Loop.t = "camluv_tcp_loop"
   end
 
-module UDP = (** DONE **)
+module UDP =
   struct
     type t
 
@@ -489,7 +491,7 @@ module UDP = (** DONE **)
     external loop: t -> Loop.t = "camluv_udp_loop"
   end
 
-module Pipe = (** DONE **)
+module Pipe =
   struct
 
     type t
@@ -509,17 +511,18 @@ module Pipe = (** DONE **)
     external listen: t -> int -> cb_connection -> uv_errno = "camluv_pipe_listen"
     external accept: t -> t = "camluv_pipe_accept"
     external connect: t -> string -> cb_connect -> uv_errno = "camluv_pipe_connect"
-    external getsockname: t -> uv_sockaddr = "camluv_pipe_getsockname"
-    external getpeername: t -> uv_sockaddr = "camluv_pipe_getpeername"
-    external nodelay: t -> int -> uv_errno = "camluv_pipe_nodelay"
-    external keepalive: t -> int -> int -> uv_errno = "camluv_pipe_nodelay"
-    external simultaneous_accepts: Loop.t -> int -> uv_errno = "camluv_pipe_simultaneous_accepts"
     external start_read: t -> cb_read -> uv_errno = "camluv_pipe_start_read"
     external start_read2: t -> cb_read2 -> uv_errno = "camluv_pipe_start_read2"
-    external stop_read: t -> uv_errno = "camluv_pipe_stop_read"
-    external write: t -> uv_buffer array-> cb_write -> uv_errno = "camluv_pipe_start_write"
-    external write_tcp: t -> uv_buffer array-> TCP.t -> cb_write -> uv_errno = "camluv_pipe_start_write2_tcp"
-    external write_pipe: t -> uv_buffer array-> TCP.t -> cb_write -> uv_errno = "camluv_pipe_start_write"
+    (* DOES NOT EXIST
+     * external getsockname: t -> uv_sockaddr = "camluv_pipe_getsockname"
+     * external getpeername: t -> uv_sockaddr = "camluv_pipe_getpeername"
+     * external nodelay: t -> int -> uv_errno = "camluv_pipe_nodelay"
+     * external keepalive: t -> int -> int -> uv_errno = "camluv_pipe_nodelay"
+     * external simultaneous_accepts: Loop.t -> int -> uv_errno = "camluv_pipe_simultaneous_accepts"
+     * external stop_read: t -> uv_errno = "camluv_pipe_stop_read"
+     * external write: t -> uv_buffer array-> cb_write -> uv_errno = "camluv_pipe_start_write"
+     * external write_tcp: t -> uv_buffer array-> TCP.t -> cb_write -> uv_errno = "camluv_pipe_start_write2_tcp"
+     * external write_pipe: t -> uv_buffer array-> TCP.t -> cb_write -> uv_errno = "camluv_pipe_start_write" *)
     external close: t -> cb_close -> unit = "camluv_pipe_close"
     external shutdown: t -> cb_shutdown -> uv_errno = "camluv_pipe_shutdown"
     external is_readable: t -> int = "camluv_pipe_is_readable"
@@ -534,7 +537,7 @@ module Pipe = (** DONE **)
     external loop: t -> Loop.t = "camluv_pipe_loop"
   end
 
-module TTY = (** DONE **)
+module TTY =
   struct
     type t
 
@@ -565,7 +568,7 @@ module TTY = (** DONE **)
     external loop: t -> Loop.t = "camluv_tty_loop"
   end
 
-module Thread = (** DONE **)
+module Thread =
   struct
 
     type t
@@ -576,7 +579,7 @@ module Thread = (** DONE **)
     external join: t -> uv_errno = "camluv_thread_join"
   end
 
-module Key = (** DONE **)
+module Key =
   struct
 
     type t
@@ -588,7 +591,7 @@ module Key = (** DONE **)
     external set: t -> 'a -> unit = "camluv_key_set"
   end
 
-module Mutex = (** DONE **)
+module Mutex =
   struct
 
     type t
@@ -601,7 +604,7 @@ module Mutex = (** DONE **)
     external trylock: t -> int = "camluv_mutex_trylock"
   end
 
-module RWlock = (** DONE **)
+module RWlock =
   struct
 
     type t
@@ -617,7 +620,7 @@ module RWlock = (** DONE **)
     external trywrlock: t -> int = "camluv_rwlock_trywrlock"
   end
 
-module Semaphore = (** DONE **)
+module Semaphore =
   struct
 
     type t
@@ -630,7 +633,7 @@ module Semaphore = (** DONE **)
     external trywait: t -> int = "camluv_sem_trywait"
   end
 
-module Condition = (** DONE **)
+module Condition =
   struct
 
     type t
@@ -643,7 +646,7 @@ module Condition = (** DONE **)
     external wait: t -> Mutex.t -> unit = "camluv_condition_wait"
   end
 
-module Barrier = (** DONE **)
+module Barrier =
   struct
 
     type t
@@ -654,7 +657,7 @@ module Barrier = (** DONE **)
     external wait: t -> unit = "camluv_barrier_wait"
   end
 
-module Process = (** DONE **)
+module Process =
   struct
 
     type t
@@ -690,7 +693,8 @@ module Process = (** DONE **)
 
 module Util =
   struct
-    external strerror: int -> string = "camluv_strerror"
+    (* DOES NOT EXIST
+     * external str_error: int -> string = "camluv_strerror" *)
     external err_name: int -> string = "camluv_err_name"
   end
 

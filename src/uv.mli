@@ -88,6 +88,7 @@ type uv_stdio_flags =
   | UV_READABLE_PIPE
   | UV_WRITABLE_PIPE
 
+
 module rec Loop :
   sig
     type t
@@ -139,6 +140,7 @@ and Handle :
     val has_ref : t -> int
     val loop : t -> Loop.t
   end
+
 module Idle :
   sig
     type t
@@ -148,6 +150,7 @@ module Idle :
     val start : t -> cb -> uv_errno 
     val stop : t -> uv_errno 
   end
+
 module Timer :
   sig
     type t
@@ -160,15 +163,17 @@ module Timer :
     val set_repeat : t -> int64 -> unit 
     val get_repeat : t -> int64 
   end
+
 module Async :
   sig
     type t
     type cb = t -> int -> unit
     val init : Loop.t -> t 
     val create : Loop.t -> t 
-    val start : t -> cb -> uv_errno 
+    (* val start : t -> cb -> uv_errno *)
     val stop : t -> uv_errno 
   end
+
 module Check :
   sig
     type t
@@ -178,6 +183,7 @@ module Check :
     val start : t -> cb -> uv_errno 
     val stop : t -> uv_errno 
   end
+
 module Prepare :
   sig
     type t
@@ -187,6 +193,7 @@ module Prepare :
     val start : t -> cb -> uv_errno 
     val stop : t -> uv_errno 
   end
+
 module Poll :
   sig
     type t
@@ -198,6 +205,7 @@ module Poll :
     val fileno : t -> int 
     val stop : t -> uv_errno 
   end
+
 module Fs :
   sig
     type t
@@ -252,6 +260,7 @@ module Fs :
     val get_loop : t -> Loop.t 
     val clean : t -> unit 
   end
+
 module Signal :
   sig
     type t
@@ -261,6 +270,7 @@ module Signal :
     val start : t -> cb -> int -> uv_errno 
     val stop : t -> uv_errno 
   end
+
 module FsEvent :
   sig
     type t
@@ -302,6 +312,7 @@ module FsEvent :
     val start : t -> cb -> string -> int -> uv_errno 
     val stop : t -> uv_errno 
   end
+
 module FsPoll :
   sig
     type t
@@ -311,6 +322,7 @@ module FsPoll :
     val start : t -> cb -> string -> int -> uv_errno 
     val stop : t -> uv_errno 
   end
+
 module TCP :
   sig
     type t
@@ -333,7 +345,7 @@ module TCP :
     val keepalive : t -> int -> int -> uv_errno 
     val simultaneous_accepts : Loop.t -> int -> uv_errno 
     val start_read : t -> cb_read -> uv_errno 
-    val stop_read : t -> uv_errno 
+    (* val stop_read : t -> uv_errno *)
     val write : t -> uv_buffer array -> cb_write -> uv_errno 
     val close : t -> cb_close -> unit 
     val shutdown : t -> cb_shutdown -> uv_errno 
@@ -348,6 +360,7 @@ module TCP :
     val has_ref : t -> int 
     val loop : t -> Loop.t 
   end
+
 module UDP :
   sig
     type t
@@ -378,6 +391,7 @@ module UDP :
     val has_ref : t -> int 
     val loop : t -> Loop.t 
   end
+
 module Pipe :
   sig
     type t
@@ -395,17 +409,17 @@ module Pipe :
     val listen : t -> int -> cb_connection -> uv_errno 
     val accept : t -> t 
     val connect : t -> string -> cb_connect -> uv_errno 
-    val getsockname : t -> uv_sockaddr 
-    val getpeername : t -> uv_sockaddr 
-    val nodelay : t -> int -> uv_errno 
-    val keepalive : t -> int -> int -> uv_errno 
-    val simultaneous_accepts : Loop.t -> int -> uv_errno 
+    (* val getsockname : t -> uv_sockaddr *)
+    (* val getpeername : t -> uv_sockaddr *)
+    (* val nodelay : t -> int -> uv_errno *)
+    (* val keepalive : t -> int -> int -> uv_errno *)
+    (* val simultaneous_accepts : Loop.t -> int -> uv_errno *)
     val start_read : t -> cb_read -> uv_errno 
     val start_read2 : t -> cb_read2 -> uv_errno 
-    val stop_read : t -> uv_errno 
-    val write : t -> uv_buffer array -> cb_write -> uv_errno 
-    val write_tcp : t -> uv_buffer array -> TCP.t -> cb_write -> uv_errno 
-    val write_pipe : t -> uv_buffer array -> TCP.t -> cb_write -> uv_errno 
+    (* val stop_read : t -> uv_errno *)
+    (* val write : t -> uv_buffer array -> cb_write -> uv_errno *)
+    (* val write_tcp : t -> uv_buffer array -> TCP.t -> cb_write -> uv_errno *)
+    (* val write_pipe : t -> uv_buffer array -> TCP.t -> cb_write -> uv_errno *)
     val close : t -> cb_close -> unit 
     val shutdown : t -> cb_shutdown -> uv_errno 
     val is_readable : t -> int 
@@ -419,6 +433,7 @@ module Pipe :
     val has_ref : t -> int 
     val loop : t -> Loop.t 
   end
+
 module TTY :
   sig
     type t
@@ -447,6 +462,7 @@ module TTY :
     val has_ref : t -> int 
     val loop : t -> Loop.t 
   end
+
 module Thread :
   sig
     type t
@@ -455,6 +471,7 @@ module Thread :
     val self : unit -> int 
     val join : t -> uv_errno 
   end
+
 module Key :
   sig
     type t
@@ -464,6 +481,7 @@ module Key :
     val get : t -> 'a 
     val set : t -> 'a -> unit 
   end
+
 module Mutex :
   sig
     type t
@@ -474,6 +492,7 @@ module Mutex :
     val unlock : t -> unit 
     val trylock : t -> int 
   end
+
 module RWlock :
   sig
     type t
@@ -487,6 +506,7 @@ module RWlock :
     val wrunlock : t -> unit 
     val trywrlock : t -> int 
   end
+
 module Semaphore :
   sig
     type t
@@ -497,6 +517,7 @@ module Semaphore :
     val wait : t -> unit 
     val trywait : t -> int 
   end
+
 module Condition :
   sig
     type t
@@ -507,6 +528,7 @@ module Condition :
     val broadcast : t -> unit 
     val wait : t -> Mutex.t -> unit 
   end
+
 module Barrier :
   sig
     type t
@@ -515,11 +537,12 @@ module Barrier :
     val destroy : t -> unit 
     val wait : t -> unit 
   end
+
 module Process :
   sig
     type t
     type cb = t -> int64 -> int -> unit
-    type flags =
+    type flags = 
         UV_PROCESS_SETUID
       | UV_PROCESS_SETGID
       | UV_PROCESS_WINDOWS_VERBATIM_ARGUMENTS
@@ -542,8 +565,9 @@ module Process :
     val kill : t -> int -> uv_errno 
     val kill2 : int -> int -> uv_errno 
   end
+
 module Util :
   sig
-    val strerror : int -> string 
+    (* val strerror : int -> string *)
     val err_name : int -> string 
   end
