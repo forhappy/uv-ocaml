@@ -1,13 +1,13 @@
-type uv_buffer = { base : string; len : int; }
+type buffer = { base : string; len : int; }
 
-type uv_sockaddr = {
+type sockaddr = {
   host : string;
   port : int;
   scope_id : int;
   flowinfo : int;
 }
 
-type uv_errno =
+type errno =
     UV_OK
   | UV_E2BIG
   | UV_EACCES
@@ -80,7 +80,7 @@ type uv_errno =
   | UV_UNKNOWN
   | UV_EOF
 
-type uv_stdio_flags =
+type stdio_flags =
     UV_IGNORE
   | UV_CREATE_PIPE
   | UV_INHERIT_FD
@@ -98,14 +98,14 @@ module rec Loop :
     val create : unit -> t
     val default : unit -> t
     val delete : t -> unit
-    val run : t -> run_mode -> uv_errno
+    val run : t -> run_mode -> errno
     val stop : t -> unit
     val now : t -> int64
     val update_time : t -> unit
     val backend_fd : t -> int32
     val backend_timeout : t -> int32
     val walk : t -> Handle.cb_walk -> string -> unit
-    val queue_work : t -> cb_work -> cb_after_work -> uv_errno
+    val queue_work : t -> cb_work -> cb_after_work -> errno
   end
 and Handle :
   sig
@@ -147,8 +147,8 @@ module Idle :
     type cb = t -> int -> unit
     val init : Loop.t -> t 
     val create : Loop.t -> t 
-    val start : t -> cb -> uv_errno 
-    val stop : t -> uv_errno 
+    val start : t -> cb -> errno 
+    val stop : t -> errno 
   end
 
 module Timer :
@@ -157,9 +157,9 @@ module Timer :
     type cb = t -> int -> unit
     val init : Loop.t -> t 
     val create : Loop.t -> t 
-    val start : t -> cb -> int64 -> int64 -> uv_errno
-    val stop : t -> uv_errno 
-    val again : t -> uv_errno 
+    val start : t -> cb -> int64 -> int64 -> errno
+    val stop : t -> errno 
+    val again : t -> errno 
     val set_repeat : t -> int64 -> unit 
     val get_repeat : t -> int64 
   end
@@ -170,8 +170,8 @@ module Async :
     type cb = t -> int -> unit
     val init : Loop.t -> t 
     val create : Loop.t -> t 
-    (* val start : t -> cb -> uv_errno *)
-    val stop : t -> uv_errno 
+    (* val start : t -> cb -> errno *)
+    val stop : t -> errno 
   end
 
 module Check :
@@ -180,8 +180,8 @@ module Check :
     type cb = t -> int -> unit
     val init : Loop.t -> t 
     val create : Loop.t -> t 
-    val start : t -> cb -> uv_errno 
-    val stop : t -> uv_errno 
+    val start : t -> cb -> errno 
+    val stop : t -> errno 
   end
 
 module Prepare :
@@ -190,8 +190,8 @@ module Prepare :
     type cb = t -> int -> unit
     val init : Loop.t -> t 
     val create : Loop.t -> t 
-    val start : t -> cb -> uv_errno 
-    val stop : t -> uv_errno 
+    val start : t -> cb -> errno 
+    val stop : t -> errno 
   end
 
 module Poll :
@@ -201,9 +201,9 @@ module Poll :
     type cb = t -> int -> event -> unit
     val init : Loop.t -> int -> t 
     val create : Loop.t -> int -> t 
-    val start : t -> event -> cb -> uv_errno 
+    val start : t -> event -> cb -> errno 
     val fileno : t -> int 
-    val stop : t -> uv_errno 
+    val stop : t -> errno 
   end
 
 module Fs :
@@ -230,30 +230,30 @@ module Fs :
       st_birthtim : timestamp;
     }
     val close : Loop.t -> int -> cb -> unit 
-    val openfile : Loop.t -> string -> int -> int -> cb -> uv_errno 
+    val openfile : Loop.t -> string -> int -> int -> cb -> errno 
     val read : Loop.t -> int -> int -> int -> cb -> string 
-    val unlink : Loop.t -> string -> cb -> uv_errno 
-    val write : Loop.t -> int -> string -> int -> int -> cb -> uv_errno 
-    val mkdir : Loop.t -> string -> int -> cb -> uv_errno 
-    val rmdir : Loop.t -> string -> cb -> uv_errno 
-    val readdir : Loop.t -> string -> int -> cb -> uv_errno 
-    val stat : Loop.t -> string -> cb -> uv_errno 
-    val fstat : Loop.t -> int -> cb -> uv_errno 
-    val rename : Loop.t -> string -> string -> cb -> uv_errno 
-    val fsync : Loop.t -> int -> cb -> uv_errno 
-    val fdatasync : Loop.t -> int -> cb -> uv_errno 
-    val ftruncate : Loop.t -> int -> int -> cb -> uv_errno 
-    val sendfile : Loop.t -> int -> int -> int -> int -> cb -> uv_errno 
-    val chmod : Loop.t -> string -> int -> cb -> uv_errno 
-    val utime : Loop.t -> string -> float -> float -> cb -> uv_errno 
-    val futime : Loop.t -> int -> float -> float -> cb -> uv_errno 
-    val lstat : Loop.t -> string -> cb -> uv_errno 
-    val link : Loop.t -> string -> string -> cb -> uv_errno 
-    val symlink : Loop.t -> string -> string -> int -> cb -> uv_errno 
-    val readlink : Loop.t -> string -> cb -> uv_errno 
-    val fchmod : Loop.t -> int -> int -> cb -> uv_errno 
-    val chown : Loop.t -> string -> int -> int -> cb -> uv_errno 
-    val fchown : Loop.t -> int -> int -> int -> cb -> uv_errno 
+    val unlink : Loop.t -> string -> cb -> errno 
+    val write : Loop.t -> int -> string -> int -> int -> cb -> errno 
+    val mkdir : Loop.t -> string -> int -> cb -> errno 
+    val rmdir : Loop.t -> string -> cb -> errno 
+    val readdir : Loop.t -> string -> int -> cb -> errno 
+    val stat : Loop.t -> string -> cb -> errno 
+    val fstat : Loop.t -> int -> cb -> errno 
+    val rename : Loop.t -> string -> string -> cb -> errno 
+    val fsync : Loop.t -> int -> cb -> errno 
+    val fdatasync : Loop.t -> int -> cb -> errno 
+    val ftruncate : Loop.t -> int -> int -> cb -> errno 
+    val sendfile : Loop.t -> int -> int -> int -> int -> cb -> errno 
+    val chmod : Loop.t -> string -> int -> cb -> errno 
+    val utime : Loop.t -> string -> float -> float -> cb -> errno 
+    val futime : Loop.t -> int -> float -> float -> cb -> errno 
+    val lstat : Loop.t -> string -> cb -> errno 
+    val link : Loop.t -> string -> string -> cb -> errno 
+    val symlink : Loop.t -> string -> string -> int -> cb -> errno 
+    val readlink : Loop.t -> string -> cb -> errno 
+    val fchmod : Loop.t -> int -> int -> cb -> errno 
+    val chown : Loop.t -> string -> int -> int -> cb -> errno 
+    val fchown : Loop.t -> int -> int -> int -> cb -> errno 
     val get_result : t -> int 
     val get_path : t -> string 
     val get_stat : t -> stat 
@@ -267,15 +267,15 @@ module Signal :
     type cb = t -> int -> unit
     val init : Loop.t -> t 
     val create : Loop.t -> t 
-    val start : t -> cb -> int -> uv_errno 
-    val stop : t -> uv_errno 
+    val start : t -> cb -> int -> errno 
+    val stop : t -> errno 
   end
 
 module FsEvent :
   sig
     type t
     type cb = t -> string -> int -> int -> unit
-    type uv_fs_type =
+    type fs_type =
         UV_FS_UNKNOWN
       | UV_FS_CUSTOM
       | UV_FS_OPEN
@@ -303,14 +303,14 @@ module FsEvent :
       | UV_FS_READLINK
       | UV_FS_CHOWN
       | UV_FS_FCHOWN
-    type uv_fs_event_flags =
+    type fs_event_flags =
         UV_FS_EVENT_WATCH_ENTRY
       | UV_FS_EVENT_STAT
       | UV_FS_EVENT_RECURSIVE
     val init : Loop.t -> t 
     val create : Loop.t -> t 
-    val start : t -> cb -> string -> int -> uv_errno 
-    val stop : t -> uv_errno 
+    val start : t -> cb -> string -> int -> errno 
+    val stop : t -> errno 
   end
 
 module FsPoll :
@@ -319,8 +319,8 @@ module FsPoll :
     type cb = t -> int -> Fs.stat -> Fs.stat -> unit
     val init : Loop.t -> t 
     val create : Loop.t -> t 
-    val start : t -> cb -> string -> int -> uv_errno 
-    val stop : t -> uv_errno 
+    val start : t -> cb -> string -> int -> errno 
+    val stop : t -> errno 
   end
 
 module TCP :
@@ -330,25 +330,25 @@ module TCP :
     type cb_connection = t -> int -> unit
     type cb_close = t -> unit
     type cb_shutdown = t -> int -> unit
-    type cb_read = t -> int -> uv_buffer array -> unit
+    type cb_read = t -> int -> buffer array -> unit
     type cb_write = t -> int -> unit
     val init : Loop.t -> t 
     val create : Loop.t -> t 
-    val openfd : t -> int -> uv_errno 
-    val bind : t -> uv_sockaddr -> uv_errno 
-    val listen : t -> int -> cb_connection -> uv_errno 
+    val openfd : t -> int -> errno 
+    val bind : t -> sockaddr -> errno 
+    val listen : t -> int -> cb_connection -> errno 
     val accept : t -> t 
-    val connect : t -> uv_sockaddr -> cb_connect -> uv_errno 
-    val getsockname : t -> uv_sockaddr 
-    val getpeername : t -> uv_sockaddr 
-    val nodelay : t -> int -> uv_errno 
-    val keepalive : t -> int -> int -> uv_errno 
-    val simultaneous_accepts : Loop.t -> int -> uv_errno 
-    val start_read : t -> cb_read -> uv_errno 
-    (* val stop_read : t -> uv_errno *)
-    val write : t -> uv_buffer array -> cb_write -> uv_errno 
+    val connect : t -> sockaddr -> cb_connect -> errno 
+    val getsockname : t -> sockaddr 
+    val getpeername : t -> sockaddr 
+    val nodelay : t -> int -> errno 
+    val keepalive : t -> int -> int -> errno 
+    val simultaneous_accepts : Loop.t -> int -> errno 
+    val start_read : t -> cb_read -> errno 
+    (* val stop_read : t -> errno *)
+    val write : t -> buffer array -> cb_write -> errno 
     val close : t -> cb_close -> unit 
-    val shutdown : t -> cb_shutdown -> uv_errno 
+    val shutdown : t -> cb_shutdown -> errno 
     val is_readable : t -> int 
     val is_writable : t -> int 
     val write_queue_size : t -> int 
@@ -364,25 +364,27 @@ module TCP :
 module UDP :
   sig
     type t
+
     type flags = UV_UDP_IPV6ONLY | UV_UDP_PARTIAL
     type membership = UV_LEAVE_GROUP | UV_JOIN_GROUP
+
     type cb_close = t -> unit
     type cb_send = t -> int -> unit
-    type cb_recv =
-        t -> int -> uv_buffer array -> uv_sockaddr -> flags -> unit
+    type cb_recv = t -> int -> buffer array -> sockaddr -> flags -> unit
+
     val init : Loop.t -> t 
     val create : Loop.t -> t 
-    val openfd : t -> int -> uv_errno 
-    val bind : t -> uv_sockaddr -> uv_errno 
-    val getsockname : t -> uv_sockaddr 
-    val set_multicast_loop : t -> int -> uv_errno 
-    val set_multicast_ttl : t -> int -> uv_errno 
-    val set_broadcast : t -> int -> uv_errno 
-    val set_ttl : t -> int -> uv_errno 
-    val set_membership : t -> string -> string -> membership -> uv_errno 
-    val start_recv : t -> cb_recv -> uv_errno 
-    val stop_recv : t -> uv_errno 
-    val send : t -> uv_sockaddr -> uv_buffer array -> cb_send -> uv_errno 
+    val openfd : t -> int -> errno 
+    val bind : t -> sockaddr -> errno 
+    val getsockname : t -> sockaddr 
+    val set_multicast_loop : t -> int -> errno 
+    val set_multicast_ttl : t -> int -> errno 
+    val set_broadcast : t -> int -> errno 
+    val set_ttl : t -> int -> errno 
+    val set_membership : t -> string -> string -> membership -> errno 
+    val start_recv : t -> cb_recv -> errno 
+    val stop_recv : t -> errno 
+    val send : t -> sockaddr -> buffer array -> cb_send -> errno 
     val close : t -> cb_close -> unit 
     val is_closing : t -> int 
     val is_active : t -> int 
@@ -395,33 +397,33 @@ module UDP :
 module Pipe :
   sig
     type t
+
     type cb_connect = t -> int -> unit
     type cb_connection = t -> int -> unit
     type cb_close = t -> unit
     type cb_shutdown = t -> int -> unit
-    type cb_read = t -> int -> uv_buffer array -> unit
-    type cb_read2 = t -> int -> uv_buffer array -> Handle.t -> unit
+    type cb_read = t -> int -> buffer array -> unit
     type cb_write = t -> int -> unit
+
     val init : Loop.t -> t 
     val create : Loop.t -> t 
-    val openfd : t -> int -> uv_errno 
-    val bind : t -> string -> uv_errno 
-    val listen : t -> int -> cb_connection -> uv_errno 
+    val openfd : t -> int -> errno 
+    val bind : t -> string -> errno 
+    val listen : t -> int -> cb_connection -> errno 
     val accept : t -> t 
-    val connect : t -> string -> cb_connect -> uv_errno 
-    (* val getsockname : t -> uv_sockaddr *)
-    (* val getpeername : t -> uv_sockaddr *)
-    (* val nodelay : t -> int -> uv_errno *)
-    (* val keepalive : t -> int -> int -> uv_errno *)
-    (* val simultaneous_accepts : Loop.t -> int -> uv_errno *)
-    val start_read : t -> cb_read -> uv_errno 
-    val start_read2 : t -> cb_read2 -> uv_errno 
-    (* val stop_read : t -> uv_errno *)
-    (* val write : t -> uv_buffer array -> cb_write -> uv_errno *)
-    (* val write_tcp : t -> uv_buffer array -> TCP.t -> cb_write -> uv_errno *)
-    (* val write_pipe : t -> uv_buffer array -> TCP.t -> cb_write -> uv_errno *)
+    val connect : t -> string -> cb_connect -> errno 
+    (* val getsockname : t -> sockaddr *)
+    (* val getpeername : t -> sockaddr *)
+    (* val nodelay : t -> int -> errno *)
+    (* val keepalive : t -> int -> int -> errno *)
+    (* val simultaneous_accepts : Loop.t -> int -> errno *)
+    val start_read : t -> cb_read -> errno 
+    (* val stop_read : t -> errno *)
+    (* val write : t -> buffer array -> cb_write -> errno *)
+    (* val write_tcp : t -> buffer array -> TCP.t -> cb_write -> errno *)
+    (* val write_pipe : t -> buffer array -> TCP.t -> cb_write -> errno *)
     val close : t -> cb_close -> unit 
-    val shutdown : t -> cb_shutdown -> uv_errno 
+    val shutdown : t -> cb_shutdown -> errno 
     val is_readable : t -> int 
     val is_writable : t -> int 
     val write_queue_size : t -> int 
@@ -437,20 +439,20 @@ module Pipe :
 module TTY :
   sig
     type t
-    type cb_read = t -> int -> uv_buffer array -> unit
+    type cb_read = t -> int -> buffer array -> unit
     type cb_write = t -> int -> unit
     type cb_close = t -> unit
     type cb_shutdown = t -> int -> unit
     val init : Loop.t -> int -> int -> t 
     val create : Loop.t -> int -> int 
-    val set_mode : t -> int -> uv_errno 
-    val reset_mode : unit -> uv_errno 
-    val start_read : t -> cb_read -> uv_errno 
-    val stop_read : t -> uv_errno 
-    val write : t -> uv_buffer array -> cb_write -> uv_errno 
+    val set_mode : t -> int -> errno 
+    val reset_mode : unit -> errno 
+    val start_read : t -> cb_read -> errno 
+    val stop_read : t -> errno 
+    val write : t -> buffer array -> cb_write -> errno 
     val window_size : t -> int * int 
     val close : t -> cb_close -> unit 
-    val shutdown : t -> cb_shutdown -> uv_errno 
+    val shutdown : t -> cb_shutdown -> errno 
     val is_readable : t -> int 
     val is_writable : t -> int 
     val write_queue_size : t -> int 
@@ -469,7 +471,7 @@ module Thread :
     val init : ('a -> unit) -> 'a -> t 
     val create : ('a -> unit) -> 'a -> t 
     val self : unit -> int 
-    val join : t -> uv_errno 
+    val join : t -> errno 
   end
 
 module Key :
@@ -562,12 +564,12 @@ module Process :
     val create : Loop.t -> opts -> t 
     val spawn : Loop.t -> opts -> t 
     val getpid : t -> int 
-    val kill : t -> int -> uv_errno 
-    val kill2 : int -> int -> uv_errno 
+    val kill : t -> int -> errno 
+    val killpid : int -> int -> errno 
   end
 
 module Util :
   sig
-    (* val strerror : int -> string *)
+    val strerror : int -> string
     val err_name : int -> string 
   end

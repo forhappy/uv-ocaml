@@ -1,5 +1,5 @@
 (* OASIS_START *)
-(* DO NOT EDIT (digest: 2b4732fb76680a39d43e005da7b4dac1) *)
+(* DO NOT EDIT (digest: 6c80834b2ccc9080bc46ab97d6b85c51) *)
 module OASISGettext = struct
 (* # 22 "src/oasis/OASISGettext.ml" *)
 
@@ -601,11 +601,11 @@ let package_default =
           ("camluv",
             "src",
             [
-               "src/camluv.h";
                "src/camluv_async.h";
                "src/camluv_barrier.h";
                "src/camluv_check.h";
                "src/camluv_condition.h";
+               "src/camluv_err.h";
                "src/camluv_fs.h";
                "src/camluv_fs_event.h";
                "src/camluv_fs_poll.h";

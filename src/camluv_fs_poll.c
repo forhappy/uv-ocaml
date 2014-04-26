@@ -33,7 +33,7 @@
 
 #include <uv.h>
 
-#include "camluv.h"
+#include "camluv_err.h"
 #include "camluv_handle.h"
 #include "camluv_loop.h"
 #include "camluv_fs_poll.h"

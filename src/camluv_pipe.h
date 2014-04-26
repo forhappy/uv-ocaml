@@ -37,7 +37,6 @@ struct camluv_pipe_s_ {
   int ipc;
   value connection_cb;
   value read_cb;
-  value read2_cb;
   value close_cb;
 };
 

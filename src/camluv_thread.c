@@ -33,7 +33,7 @@
 
 #include <uv.h>
 
-#include "camluv.h"
+#include "camluv_err.h"
 #include "camluv_thread.h"
 
 #if defined(CAMLUV_USE_CUMSTOM_OPERATIONS)

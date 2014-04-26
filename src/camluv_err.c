@@ -33,9 +33,7 @@
 
 #include <uv.h>
 
-#include "camluv.h"
-#include "camluv_loop.h"
-#include "camluv_handle.h"
+#include "camluv_err.h"
 
 static const uv_errno_t CAMLUV_ERRNO_TABLE[] = {
   UV_OK,
@@ -114,33 +112,24 @@ static const uv_errno_t CAMLUV_ERRNO_TABLE[] = {
 uv_errno_t
 camluv_errno_ml2c(value v)
 {
-  CAMLparam1(v);
-
-  uv_errno_t err = CAMLUV_ERRNO_TABLE[Long_val(v)];
-
-  CAMLreturn(err);
+  return CAMLUV_ERRNO_TABLE[Long_val(v)];
 }
 
 value
 camluv_errno_c2ml(uv_errno_t error)
 {
-  CAMLparam0();
-  CAMLlocal1(v);
   int i = 0, index = -1;
-
   for (; i < camluv_table_len(CAMLUV_ERRNO_TABLE); i++) {
     if (error == CAMLUV_ERRNO_TABLE[i]) {
       index = i;
       break;
     }
   }
-  v = Val_int(index);
-
-  CAMLreturn(v);
+  return Val_int(index);
 }
 
 CAMLprim value
-camluv_strerror(value err)
+camluv_err_strerror(value err)
 {
   CAMLparam1(err);
   CAMLlocal1(strerr);

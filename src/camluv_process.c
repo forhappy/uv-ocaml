@@ -33,7 +33,7 @@
 
 #include <uv.h>
 
-#include "camluv.h"
+#include "camluv_err.h"
 #include "camluv_handle.h"
 #include "camluv_loop.h"
 #include "camluv_process.h"
@@ -215,7 +215,7 @@ camluv_process_kill(value process, value signum)
 }
 
 CAMLprim value
-camluv_kill(value pid, value signum)
+camluv_pid_kill(value pid, value signum)
 {
   CAMLparam2(pid, signum);
   CAMLlocal1(camluv_rc);

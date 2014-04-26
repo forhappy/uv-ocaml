@@ -33,7 +33,7 @@
 
 #include <uv.h>
 
-#include "camluv.h"
+#include "camluv_err.h"
 #include "camluv_loop.h"
 #include "camluv_handle.h"
 #include "camluv_pipe.h"
@@ -213,42 +213,6 @@ static void camluv_read_cb(uv_stream_t *stream,
 
   camluv_leave_callback();
 }
-
-static void camluv_read2_cb(uv_pipe_t *stream,
-                           ssize_t nread,
-                           const uv_buf_t *buf,
-                           uv_handle_type pending)
-{
-  camluv_enter_callback();
-
-  CAMLlocal5(read2_cb,
-             camluv_pipe,
-             camluv_nread,
-             camluv_buf,
-             camluv_pending);
-
-  CAMLlocalN(args, 4);
-
-  camluv_pipe_t *pipe = (camluv_pipe_t *)(stream->data);
-  read2_cb = pipe->read2_cb;
-  camluv_pipe= camluv_copy_pipe(pipe);
-
-  // TODO: nread has type ssize_t, maybe we need
-  // higher integer precisive conversion here.
-  camluv_nread = Val_int(nread);
-  camluv_buf = camluv_make_uv_buf(buf);
-  camluv_pending = Val_int(pending); // TODO: parse uv_handle_type.
-
-  Store_field(args, 0, camluv_pipe);
-  Store_field(args, 1, camluv_nread);
-  Store_field(args, 2, camluv_buf);
-  Store_field(args, 3, camluv_pending);
-
-  caml_callbackN(read2_cb, 4, args);
-
-  camluv_leave_callback();
-}
-
 
 static void camluv_write_cb(uv_write_t *req, int status)
 {
@@ -475,26 +439,6 @@ camluv_pipe_start_read(value pipe, value read_cb)
   int rc = uv_read_start((uv_stream_t *)&(camluv_pipe->uv_pipe),
                          camluv_alloc_cb,
                          camluv_read_cb);
-  if (rc != UV_OK) {
-    // TODO: error handling.
-  }
-  camluv_rc = camluv_errno_c2ml(rc);
-
-  CAMLreturn(camluv_rc);
-}
-
-CAMLprim value
-camluv_pipe_start_read2(value pipe, value read2_cb)
-{
-  CAMLparam2(pipe, read2_cb);
-  CAMLlocal1(camluv_rc);
-
-  camluv_pipe_t *camluv_pipe = camluv_pipe_struct_val(pipe);
-  camluv_pipe->read2_cb = read2_cb;
-
-  int rc = uv_read2_start((uv_stream_t *)&(camluv_pipe->uv_pipe),
-                         camluv_alloc_cb,
-                         camluv_read2_cb);
   if (rc != UV_OK) {
     // TODO: error handling.
   }

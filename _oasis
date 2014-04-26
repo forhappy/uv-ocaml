@@ -28,11 +28,11 @@ Library camluv
   Path: src
   Pack: true
   Modules: Uv
-  CSources: camluv.c,           camluv.h,
-            camluv_async.c,     camluv_async.h,
+  CSources: camluv_async.c,     camluv_async.h,
             camluv_barrier.c,   camluv_barrier.h,
             camluv_check.c,     camluv_check.h,
             camluv_condition.c, camluv_condition.h,
+            camluv_err.c,       camluv_err.h,
             camluv_fs.c,        camluv_fs.h,
             camluv_fs_event.c,  camluv_fs_event.h,
             camluv_fs_poll.c,   camluv_fs_poll.h,

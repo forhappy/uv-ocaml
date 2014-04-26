@@ -1,5 +1,5 @@
 # OASIS_START
-# DO NOT EDIT (digest: 9997eb75fc51b831aa29dbc20fe392c0)
+# DO NOT EDIT (digest: 77026c944361f55a186576f1bad7ff56)
 # Ignore VCS directories, you can use the same kind of rule outside
 # OASIS_START/STOP if you want to exclude directories that contains
 # useless stuff for the build process
@@ -17,11 +17,11 @@
 "src/camluv.cmxs": use_camluv
 "src/uv.cmx": for-pack(Camluv)
 <src/*.ml{,i}>: oasis_library_camluv_ccopt
-"src/camluv.c": oasis_library_camluv_ccopt
 "src/camluv_async.c": oasis_library_camluv_ccopt
 "src/camluv_barrier.c": oasis_library_camluv_ccopt
 "src/camluv_check.c": oasis_library_camluv_ccopt
 "src/camluv_condition.c": oasis_library_camluv_ccopt
+"src/camluv_err.c": oasis_library_camluv_ccopt
 "src/camluv_fs.c": oasis_library_camluv_ccopt
 "src/camluv_fs_event.c": oasis_library_camluv_ccopt
 "src/camluv_fs_poll.c": oasis_library_camluv_ccopt
@@ -51,11 +51,11 @@
 "src/dllcamluv_stubs.so": oasis_library_camluv_cclib
 <src/camluv.{cma,cmxa}>: oasis_library_camluv_byte
 <src/*.ml{,i}>: oasis_library_camluv_byte
-"src/camluv.c": oasis_library_camluv_byte
 "src/camluv_async.c": oasis_library_camluv_byte
 "src/camluv_barrier.c": oasis_library_camluv_byte
 "src/camluv_check.c": oasis_library_camluv_byte
 "src/camluv_condition.c": oasis_library_camluv_byte
+"src/camluv_err.c": oasis_library_camluv_byte
 "src/camluv_fs.c": oasis_library_camluv_byte
 "src/camluv_fs_event.c": oasis_library_camluv_byte
 "src/camluv_fs_poll.c": oasis_library_camluv_byte
@@ -80,11 +80,11 @@
 "src/camluv_udp.c": oasis_library_camluv_byte
 <src/camluv.{cma,cmxa}>: oasis_library_camluv_native
 <src/*.ml{,i}>: oasis_library_camluv_native
-"src/camluv.c": oasis_library_camluv_native
 "src/camluv_async.c": oasis_library_camluv_native
 "src/camluv_barrier.c": oasis_library_camluv_native
 "src/camluv_check.c": oasis_library_camluv_native
 "src/camluv_condition.c": oasis_library_camluv_native
+"src/camluv_err.c": oasis_library_camluv_native
 "src/camluv_fs.c": oasis_library_camluv_native
 "src/camluv_fs_event.c": oasis_library_camluv_native
 "src/camluv_fs_poll.c": oasis_library_camluv_native

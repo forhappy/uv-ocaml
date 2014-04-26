@@ -1,10 +1,10 @@
 # OASIS_START
-# DO NOT EDIT (digest: 660962590ac6ebdc0ab0e3d50eb816c1)
-camluv.o
+# DO NOT EDIT (digest: 60ab1f2103f7288e2e7f0e1a64b9f057)
 camluv_async.o
 camluv_barrier.o
 camluv_check.o
 camluv_condition.o
+camluv_err.o
 camluv_fs.o
 camluv_fs_event.o
 camluv_fs_poll.o
