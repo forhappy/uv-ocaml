@@ -1,5 +1,5 @@
 # OASIS_START
-# DO NOT EDIT (digest: 6502e376544044559a46b7dfb18a1916)
+# DO NOT EDIT (digest: 77026c944361f55a186576f1bad7ff56)
 # Ignore VCS directories, you can use the same kind of rule outside
 # OASIS_START/STOP if you want to exclude directories that contains
 # useless stuff for the build process
@@ -17,11 +17,11 @@
 "src/camluv.cmxs": use_camluv
 "src/uv.cmx": for-pack(Camluv)
 <src/*.ml{,i}>: oasis_library_camluv_ccopt
-"src/camluv.c": oasis_library_camluv_ccopt
 "src/camluv_async.c": oasis_library_camluv_ccopt
 "src/camluv_barrier.c": oasis_library_camluv_ccopt
 "src/camluv_check.c": oasis_library_camluv_ccopt
 "src/camluv_condition.c": oasis_library_camluv_ccopt
+"src/camluv_err.c": oasis_library_camluv_ccopt
 "src/camluv_fs.c": oasis_library_camluv_ccopt
 "src/camluv_fs_event.c": oasis_library_camluv_ccopt
 "src/camluv_fs_poll.c": oasis_library_camluv_ccopt
@@ -40,16 +40,22 @@
 "src/camluv_signal.c": oasis_library_camluv_ccopt
 "src/camluv_tcp.c": oasis_library_camluv_ccopt
 "src/camluv_thread.c": oasis_library_camluv_ccopt
+"src/camluv_threadpool.c": oasis_library_camluv_ccopt
 "src/camluv_timer.c": oasis_library_camluv_ccopt
 "src/camluv_tty.c": oasis_library_camluv_ccopt
 "src/camluv_udp.c": oasis_library_camluv_ccopt
+<src/camluv.{cma,cmxa}>: oasis_library_camluv_cclib
+"src/libcamluv_stubs.lib": oasis_library_camluv_cclib
+"src/dllcamluv_stubs.dll": oasis_library_camluv_cclib
+"src/libcamluv_stubs.a": oasis_library_camluv_cclib
+"src/dllcamluv_stubs.so": oasis_library_camluv_cclib
 <src/camluv.{cma,cmxa}>: oasis_library_camluv_byte
 <src/*.ml{,i}>: oasis_library_camluv_byte
-"src/camluv.c": oasis_library_camluv_byte
 "src/camluv_async.c": oasis_library_camluv_byte
 "src/camluv_barrier.c": oasis_library_camluv_byte
 "src/camluv_check.c": oasis_library_camluv_byte
 "src/camluv_condition.c": oasis_library_camluv_byte
+"src/camluv_err.c": oasis_library_camluv_byte
 "src/camluv_fs.c": oasis_library_camluv_byte
 "src/camluv_fs_event.c": oasis_library_camluv_byte
 "src/camluv_fs_poll.c": oasis_library_camluv_byte
@@ -68,16 +74,17 @@
 "src/camluv_signal.c": oasis_library_camluv_byte
 "src/camluv_tcp.c": oasis_library_camluv_byte
 "src/camluv_thread.c": oasis_library_camluv_byte
+"src/camluv_threadpool.c": oasis_library_camluv_byte
 "src/camluv_timer.c": oasis_library_camluv_byte
 "src/camluv_tty.c": oasis_library_camluv_byte
 "src/camluv_udp.c": oasis_library_camluv_byte
 <src/camluv.{cma,cmxa}>: oasis_library_camluv_native
 <src/*.ml{,i}>: oasis_library_camluv_native
-"src/camluv.c": oasis_library_camluv_native
 "src/camluv_async.c": oasis_library_camluv_native
 "src/camluv_barrier.c": oasis_library_camluv_native
 "src/camluv_check.c": oasis_library_camluv_native
 "src/camluv_condition.c": oasis_library_camluv_native
+"src/camluv_err.c": oasis_library_camluv_native
 "src/camluv_fs.c": oasis_library_camluv_native
 "src/camluv_fs_event.c": oasis_library_camluv_native
 "src/camluv_fs_poll.c": oasis_library_camluv_native
@@ -96,8 +103,110 @@
 "src/camluv_signal.c": oasis_library_camluv_native
 "src/camluv_tcp.c": oasis_library_camluv_native
 "src/camluv_thread.c": oasis_library_camluv_native
+"src/camluv_threadpool.c": oasis_library_camluv_native
 "src/camluv_timer.c": oasis_library_camluv_native
 "src/camluv_tty.c": oasis_library_camluv_native
 "src/camluv_udp.c": oasis_library_camluv_native
 <src/camluv.{cma,cmxa}>: use_libcamluv_stubs
+# Executable test_runner
+<tests/tests.{native,byte}>: oasis_executable_test_runner_byte
+<tests/*.ml{,i}>: oasis_executable_test_runner_byte
+<tests/tests.{native,byte}>: oasis_executable_test_runner_native
+<tests/*.ml{,i}>: oasis_executable_test_runner_native
+<tests/tests.{native,byte}>: pkg_oUnit
+<tests/tests.{native,byte}>: use_camluv
+<tests/*.ml{,i}>: pkg_oUnit
+<tests/*.ml{,i}>: use_camluv
+# Executable hello_world
+<examples/hello_world.{native,byte}>: oasis_executable_hello_world_byte
+<examples/*.ml{,i}>: oasis_executable_hello_world_byte
+<examples/hello_world.{native,byte}>: oasis_executable_hello_world_native
+<examples/*.ml{,i}>: oasis_executable_hello_world_native
+<examples/hello_world.{native,byte}>: use_camluv
+# Executable idle_basic
+<examples/idle_basic.{native,byte}>: oasis_executable_idle_basic_byte
+<examples/*.ml{,i}>: oasis_executable_idle_basic_byte
+<examples/idle_basic.{native,byte}>: oasis_executable_idle_basic_native
+<examples/*.ml{,i}>: oasis_executable_idle_basic_native
+<examples/idle_basic.{native,byte}>: use_camluv
+# Executable process_basic
+<examples/process_basic.{native,byte}>: oasis_executable_process_basic_byte
+<examples/*.ml{,i}>: oasis_executable_process_basic_byte
+<examples/process_basic.{native,byte}>: oasis_executable_process_basic_native
+<examples/*.ml{,i}>: oasis_executable_process_basic_native
+<examples/process_basic.{native,byte}>: use_camluv
+# Executable thread_basic
+<examples/thread_basic.{native,byte}>: oasis_executable_thread_basic_byte
+<examples/*.ml{,i}>: oasis_executable_thread_basic_byte
+<examples/thread_basic.{native,byte}>: oasis_executable_thread_basic_native
+<examples/*.ml{,i}>: oasis_executable_thread_basic_native
+<examples/thread_basic.{native,byte}>: use_camluv
+# Executable timer_basic
+<examples/timer_basic.{native,byte}>: oasis_executable_timer_basic_byte
+<examples/*.ml{,i}>: oasis_executable_timer_basic_byte
+<examples/timer_basic.{native,byte}>: oasis_executable_timer_basic_native
+<examples/*.ml{,i}>: oasis_executable_timer_basic_native
+<examples/timer_basic.{native,byte}>: use_camluv
+<examples/*.ml{,i}>: use_camluv
+# Executable fs_basic
+<examples/fs/fs_basic.{native,byte}>: oasis_executable_fs_basic_byte
+<examples/fs/*.ml{,i}>: oasis_executable_fs_basic_byte
+<examples/fs/fs_basic.{native,byte}>: oasis_executable_fs_basic_native
+<examples/fs/*.ml{,i}>: oasis_executable_fs_basic_native
+<examples/fs/fs_basic.{native,byte}>: use_camluv
+# Executable fs_event_basic
+<examples/fs/fs_event_basic.{native,byte}>: oasis_executable_fs_event_basic_byte
+<examples/fs/*.ml{,i}>: oasis_executable_fs_event_basic_byte
+<examples/fs/fs_event_basic.{native,byte}>: oasis_executable_fs_event_basic_native
+<examples/fs/*.ml{,i}>: oasis_executable_fs_event_basic_native
+<examples/fs/fs_event_basic.{native,byte}>: use_camluv
+# Executable fs_mkdir_basic
+<examples/fs/fs_mkdir_basic.{native,byte}>: oasis_executable_fs_mkdir_basic_byte
+<examples/fs/*.ml{,i}>: oasis_executable_fs_mkdir_basic_byte
+<examples/fs/fs_mkdir_basic.{native,byte}>: oasis_executable_fs_mkdir_basic_native
+<examples/fs/*.ml{,i}>: oasis_executable_fs_mkdir_basic_native
+<examples/fs/fs_mkdir_basic.{native,byte}>: use_camluv
+# Executable fs_open_basic
+<examples/fs/fs_open_basic.{native,byte}>: oasis_executable_fs_open_basic_byte
+<examples/fs/*.ml{,i}>: oasis_executable_fs_open_basic_byte
+<examples/fs/fs_open_basic.{native,byte}>: oasis_executable_fs_open_basic_native
+<examples/fs/*.ml{,i}>: oasis_executable_fs_open_basic_native
+<examples/fs/fs_open_basic.{native,byte}>: use_camluv
+# Executable fs_poll_basic
+<examples/fs/fs_poll_basic.{native,byte}>: oasis_executable_fs_poll_basic_byte
+<examples/fs/*.ml{,i}>: oasis_executable_fs_poll_basic_byte
+<examples/fs/fs_poll_basic.{native,byte}>: oasis_executable_fs_poll_basic_native
+<examples/fs/*.ml{,i}>: oasis_executable_fs_poll_basic_native
+<examples/fs/fs_poll_basic.{native,byte}>: use_camluv
+# Executable fs_read_basic
+<examples/fs/fs_read_basic.{native,byte}>: oasis_executable_fs_read_basic_byte
+<examples/fs/*.ml{,i}>: oasis_executable_fs_read_basic_byte
+<examples/fs/fs_read_basic.{native,byte}>: oasis_executable_fs_read_basic_native
+<examples/fs/*.ml{,i}>: oasis_executable_fs_read_basic_native
+<examples/fs/fs_read_basic.{native,byte}>: use_camluv
+# Executable fs_rename_basic
+<examples/fs/fs_rename_basic.{native,byte}>: oasis_executable_fs_rename_basic_byte
+<examples/fs/*.ml{,i}>: oasis_executable_fs_rename_basic_byte
+<examples/fs/fs_rename_basic.{native,byte}>: oasis_executable_fs_rename_basic_native
+<examples/fs/*.ml{,i}>: oasis_executable_fs_rename_basic_native
+<examples/fs/fs_rename_basic.{native,byte}>: use_camluv
+# Executable fs_rmdir_basic
+<examples/fs/fs_rmdir_basic.{native,byte}>: oasis_executable_fs_rmdir_basic_byte
+<examples/fs/*.ml{,i}>: oasis_executable_fs_rmdir_basic_byte
+<examples/fs/fs_rmdir_basic.{native,byte}>: oasis_executable_fs_rmdir_basic_native
+<examples/fs/*.ml{,i}>: oasis_executable_fs_rmdir_basic_native
+<examples/fs/fs_rmdir_basic.{native,byte}>: use_camluv
+# Executable fs_unlink_basic
+<examples/fs/fs_unlink_basic.{native,byte}>: oasis_executable_fs_unlink_basic_byte
+<examples/fs/*.ml{,i}>: oasis_executable_fs_unlink_basic_byte
+<examples/fs/fs_unlink_basic.{native,byte}>: oasis_executable_fs_unlink_basic_native
+<examples/fs/*.ml{,i}>: oasis_executable_fs_unlink_basic_native
+<examples/fs/fs_unlink_basic.{native,byte}>: use_camluv
+# Executable fs_write_basic
+<examples/fs/fs_write_basic.{native,byte}>: oasis_executable_fs_write_basic_byte
+<examples/fs/*.ml{,i}>: oasis_executable_fs_write_basic_byte
+<examples/fs/fs_write_basic.{native,byte}>: oasis_executable_fs_write_basic_native
+<examples/fs/*.ml{,i}>: oasis_executable_fs_write_basic_native
+<examples/fs/fs_write_basic.{native,byte}>: use_camluv
+<examples/fs/*.ml{,i}>: use_camluv
 # OASIS_STOP

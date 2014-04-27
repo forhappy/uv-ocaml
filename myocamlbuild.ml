@@ -1,5 +1,5 @@
 (* OASIS_START *)
-(* DO NOT EDIT (digest: 5265c5735b0ba92da376c4955be5048e) *)
+(* DO NOT EDIT (digest: 6c80834b2ccc9080bc46ab97d6b85c51) *)
 module OASISGettext = struct
 (* # 22 "src/oasis/OASISGettext.ml" *)
 
@@ -601,11 +601,11 @@ let package_default =
           ("camluv",
             "src",
             [
-               "src/camluv.h";
                "src/camluv_async.h";
                "src/camluv_barrier.h";
                "src/camluv_check.h";
                "src/camluv_condition.h";
+               "src/camluv_err.h";
                "src/camluv_fs.h";
                "src/camluv_fs_event.h";
                "src/camluv_fs_poll.h";
@@ -624,6 +624,7 @@ let package_default =
                "src/camluv_signal.h";
                "src/camluv_tcp.h";
                "src/camluv_thread.h";
+               "src/camluv_threadpool.h";
                "src/camluv_timer.h";
                "src/camluv_tty.h";
                "src/camluv_udp.h"
@@ -654,6 +655,10 @@ let package_default =
                       A "-Wunused"
                    ])
             ]);
+          (["oasis_library_camluv_cclib"; "link"],
+            [(OASISExpr.EBool true, S [A "-cclib"; A "-luv"])]);
+          (["oasis_library_camluv_cclib"; "ocamlmklib"; "c"],
+            [(OASISExpr.EBool true, S [A "-luv"])]);
           (["oasis_library_camluv_byte"; "ocaml"; "link"; "byte"],
             [
                (OASISExpr.EBool true, S []);
@@ -689,14 +694,782 @@ let package_default =
                (OASISExpr.EBool true, S []);
                (OASISExpr.EFlag "strict",
                  S [A "-w"; A "@a"; A "-warn-error"; A "-a"])
+            ]);
+          (["oasis_executable_test_runner_byte"; "ocaml"; "link"; "byte"],
+            [
+               (OASISExpr.EBool true,
+                 S [A "-w"; A "@a"; A "-warn-error"; A "-a"])
+            ]);
+          (["oasis_executable_test_runner_native"; "ocaml"; "link"; "native"],
+            [
+               (OASISExpr.EBool true,
+                 S [A "-w"; A "@a"; A "-warn-error"; A "-a"])
+            ]);
+          (["oasis_executable_test_runner_byte"; "ocaml"; "ocamldep"; "byte"],
+            [
+               (OASISExpr.EBool true,
+                 S [A "-w"; A "@a"; A "-warn-error"; A "-a"])
+            ]);
+          ([
+              "oasis_executable_test_runner_native";
+              "ocaml";
+              "ocamldep";
+              "native"
+           ],
+            [
+               (OASISExpr.EBool true,
+                 S [A "-w"; A "@a"; A "-warn-error"; A "-a"])
+            ]);
+          (["oasis_executable_test_runner_byte"; "ocaml"; "compile"; "byte"],
+            [
+               (OASISExpr.EBool true,
+                 S [A "-w"; A "@a"; A "-warn-error"; A "-a"])
+            ]);
+          ([
+              "oasis_executable_test_runner_native";
+              "ocaml";
+              "compile";
+              "native"
+           ],
+            [
+               (OASISExpr.EBool true,
+                 S [A "-w"; A "@a"; A "-warn-error"; A "-a"])
+            ]);
+          (["oasis_executable_hello_world_byte"; "ocaml"; "link"; "byte"],
+            [
+               (OASISExpr.EBool true,
+                 S [A "-w"; A "@a"; A "-warn-error"; A "-a"])
+            ]);
+          (["oasis_executable_hello_world_native"; "ocaml"; "link"; "native"],
+            [
+               (OASISExpr.EBool true,
+                 S [A "-w"; A "@a"; A "-warn-error"; A "-a"])
+            ]);
+          (["oasis_executable_hello_world_byte"; "ocaml"; "ocamldep"; "byte"],
+            [
+               (OASISExpr.EBool true,
+                 S [A "-w"; A "@a"; A "-warn-error"; A "-a"])
+            ]);
+          ([
+              "oasis_executable_hello_world_native";
+              "ocaml";
+              "ocamldep";
+              "native"
+           ],
+            [
+               (OASISExpr.EBool true,
+                 S [A "-w"; A "@a"; A "-warn-error"; A "-a"])
+            ]);
+          (["oasis_executable_hello_world_byte"; "ocaml"; "compile"; "byte"],
+            [
+               (OASISExpr.EBool true,
+                 S [A "-w"; A "@a"; A "-warn-error"; A "-a"])
+            ]);
+          ([
+              "oasis_executable_hello_world_native";
+              "ocaml";
+              "compile";
+              "native"
+           ],
+            [
+               (OASISExpr.EBool true,
+                 S [A "-w"; A "@a"; A "-warn-error"; A "-a"])
+            ]);
+          (["oasis_executable_idle_basic_byte"; "ocaml"; "link"; "byte"],
+            [
+               (OASISExpr.EBool true,
+                 S [A "-w"; A "@a"; A "-warn-error"; A "-a"])
+            ]);
+          (["oasis_executable_idle_basic_native"; "ocaml"; "link"; "native"],
+            [
+               (OASISExpr.EBool true,
+                 S [A "-w"; A "@a"; A "-warn-error"; A "-a"])
+            ]);
+          (["oasis_executable_idle_basic_byte"; "ocaml"; "ocamldep"; "byte"],
+            [
+               (OASISExpr.EBool true,
+                 S [A "-w"; A "@a"; A "-warn-error"; A "-a"])
+            ]);
+          ([
+              "oasis_executable_idle_basic_native";
+              "ocaml";
+              "ocamldep";
+              "native"
+           ],
+            [
+               (OASISExpr.EBool true,
+                 S [A "-w"; A "@a"; A "-warn-error"; A "-a"])
+            ]);
+          (["oasis_executable_idle_basic_byte"; "ocaml"; "compile"; "byte"],
+            [
+               (OASISExpr.EBool true,
+                 S [A "-w"; A "@a"; A "-warn-error"; A "-a"])
+            ]);
+          ([
+              "oasis_executable_idle_basic_native";
+              "ocaml";
+              "compile";
+              "native"
+           ],
+            [
+               (OASISExpr.EBool true,
+                 S [A "-w"; A "@a"; A "-warn-error"; A "-a"])
+            ]);
+          (["oasis_executable_process_basic_byte"; "ocaml"; "link"; "byte"],
+            [
+               (OASISExpr.EBool true,
+                 S [A "-w"; A "@a"; A "-warn-error"; A "-a"])
+            ]);
+          ([
+              "oasis_executable_process_basic_native";
+              "ocaml";
+              "link";
+              "native"
+           ],
+            [
+               (OASISExpr.EBool true,
+                 S [A "-w"; A "@a"; A "-warn-error"; A "-a"])
+            ]);
+          ([
+              "oasis_executable_process_basic_byte";
+              "ocaml";
+              "ocamldep";
+              "byte"
+           ],
+            [
+               (OASISExpr.EBool true,
+                 S [A "-w"; A "@a"; A "-warn-error"; A "-a"])
+            ]);
+          ([
+              "oasis_executable_process_basic_native";
+              "ocaml";
+              "ocamldep";
+              "native"
+           ],
+            [
+               (OASISExpr.EBool true,
+                 S [A "-w"; A "@a"; A "-warn-error"; A "-a"])
+            ]);
+          (["oasis_executable_process_basic_byte"; "ocaml"; "compile"; "byte"
+           ],
+            [
+               (OASISExpr.EBool true,
+                 S [A "-w"; A "@a"; A "-warn-error"; A "-a"])
+            ]);
+          ([
+              "oasis_executable_process_basic_native";
+              "ocaml";
+              "compile";
+              "native"
+           ],
+            [
+               (OASISExpr.EBool true,
+                 S [A "-w"; A "@a"; A "-warn-error"; A "-a"])
+            ]);
+          (["oasis_executable_thread_basic_byte"; "ocaml"; "link"; "byte"],
+            [
+               (OASISExpr.EBool true,
+                 S [A "-w"; A "@a"; A "-warn-error"; A "-a"])
+            ]);
+          (["oasis_executable_thread_basic_native"; "ocaml"; "link"; "native"
+           ],
+            [
+               (OASISExpr.EBool true,
+                 S [A "-w"; A "@a"; A "-warn-error"; A "-a"])
+            ]);
+          (["oasis_executable_thread_basic_byte"; "ocaml"; "ocamldep"; "byte"
+           ],
+            [
+               (OASISExpr.EBool true,
+                 S [A "-w"; A "@a"; A "-warn-error"; A "-a"])
+            ]);
+          ([
+              "oasis_executable_thread_basic_native";
+              "ocaml";
+              "ocamldep";
+              "native"
+           ],
+            [
+               (OASISExpr.EBool true,
+                 S [A "-w"; A "@a"; A "-warn-error"; A "-a"])
+            ]);
+          (["oasis_executable_thread_basic_byte"; "ocaml"; "compile"; "byte"],
+            [
+               (OASISExpr.EBool true,
+                 S [A "-w"; A "@a"; A "-warn-error"; A "-a"])
+            ]);
+          ([
+              "oasis_executable_thread_basic_native";
+              "ocaml";
+              "compile";
+              "native"
+           ],
+            [
+               (OASISExpr.EBool true,
+                 S [A "-w"; A "@a"; A "-warn-error"; A "-a"])
+            ]);
+          (["oasis_executable_timer_basic_byte"; "ocaml"; "link"; "byte"],
+            [
+               (OASISExpr.EBool true,
+                 S [A "-w"; A "@a"; A "-warn-error"; A "-a"])
+            ]);
+          (["oasis_executable_timer_basic_native"; "ocaml"; "link"; "native"],
+            [
+               (OASISExpr.EBool true,
+                 S [A "-w"; A "@a"; A "-warn-error"; A "-a"])
+            ]);
+          (["oasis_executable_timer_basic_byte"; "ocaml"; "ocamldep"; "byte"],
+            [
+               (OASISExpr.EBool true,
+                 S [A "-w"; A "@a"; A "-warn-error"; A "-a"])
+            ]);
+          ([
+              "oasis_executable_timer_basic_native";
+              "ocaml";
+              "ocamldep";
+              "native"
+           ],
+            [
+               (OASISExpr.EBool true,
+                 S [A "-w"; A "@a"; A "-warn-error"; A "-a"])
+            ]);
+          (["oasis_executable_timer_basic_byte"; "ocaml"; "compile"; "byte"],
+            [
+               (OASISExpr.EBool true,
+                 S [A "-w"; A "@a"; A "-warn-error"; A "-a"])
+            ]);
+          ([
+              "oasis_executable_timer_basic_native";
+              "ocaml";
+              "compile";
+              "native"
+           ],
+            [
+               (OASISExpr.EBool true,
+                 S [A "-w"; A "@a"; A "-warn-error"; A "-a"])
+            ]);
+          (["oasis_executable_fs_basic_byte"; "ocaml"; "link"; "byte"],
+            [
+               (OASISExpr.EBool true,
+                 S [A "-w"; A "@a"; A "-warn-error"; A "-a"])
+            ]);
+          (["oasis_executable_fs_basic_native"; "ocaml"; "link"; "native"],
+            [
+               (OASISExpr.EBool true,
+                 S [A "-w"; A "@a"; A "-warn-error"; A "-a"])
+            ]);
+          (["oasis_executable_fs_basic_byte"; "ocaml"; "ocamldep"; "byte"],
+            [
+               (OASISExpr.EBool true,
+                 S [A "-w"; A "@a"; A "-warn-error"; A "-a"])
+            ]);
+          (["oasis_executable_fs_basic_native"; "ocaml"; "ocamldep"; "native"
+           ],
+            [
+               (OASISExpr.EBool true,
+                 S [A "-w"; A "@a"; A "-warn-error"; A "-a"])
+            ]);
+          (["oasis_executable_fs_basic_byte"; "ocaml"; "compile"; "byte"],
+            [
+               (OASISExpr.EBool true,
+                 S [A "-w"; A "@a"; A "-warn-error"; A "-a"])
+            ]);
+          (["oasis_executable_fs_basic_native"; "ocaml"; "compile"; "native"],
+            [
+               (OASISExpr.EBool true,
+                 S [A "-w"; A "@a"; A "-warn-error"; A "-a"])
+            ]);
+          (["oasis_executable_fs_event_basic_byte"; "ocaml"; "link"; "byte"],
+            [
+               (OASISExpr.EBool true,
+                 S [A "-w"; A "@a"; A "-warn-error"; A "-a"])
+            ]);
+          ([
+              "oasis_executable_fs_event_basic_native";
+              "ocaml";
+              "link";
+              "native"
+           ],
+            [
+               (OASISExpr.EBool true,
+                 S [A "-w"; A "@a"; A "-warn-error"; A "-a"])
+            ]);
+          ([
+              "oasis_executable_fs_event_basic_byte";
+              "ocaml";
+              "ocamldep";
+              "byte"
+           ],
+            [
+               (OASISExpr.EBool true,
+                 S [A "-w"; A "@a"; A "-warn-error"; A "-a"])
+            ]);
+          ([
+              "oasis_executable_fs_event_basic_native";
+              "ocaml";
+              "ocamldep";
+              "native"
+           ],
+            [
+               (OASISExpr.EBool true,
+                 S [A "-w"; A "@a"; A "-warn-error"; A "-a"])
+            ]);
+          ([
+              "oasis_executable_fs_event_basic_byte";
+              "ocaml";
+              "compile";
+              "byte"
+           ],
+            [
+               (OASISExpr.EBool true,
+                 S [A "-w"; A "@a"; A "-warn-error"; A "-a"])
+            ]);
+          ([
+              "oasis_executable_fs_event_basic_native";
+              "ocaml";
+              "compile";
+              "native"
+           ],
+            [
+               (OASISExpr.EBool true,
+                 S [A "-w"; A "@a"; A "-warn-error"; A "-a"])
+            ]);
+          (["oasis_executable_fs_mkdir_basic_byte"; "ocaml"; "link"; "byte"],
+            [
+               (OASISExpr.EBool true,
+                 S [A "-w"; A "@a"; A "-warn-error"; A "-a"])
+            ]);
+          ([
+              "oasis_executable_fs_mkdir_basic_native";
+              "ocaml";
+              "link";
+              "native"
+           ],
+            [
+               (OASISExpr.EBool true,
+                 S [A "-w"; A "@a"; A "-warn-error"; A "-a"])
+            ]);
+          ([
+              "oasis_executable_fs_mkdir_basic_byte";
+              "ocaml";
+              "ocamldep";
+              "byte"
+           ],
+            [
+               (OASISExpr.EBool true,
+                 S [A "-w"; A "@a"; A "-warn-error"; A "-a"])
+            ]);
+          ([
+              "oasis_executable_fs_mkdir_basic_native";
+              "ocaml";
+              "ocamldep";
+              "native"
+           ],
+            [
+               (OASISExpr.EBool true,
+                 S [A "-w"; A "@a"; A "-warn-error"; A "-a"])
+            ]);
+          ([
+              "oasis_executable_fs_mkdir_basic_byte";
+              "ocaml";
+              "compile";
+              "byte"
+           ],
+            [
+               (OASISExpr.EBool true,
+                 S [A "-w"; A "@a"; A "-warn-error"; A "-a"])
+            ]);
+          ([
+              "oasis_executable_fs_mkdir_basic_native";
+              "ocaml";
+              "compile";
+              "native"
+           ],
+            [
+               (OASISExpr.EBool true,
+                 S [A "-w"; A "@a"; A "-warn-error"; A "-a"])
+            ]);
+          (["oasis_executable_fs_open_basic_byte"; "ocaml"; "link"; "byte"],
+            [
+               (OASISExpr.EBool true,
+                 S [A "-w"; A "@a"; A "-warn-error"; A "-a"])
+            ]);
+          ([
+              "oasis_executable_fs_open_basic_native";
+              "ocaml";
+              "link";
+              "native"
+           ],
+            [
+               (OASISExpr.EBool true,
+                 S [A "-w"; A "@a"; A "-warn-error"; A "-a"])
+            ]);
+          ([
+              "oasis_executable_fs_open_basic_byte";
+              "ocaml";
+              "ocamldep";
+              "byte"
+           ],
+            [
+               (OASISExpr.EBool true,
+                 S [A "-w"; A "@a"; A "-warn-error"; A "-a"])
+            ]);
+          ([
+              "oasis_executable_fs_open_basic_native";
+              "ocaml";
+              "ocamldep";
+              "native"
+           ],
+            [
+               (OASISExpr.EBool true,
+                 S [A "-w"; A "@a"; A "-warn-error"; A "-a"])
+            ]);
+          (["oasis_executable_fs_open_basic_byte"; "ocaml"; "compile"; "byte"
+           ],
+            [
+               (OASISExpr.EBool true,
+                 S [A "-w"; A "@a"; A "-warn-error"; A "-a"])
+            ]);
+          ([
+              "oasis_executable_fs_open_basic_native";
+              "ocaml";
+              "compile";
+              "native"
+           ],
+            [
+               (OASISExpr.EBool true,
+                 S [A "-w"; A "@a"; A "-warn-error"; A "-a"])
+            ]);
+          (["oasis_executable_fs_poll_basic_byte"; "ocaml"; "link"; "byte"],
+            [
+               (OASISExpr.EBool true,
+                 S [A "-w"; A "@a"; A "-warn-error"; A "-a"])
+            ]);
+          ([
+              "oasis_executable_fs_poll_basic_native";
+              "ocaml";
+              "link";
+              "native"
+           ],
+            [
+               (OASISExpr.EBool true,
+                 S [A "-w"; A "@a"; A "-warn-error"; A "-a"])
+            ]);
+          ([
+              "oasis_executable_fs_poll_basic_byte";
+              "ocaml";
+              "ocamldep";
+              "byte"
+           ],
+            [
+               (OASISExpr.EBool true,
+                 S [A "-w"; A "@a"; A "-warn-error"; A "-a"])
+            ]);
+          ([
+              "oasis_executable_fs_poll_basic_native";
+              "ocaml";
+              "ocamldep";
+              "native"
+           ],
+            [
+               (OASISExpr.EBool true,
+                 S [A "-w"; A "@a"; A "-warn-error"; A "-a"])
+            ]);
+          (["oasis_executable_fs_poll_basic_byte"; "ocaml"; "compile"; "byte"
+           ],
+            [
+               (OASISExpr.EBool true,
+                 S [A "-w"; A "@a"; A "-warn-error"; A "-a"])
+            ]);
+          ([
+              "oasis_executable_fs_poll_basic_native";
+              "ocaml";
+              "compile";
+              "native"
+           ],
+            [
+               (OASISExpr.EBool true,
+                 S [A "-w"; A "@a"; A "-warn-error"; A "-a"])
+            ]);
+          (["oasis_executable_fs_read_basic_byte"; "ocaml"; "link"; "byte"],
+            [
+               (OASISExpr.EBool true,
+                 S [A "-w"; A "@a"; A "-warn-error"; A "-a"])
+            ]);
+          ([
+              "oasis_executable_fs_read_basic_native";
+              "ocaml";
+              "link";
+              "native"
+           ],
+            [
+               (OASISExpr.EBool true,
+                 S [A "-w"; A "@a"; A "-warn-error"; A "-a"])
+            ]);
+          ([
+              "oasis_executable_fs_read_basic_byte";
+              "ocaml";
+              "ocamldep";
+              "byte"
+           ],
+            [
+               (OASISExpr.EBool true,
+                 S [A "-w"; A "@a"; A "-warn-error"; A "-a"])
+            ]);
+          ([
+              "oasis_executable_fs_read_basic_native";
+              "ocaml";
+              "ocamldep";
+              "native"
+           ],
+            [
+               (OASISExpr.EBool true,
+                 S [A "-w"; A "@a"; A "-warn-error"; A "-a"])
+            ]);
+          (["oasis_executable_fs_read_basic_byte"; "ocaml"; "compile"; "byte"
+           ],
+            [
+               (OASISExpr.EBool true,
+                 S [A "-w"; A "@a"; A "-warn-error"; A "-a"])
+            ]);
+          ([
+              "oasis_executable_fs_read_basic_native";
+              "ocaml";
+              "compile";
+              "native"
+           ],
+            [
+               (OASISExpr.EBool true,
+                 S [A "-w"; A "@a"; A "-warn-error"; A "-a"])
+            ]);
+          (["oasis_executable_fs_rename_basic_byte"; "ocaml"; "link"; "byte"],
+            [
+               (OASISExpr.EBool true,
+                 S [A "-w"; A "@a"; A "-warn-error"; A "-a"])
+            ]);
+          ([
+              "oasis_executable_fs_rename_basic_native";
+              "ocaml";
+              "link";
+              "native"
+           ],
+            [
+               (OASISExpr.EBool true,
+                 S [A "-w"; A "@a"; A "-warn-error"; A "-a"])
+            ]);
+          ([
+              "oasis_executable_fs_rename_basic_byte";
+              "ocaml";
+              "ocamldep";
+              "byte"
+           ],
+            [
+               (OASISExpr.EBool true,
+                 S [A "-w"; A "@a"; A "-warn-error"; A "-a"])
+            ]);
+          ([
+              "oasis_executable_fs_rename_basic_native";
+              "ocaml";
+              "ocamldep";
+              "native"
+           ],
+            [
+               (OASISExpr.EBool true,
+                 S [A "-w"; A "@a"; A "-warn-error"; A "-a"])
+            ]);
+          ([
+              "oasis_executable_fs_rename_basic_byte";
+              "ocaml";
+              "compile";
+              "byte"
+           ],
+            [
+               (OASISExpr.EBool true,
+                 S [A "-w"; A "@a"; A "-warn-error"; A "-a"])
+            ]);
+          ([
+              "oasis_executable_fs_rename_basic_native";
+              "ocaml";
+              "compile";
+              "native"
+           ],
+            [
+               (OASISExpr.EBool true,
+                 S [A "-w"; A "@a"; A "-warn-error"; A "-a"])
+            ]);
+          (["oasis_executable_fs_rmdir_basic_byte"; "ocaml"; "link"; "byte"],
+            [
+               (OASISExpr.EBool true,
+                 S [A "-w"; A "@a"; A "-warn-error"; A "-a"])
+            ]);
+          ([
+              "oasis_executable_fs_rmdir_basic_native";
+              "ocaml";
+              "link";
+              "native"
+           ],
+            [
+               (OASISExpr.EBool true,
+                 S [A "-w"; A "@a"; A "-warn-error"; A "-a"])
+            ]);
+          ([
+              "oasis_executable_fs_rmdir_basic_byte";
+              "ocaml";
+              "ocamldep";
+              "byte"
+           ],
+            [
+               (OASISExpr.EBool true,
+                 S [A "-w"; A "@a"; A "-warn-error"; A "-a"])
+            ]);
+          ([
+              "oasis_executable_fs_rmdir_basic_native";
+              "ocaml";
+              "ocamldep";
+              "native"
+           ],
+            [
+               (OASISExpr.EBool true,
+                 S [A "-w"; A "@a"; A "-warn-error"; A "-a"])
+            ]);
+          ([
+              "oasis_executable_fs_rmdir_basic_byte";
+              "ocaml";
+              "compile";
+              "byte"
+           ],
+            [
+               (OASISExpr.EBool true,
+                 S [A "-w"; A "@a"; A "-warn-error"; A "-a"])
+            ]);
+          ([
+              "oasis_executable_fs_rmdir_basic_native";
+              "ocaml";
+              "compile";
+              "native"
+           ],
+            [
+               (OASISExpr.EBool true,
+                 S [A "-w"; A "@a"; A "-warn-error"; A "-a"])
+            ]);
+          (["oasis_executable_fs_unlink_basic_byte"; "ocaml"; "link"; "byte"],
+            [
+               (OASISExpr.EBool true,
+                 S [A "-w"; A "@a"; A "-warn-error"; A "-a"])
+            ]);
+          ([
+              "oasis_executable_fs_unlink_basic_native";
+              "ocaml";
+              "link";
+              "native"
+           ],
+            [
+               (OASISExpr.EBool true,
+                 S [A "-w"; A "@a"; A "-warn-error"; A "-a"])
+            ]);
+          ([
+              "oasis_executable_fs_unlink_basic_byte";
+              "ocaml";
+              "ocamldep";
+              "byte"
+           ],
+            [
+               (OASISExpr.EBool true,
+                 S [A "-w"; A "@a"; A "-warn-error"; A "-a"])
+            ]);
+          ([
+              "oasis_executable_fs_unlink_basic_native";
+              "ocaml";
+              "ocamldep";
+              "native"
+           ],
+            [
+               (OASISExpr.EBool true,
+                 S [A "-w"; A "@a"; A "-warn-error"; A "-a"])
+            ]);
+          ([
+              "oasis_executable_fs_unlink_basic_byte";
+              "ocaml";
+              "compile";
+              "byte"
+           ],
+            [
+               (OASISExpr.EBool true,
+                 S [A "-w"; A "@a"; A "-warn-error"; A "-a"])
+            ]);
+          ([
+              "oasis_executable_fs_unlink_basic_native";
+              "ocaml";
+              "compile";
+              "native"
+           ],
+            [
+               (OASISExpr.EBool true,
+                 S [A "-w"; A "@a"; A "-warn-error"; A "-a"])
+            ]);
+          (["oasis_executable_fs_write_basic_byte"; "ocaml"; "link"; "byte"],
+            [
+               (OASISExpr.EBool true,
+                 S [A "-w"; A "@a"; A "-warn-error"; A "-a"])
+            ]);
+          ([
+              "oasis_executable_fs_write_basic_native";
+              "ocaml";
+              "link";
+              "native"
+           ],
+            [
+               (OASISExpr.EBool true,
+                 S [A "-w"; A "@a"; A "-warn-error"; A "-a"])
+            ]);
+          ([
+              "oasis_executable_fs_write_basic_byte";
+              "ocaml";
+              "ocamldep";
+              "byte"
+           ],
+            [
+               (OASISExpr.EBool true,
+                 S [A "-w"; A "@a"; A "-warn-error"; A "-a"])
+            ]);
+          ([
+              "oasis_executable_fs_write_basic_native";
+              "ocaml";
+              "ocamldep";
+              "native"
+           ],
+            [
+               (OASISExpr.EBool true,
+                 S [A "-w"; A "@a"; A "-warn-error"; A "-a"])
+            ]);
+          ([
+              "oasis_executable_fs_write_basic_byte";
+              "ocaml";
+              "compile";
+              "byte"
+           ],
+            [
+               (OASISExpr.EBool true,
+                 S [A "-w"; A "@a"; A "-warn-error"; A "-a"])
+            ]);
+          ([
+              "oasis_executable_fs_write_basic_native";
+              "ocaml";
+              "compile";
+              "native"
+           ],
+            [
+               (OASISExpr.EBool true,
+                 S [A "-w"; A "@a"; A "-warn-error"; A "-a"])
             ])
        ];
-     includes = []
+     includes =
+       [("tests", ["src"]); ("examples/fs", ["src"]); ("examples", ["src"])]
   }
   ;;
 
 let dispatch_default = MyOCamlbuildBase.dispatch_default package_default;;
 
-# 701 "myocamlbuild.ml"
+# 1474 "myocamlbuild.ml"
 (* OASIS_STOP *)
 Ocamlbuild_plugin.dispatch dispatch_default;;

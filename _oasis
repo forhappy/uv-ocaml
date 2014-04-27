@@ -14,15 +14,25 @@ Flag strict
   Description: Strict compile-time checks
   Default: true
 
+Flag examples
+  Description: Build examples
+  Default: false
+
+SourceRepository github
+  Type: git
+  Location: https://git@github.com/forhappy/uv-ocaml
+  Browser: https://github.com/forhappy/uv-ocaml
+  Tag: $(pkg_version)
+
 Library camluv
   Path: src
   Pack: true
   Modules: Uv
-  CSources: camluv.c,           camluv.h,
-            camluv_async.c,     camluv_async.h,
+  CSources: camluv_async.c,     camluv_async.h,
             camluv_barrier.c,   camluv_barrier.h,
             camluv_check.c,     camluv_check.h,
             camluv_condition.c, camluv_condition.h,
+            camluv_err.c,       camluv_err.h,
             camluv_fs.c,        camluv_fs.h,
             camluv_fs_event.c,  camluv_fs_event.h,
             camluv_fs_poll.c,   camluv_fs_poll.h,
@@ -42,14 +52,188 @@ Library camluv
             camluv_signal.c,    camluv_signal.h,
             camluv_tcp.c,       camluv_tcp.h,
             camluv_thread.c,    camluv_thread.h,
-#           camluv_threadpool.c,camluv_threadpool.h,
+            camluv_threadpool.c,camluv_threadpool.h,
             camluv_timer.c,     camluv_timer.h,
             camluv_tty.c,       camluv_tty.h,
             camluv_udp.c,       camluv_udp.h
   CCOpt: -O2 -g
+  CCLib: -luv
   if flag(strict) && ccomp_type(cc)
     CCOpt+: -Wall -pedantic -Wextra -Wunused
   if flag(strict)
     NativeOpt: -w @a -warn-error -a
     ByteOpt: -w @a -warn-error -a
+
+
+#### Tests - TODO
+
+Executable test_runner
+  Path: tests
+  Build$: flag(tests)
+  MainIs: tests.ml
+  CompiledObject: best
+  Install: false
+  BuildDepends: camluv, oUnit
+  NativeOpt: -w @a -warn-error -a
+  ByteOpt: -w @a -warn-error -a
+
+Test tester
+  Run$: flag(tests)
+  Command: $test_runner
+  WorkingDirectory: tests
+
+#### Documentation - TODO
+
+
+#### Examples - TODO
+
+Executable hello_world
+  Path: examples
+  Build$: flag(examples)
+  MainIs: hello_world.ml
+  CompiledObject: best
+  Install: false
+  BuildDepends: camluv
+  NativeOpt: -w @a -warn-error -a
+  ByteOpt: -w @a -warn-error -a
+
+Executable idle_basic
+  Path: examples
+  MainIs: idle_basic.ml
+  Build$: flag(examples)
+  CompiledObject: best
+  Install: false
+  BuildDepends: camluv
+  NativeOpt: -w @a -warn-error -a
+  ByteOpt: -w @a -warn-error -a
+
+Executable process_basic
+  Path: examples
+  MainIs: process_basic.ml
+  Build$: flag(examples)
+  CompiledObject: best
+  Install: false
+  BuildDepends: camluv
+  NativeOpt: -w @a -warn-error -a
+  ByteOpt: -w @a -warn-error -a
+
+Executable thread_basic
+  Path: examples
+  MainIs: thread_basic.ml
+  Build$: flag(examples)
+  CompiledObject: best
+  Install: false
+  BuildDepends: camluv
+  NativeOpt: -w @a -warn-error -a
+  ByteOpt: -w @a -warn-error -a
+
+Executable timer_basic
+  Path: examples
+  MainIs: timer_basic.ml
+  CompiledObject: best
+  Build$: flag(examples)
+  Install: false
+  BuildDepends: camluv
+  NativeOpt: -w @a -warn-error -a
+  ByteOpt: -w @a -warn-error -a
+
+Executable fs_basic
+  Path: examples/fs
+  MainIs: fs_basic.ml
+  CompiledObject: best
+  Build$: flag(examples)
+  Install: false
+  BuildDepends: camluv
+  NativeOpt: -w @a -warn-error -a
+  ByteOpt: -w @a -warn-error -a
+
+Executable fs_event_basic
+  Path: examples/fs
+  MainIs: fs_event_basic.ml
+  CompiledObject: best
+  Build$: flag(examples)
+  Install: false
+  BuildDepends: camluv
+  NativeOpt: -w @a -warn-error -a
+  ByteOpt: -w @a -warn-error -a
+
+Executable fs_mkdir_basic
+  Path: examples/fs
+  MainIs: fs_mkdir_basic.ml
+  CompiledObject: best
+  Build$: flag(examples)
+  Install: false
+  BuildDepends: camluv
+  NativeOpt: -w @a -warn-error -a
+  ByteOpt: -w @a -warn-error -a
+
+Executable fs_open_basic
+  Path: examples/fs
+  MainIs: fs_open_basic.ml
+  CompiledObject: best
+  Build$: flag(examples)
+  Install: false
+  BuildDepends: camluv
+  NativeOpt: -w @a -warn-error -a
+  ByteOpt: -w @a -warn-error -a
+
+Executable fs_poll_basic
+  Path: examples/fs
+  MainIs: fs_poll_basic.ml
+  CompiledObject: best
+  Build$: flag(examples)
+  Install: false
+  BuildDepends: camluv
+  NativeOpt: -w @a -warn-error -a
+  ByteOpt: -w @a -warn-error -a
+
+Executable fs_read_basic
+  Path: examples/fs
+  MainIs: fs_read_basic.ml
+  CompiledObject: best
+  Build$: flag(examples)
+  Install: false
+  BuildDepends: camluv
+  NativeOpt: -w @a -warn-error -a
+  ByteOpt: -w @a -warn-error -a
+
+Executable fs_rename_basic
+  Path: examples/fs
+  MainIs: fs_rename_basic.ml
+  CompiledObject: best
+  Build$: flag(examples)
+  Install: false
+  BuildDepends: camluv
+  NativeOpt: -w @a -warn-error -a
+  ByteOpt: -w @a -warn-error -a
+
+Executable fs_rmdir_basic
+  Path: examples/fs
+  MainIs: fs_rmdir_basic.ml
+  CompiledObject: best
+  Build$: flag(examples)
+  Install: false
+  BuildDepends: camluv
+  NativeOpt: -w @a -warn-error -a
+  ByteOpt: -w @a -warn-error -a
+
+Executable fs_unlink_basic
+  Path: examples/fs
+  MainIs: fs_unlink_basic.ml
+  CompiledObject: best
+  Build$: flag(examples)
+  Install: false
+  BuildDepends: camluv
+  NativeOpt: -w @a -warn-error -a
+  ByteOpt: -w @a -warn-error -a
+
+Executable fs_write_basic
+  Path: examples/fs
+  MainIs: fs_write_basic.ml
+  CompiledObject: best
+  Build$: flag(examples)
+  Install: false
+  BuildDepends: camluv
+  NativeOpt: -w @a -warn-error -a
+  ByteOpt: -w @a -warn-error -a
 

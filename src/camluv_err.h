@@ -69,5 +69,9 @@ uv_errno_t camluv_errno_ml2c(value v);
 
 value camluv_errno_c2ml(uv_errno_t error);
 
+value camluv_err_strerror(value err);
+
+value camluv_err_name(value err);
+
 #endif /* _CAMLUV_H_ */
 

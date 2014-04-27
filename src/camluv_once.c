@@ -33,7 +33,7 @@
 
 #include <uv.h>
 
-#include "camluv.h"
+#include "camluv_err.h"
 #include "camluv_once.h"
 
 static void

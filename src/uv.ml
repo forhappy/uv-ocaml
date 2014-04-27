@@ -1,85 +1,10 @@
-type loop
 
-type handle
+type buffer = {base: string; len: int}
 
-type idle
+type sockaddr = {host: string; port: int; scope_id: int; flowinfo: int}
 
-type timer
-
-type async
-
-type check
-
-type prepare
-
-type poll
-
-type signal
-
-type fs
-
-type fs_event
-
-type fs_poll
-
-type tcp
-
-type udp
-
-type pipe
-
-type tty
-
-type thread
-
-type key
-
-type mutex
-
-type rwlock
-
-type sem
-
-type condition
-
-type barrier
-
-type process
-
-type uv_buffer = {base: string; len: int}
-
-type uv_sockaddr = {host: string; port: int; scope_id: int; flowinfo: int}
-
-type uv_buffer_array = uv_buffer array
-
-type uv_win_size = int * int
-
-type uv_timestamp = {
-  tv_sec: int32;
-  tv_nsec: int32;
-}
-
-type uv_stat = {
-  st_dev: int64;
-  st_mode: int64;
-  st_nlink: int64;
-  st_uid: int64;
-  st_gid: int64;
-  st_rdev: int64;
-  st_ino: int64;
-  st_size: int64;
-  st_blksize: int64;
-  st_blocks: int64;
-  st_flags: int64;
-  st_gen: int64;
-  st_atim: uv_timestamp;
-  st_mtim: uv_timestamp;
-  st_ctim: uv_timestamp;
-  st_birthtim: uv_timestamp;
-}
-
-type uv_errno =
-    UV_OK
+type errno =
+  | UV_OK
   | UV_E2BIG
   | UV_EACCES
   | UV_EADDRINUSE
@@ -151,512 +76,623 @@ type uv_errno =
   | UV_UNKNOWN
   | UV_EOF
 
-type uv_fs_type =
-    UV_FS_UNKNOWN
-  | UV_FS_CUSTOM
-  | UV_FS_OPEN
-  | UV_FS_CLOSE
-  | UV_FS_READ
-  | UV_FS_WRITE
-  | UV_FS_SENDFILE
-  | UV_FS_STAT
-  | UV_FS_LSTAT
-  | UV_FS_FSTAT
-  | UV_FS_FTRUNCATE
-  | UV_FS_UTIME
-  | UV_FS_FUTIME
-  | UV_FS_CHMOD
-  | UV_FS_FCHMOD
-  | UV_FS_FSYNC
-  | UV_FS_FDATASYNC
-  | UV_FS_UNLINK
-  | UV_FS_RMDIR
-  | UV_FS_MKDIR
-  | UV_FS_RENAME
-  | UV_FS_READDIR
-  | UV_FS_LINK
-  | UV_FS_SYMLINK
-  | UV_FS_READLINK
-  | UV_FS_CHOWN
-  | UV_FS_FCHOWN
-
-type uv_handle_type =
-    UV_UNKNOWN_HANDLE
-  | UV_ASYNC
-  | UV_CHECK
-  | UV_FS_EVENT
-  | UV_FS_POLL
-  | UV_HANDLE
-  | UV_IDLE
-  | UV_NAMED_PIPE
-  | UV_POLL
-  | UV_PREPARE
-  | UV_PROCESS
-  | UV_STREAM
-  | UV_TCP
-  | UV_TIMER
-  | UV_TTY
-  | UV_UDP
-  | UV_SIGNAL
-  | UV_FILE
-  | UV_HANDLE_TYPE_MAX
-
-type uv_run_mode =
-    UV_RUN_DEFAULT
-  | UV_RUN_ONCE
-  | UV_RUN_NOWAIT
-
-type uv_udp_flags =
-    UV_UDP_IPV6ONLY
-  | UV_UDP_PARTIAL
-
-type uv_membership =
-    UV_LEAVE_GROUP
-  | UV_JOIN_GROUP
-
-type uv_poll_event =
-    UV_READABLE
-  | UV_WRITABLE
-  | UV_RDWRABLE
-
-type uv_fs_event_flags =
-    UV_FS_EVENT_WATCH_ENTRY
-  | UV_FS_EVENT_STAT
-  | UV_FS_EVENT_RECURSIVE
-
-type uv_stdio_flags =
-    UV_IGNORE
+type stdio_flags = (** UNUSED **)
+  | UV_IGNORE
   | UV_CREATE_PIPE
   | UV_INHERIT_FD
   | UV_INHERIT_STREAM
   | UV_READABLE_PIPE
   | UV_WRITABLE_PIPE
 
-type uv_process_flags =
-    UV_PROCESS_SETUID
-  | UV_PROCESS_SETGID
-  | UV_PROCESS_WINDOWS_VERBATIM_ARGUMENTS
-  | UV_PROCESS_DETACHED
-  | UV_PROCESS_WINDOWS_HIDE
-
-type uv_walk_cb = handle -> string -> unit
-
-type uv_close_cb = handle -> unit
-
-(* Idle callback type definition *)
-type uv_idle_cb = idle -> int -> unit
-
-(* Timer callback type definition *)
-type uv_timer_cb = timer -> int -> unit
-
-(* Async callback type definition *)
-type uv_async_cb  = async -> int -> unit
-
-(* Check callback type definition *)
-type uv_check_cb  = check -> int -> unit
-
-(* Prepare callback type definition *)
-type uv_prepare_cb = prepare -> int -> unit
-
-(* Poll callback type definition *)
-type uv_poll_cb = poll -> int -> uv_poll_event -> unit
-
-(* Filesystem callback type definition *)
-type uv_fs_cb = fs -> unit
-
-(* Signal callback type definition *)
-type uv_signal_cb = signal -> int -> unit
-
-(* FsEvent callback type definition *)
-type uv_fs_event_cb = fs_event -> string -> int -> int -> unit
-
-(* FsPoll callback type definition *)
-type uv_fs_poll_cb = fs_poll -> int -> uv_stat -> uv_stat -> unit
-
-(* TCP callback type definition *)
-type uv_tcp_connect_cb = tcp -> int -> unit
-type uv_tcp_connection_cb = tcp -> int -> unit
-type uv_tcp_close_cb = tcp -> unit
-type uv_tcp_shutdown_cb = tcp -> int -> unit
-type uv_tcp_read_cb = tcp -> int -> uv_buffer_array -> unit
-type uv_tcp_write_cb = tcp -> int -> unit
-
-(* UDP callback type definition *)
-type uv_udp_close_cb = udp -> unit
-type uv_udp_send_cb = udp -> int -> unit
-type uv_udp_recv_cb = udp -> int -> uv_buffer_array -> uv_sockaddr -> uv_udp_flags -> unit
-
-(* Pipe callback type definition *)
-type uv_pipe_connect_cb = pipe -> int -> unit
-type uv_pipe_connection_cb = pipe -> int -> unit
-type uv_pipe_close_cb = pipe -> unit
-type uv_pipe_shutdown_cb = pipe -> int -> unit
-type uv_pipe_read_cb = pipe -> int -> uv_buffer_array -> unit
-type uv_pipe_read2_cb = pipe -> int -> uv_buffer_array -> uv_handle_type -> unit
-type uv_pipe_write_cb = pipe -> int -> unit
-
-(* TTY callback type definition *)
-type uv_tty_read_cb = tty -> int -> uv_buffer_array -> unit
-type uv_tty_write_cb = tty -> int -> unit
-type uv_tty_close_cb = tty -> unit
-type uv_tty_shutdown_cb = tty -> int -> unit
-
-(* Thread pool callback type definition *)
-type uv_work_cb = unit -> unit
-type uv_after_work_cb = int -> unit
-
-(* Process exit callback type definition *)
-type uv_exit_cb = process -> int64 -> int -> unit
-
-type uv_process_options = {
-  exit_cb: uv_exit_cb;
-  file: string;
-  args: string array;
-  env: string array;
-  cwd: string;
-  flags: int;
-  uid: int;
-  gid: int;
-}
-
-module Loop =
+module Util =
   struct
-    external create: unit->loop = "camluv_loop_new"
-    external default: unit->loop = "camluv_loop_default"
-    external delete: loop -> unit = "camluv_loop_delete"
-    external run: loop -> uv_run_mode -> uv_errno = "camluv_loop_run"
-    external stop: loop -> unit = "camluv_loop_stop"
-    external now: loop -> int64 = "camluv_loop_now"
-    external update_time: loop -> unit = "camluv_loop_update_time"
-    external backend_fd: loop -> int32 = "camluv_loop_backend_fd"
-    external backend_timeout: loop -> int32 = "camluv_loop_backend_timeout"
-    external walk: loop -> uv_walk_cb -> string -> unit = "camluv_loop_walk"
-    external queue_work: loop -> uv_work_cb -> uv_after_work_cb -> uv_errno = "camluv_loop_queue_work"
+    external strerror: int -> string = "camluv_err_strerror"
+    external err_name: int -> string = "camluv_err_name"
   end
 
-module Handle =
-  struct
-    external close: handle -> uv_close_cb -> unit = "camluv_close"
-    external closed: handle -> int = "camluv_is_closing"
-    external active: handle -> int = "camluv_is_active"
-    external ref: handle -> unit = "camluv_ref"
-    external unref: handle -> unit = "camluv_unref"
-    external has_ref: handle -> int = "camluv_has_ref"
-    external loop: handle -> loop = "camluv_loop"
+module rec Loop :
+  sig 
+    type t
+
+    type run_mode = UV_RUN_DEFAULT | UV_RUN_ONCE | UV_RUN_NOWAIT
+
+    type cb_work = unit -> unit
+    type cb_after_work = int -> unit
+
+    val create: unit -> t
+    val default: unit -> t
+    val delete: t -> unit
+    val run: t -> run_mode -> errno
+    val stop: t -> unit
+    val now: t -> int64
+    val update_time: t -> unit
+    val backend_fd: t -> int32
+    val backend_timeout: t -> int32
+    val walk: t -> Handle.cb_walk -> string -> unit
+    val queue_work: t -> cb_work -> cb_after_work -> errno
+  end = struct
+    type t
+
+    type run_mode =
+      | UV_RUN_DEFAULT
+      | UV_RUN_ONCE
+      | UV_RUN_NOWAIT
+
+    type cb_work = unit -> unit
+    type cb_after_work = int -> unit
+
+    external create: unit->t = "camluv_loop_new"
+    external default: unit->t = "camluv_loop_default"
+    external delete: t -> unit = "camluv_loop_delete"
+    external run: t -> run_mode -> errno = "camluv_loop_run"
+    external stop: t -> unit = "camluv_loop_stop"
+    external now: t -> int64 = "camluv_loop_now"
+    external update_time: t -> unit = "camluv_loop_update_time"
+    external backend_fd: t -> int32 = "camluv_loop_backend_fd"
+    external backend_timeout: t -> int32 = "camluv_loop_backend_timeout"
+    external walk: t -> Handle.cb_walk -> string -> unit = "camluv_loop_walk"
+    external queue_work: t -> cb_work -> cb_after_work -> errno = "camluv_loop_queue_work"
+  end
+
+and Handle :
+  sig
+    type t
+
+    type t_type =
+      | UV_UNKNOWN_HANDLE
+      | UV_ASYNC
+      | UV_CHECK
+      | UV_FS_EVENT
+      | UV_FS_POLL
+      | UV_HANDLE
+      | UV_IDLE
+      | UV_NAMED_PIPE
+      | UV_POLL
+      | UV_PREPARE
+      | UV_PROCESS
+      | UV_STREAM
+      | UV_TCP
+      | UV_TIMER
+      | UV_TTY
+      | UV_UDP
+      | UV_SIGNAL
+      | UV_FILE
+      | UV_HANDLE_TYPE_MAX
+
+    type cb_walk = t -> string -> unit
+    type cb_close = t -> unit
+
+    val close: t -> cb_close -> unit
+    val closed: t -> int
+    val active: t -> int
+    val ref: t -> unit
+    val unref: t -> unit
+    val has_ref: t -> int
+    val loop: t -> Loop.t
+  end = struct
+    type t
+
+    type t_type =
+      | UV_UNKNOWN_HANDLE
+      | UV_ASYNC
+      | UV_CHECK
+      | UV_FS_EVENT
+      | UV_FS_POLL
+      | UV_HANDLE
+      | UV_IDLE
+      | UV_NAMED_PIPE
+      | UV_POLL
+      | UV_PREPARE
+      | UV_PROCESS
+      | UV_STREAM
+      | UV_TCP
+      | UV_TIMER
+      | UV_TTY
+      | UV_UDP
+      | UV_SIGNAL
+      | UV_FILE
+      | UV_HANDLE_TYPE_MAX
+
+    type cb_walk = t -> string -> unit
+    type cb_close = t -> unit
+
+    external close: t -> cb_close -> unit = "camluv_close"
+    external closed: t -> int = "camluv_is_closing"
+    external active: t -> int = "camluv_is_active"
+    external ref: t -> unit = "camluv_ref"
+    external unref: t -> unit = "camluv_unref"
+    external has_ref: t -> int = "camluv_has_ref"
+    external loop: t -> Loop.t = "camluv_loop"
   end
 
 module Idle =
   struct
-    external init: loop -> idle = "camluv_idle_init"
-    external create: loop -> idle = "camluv_idle_init"
-    external start: idle -> uv_idle_cb -> uv_errno = "camluv_idle_start"
-    external stop: idle -> uv_errno = "camluv_idle_stop"
+    type t
+  
+    type cb = t -> int -> unit
+
+    external init: Loop.t -> t = "camluv_idle_init"
+    external create: Loop.t -> t = "camluv_idle_init"
+    external start: t -> cb -> errno = "camluv_idle_start"
+    external stop: t -> errno = "camluv_idle_stop"
   end
 
 module Timer =
   struct
-    external init: loop -> timer = "camluv_timer_init"
-    external create: loop -> timer = "camluv_timer_init"
-    external start: timer -> uv_timer_cb -> int64 -> int64 -> uv_errno = "camluv_timer_start"
-    external stop: timer -> uv_errno = "camluv_timer_stop"
-    external again: timer -> uv_errno  = "camluv_timer_again"
-    external set_repeat: timer -> int64 -> unit = "camluv_timer_set_repeat"
-    external get_repeat: timer -> int64 = "camluv_timer_get_repeat"
+    type t
+
+    type cb = t -> int -> unit
+
+    external init: Loop.t -> t = "camluv_timer_init"
+    external create: Loop.t -> t = "camluv_timer_init"
+    external start: t -> cb -> int64 -> int64 -> errno = "camluv_timer_start"
+    external stop: t -> errno = "camluv_timer_stop"
+    external again: t -> errno  = "camluv_timer_again"
+    external set_repeat: t -> int64 -> unit = "camluv_timer_set_repeat"
+    external get_repeat: t -> int64 = "camluv_timer_get_repeat"
   end
 
 module Async =
   struct
-    external init: loop -> async = "camluv_async_init"
-    external create: loop -> async = "camluv_async_init"
-    external start: async -> uv_async_cb -> uv_errno = "camluv_async_start"
-    external stop: async -> uv_errno = "camluv_async_stop"
+    type t
+
+    type cb = t -> int -> unit
+
+    external init: Loop.t -> t = "camluv_async_init"
+    external create: Loop.t -> t = "camluv_async_init"
+    (* Does Not Exist
+     * external start: t -> cb -> errno = "camluv_async_start" *)
+    external stop: t -> errno = "camluv_async_stop"
   end
 
 module Check =
   struct
-    external init: loop -> check = "camluv_check_init"
-    external create: loop -> check = "camluv_check_init"
-    external start: check -> uv_check_cb -> uv_errno = "camluv_check_start"
-    external stop: check -> uv_errno = "camluv_check_stop"
+
+    type t
+
+    type cb = t -> int -> unit
+
+    external init: Loop.t -> t = "camluv_check_init"
+    external create: Loop.t -> t = "camluv_check_init"
+    external start: t -> cb -> errno = "camluv_check_start"
+    external stop: t -> errno = "camluv_check_stop"
   end
 
 module Prepare =
   struct
-    external init: loop -> prepare = "camluv_prepare_init"
-    external create: loop -> prepare = "camluv_prepare_init"
-    external start: prepare -> uv_prepare_cb -> uv_errno = "camluv_prepare_start"
-    external stop: prepare -> uv_errno = "camluv_prepare_stop"
+
+    type t
+
+    type cb = t -> int -> unit
+
+    external init: Loop.t -> t = "camluv_prepare_init"
+    external create: Loop.t -> t = "camluv_prepare_init"
+    external start: t -> cb -> errno = "camluv_prepare_start"
+    external stop: t -> errno = "camluv_prepare_stop"
   end
 
 module Poll =
   struct
-    external init: loop -> int -> poll = "camluv_poll_init"
-    external create: loop -> int -> poll = "camluv_poll_init"
-    external start: poll -> uv_poll_event -> uv_poll_cb -> uv_errno = "camluv_poll_start"
-    external fileno: poll -> int = "camluv_poll_fileno"
-    external stop: poll -> uv_errno = "camluv_poll_stop"
+    type t
+
+    type event = UV_READABLE | UV_WRITABLE | UV_RDWRABLE
+
+    type cb = t -> int -> event -> unit
+
+    external init: Loop.t -> int -> t = "camluv_poll_init"
+    external create: Loop.t -> int -> t = "camluv_poll_init"
+    external start: t -> event -> cb -> errno = "camluv_poll_start"
+    external fileno: t -> int = "camluv_poll_fileno"
+    external stop: t -> errno = "camluv_poll_stop"
   end
 
 module Fs =
   struct
-    external close: loop -> int -> uv_fs_cb -> unit= "camluv_fs_close"
-    external openfile: loop -> string -> int -> int -> uv_fs_cb -> uv_errno =
-        "camluv_fs_open_native" "camluv_fs_open_bytecode"
-    external read: loop -> int -> int -> int -> uv_fs_cb -> string =
-        "camluv_fs_read_native" "camluv_fs_read_bytecode"
-    external unlink: loop -> string -> uv_fs_cb -> uv_errno = "camluv_fs_unlink"
-    external write: loop -> int -> string -> int -> int -> uv_fs_cb -> uv_errno =
-        "camluv_fs_write_bytecode" "camluv_fs_write_native"
-    external mkdir: loop -> string -> int -> uv_fs_cb -> uv_errno = "camluv_fs_mkdir"
-    external rmdir: loop -> string -> uv_fs_cb -> uv_errno = "camluv_fs_rmdir"
-    external readdir: loop -> string -> int -> uv_fs_cb -> uv_errno = "camluv_fs_readdir"
-    external stat: loop -> string -> uv_fs_cb -> uv_errno = "camluv_fs_stat"
-    external fstat: loop -> int -> uv_fs_cb -> uv_errno = "camluv_fs_fstat"
-    external rename: loop -> string -> string -> uv_fs_cb -> uv_errno = "camluv_fs_rename"
-    external fsync: loop -> int -> uv_fs_cb -> uv_errno = "camluv_fs_fsync"
-    external fdatasync: loop -> int -> uv_fs_cb -> uv_errno = "camluv_fs_fdatasync"
-    external ftruncate: loop -> int -> int -> uv_fs_cb -> uv_errno = "camluv_fs_ftruncate"
-    external sendfile: loop -> int -> int -> int -> int -> uv_fs_cb -> uv_errno =
-        "camluv_fs_sendfile_native" "camluv_fs_sendfile_bytecode"
-    external chmod: loop -> string -> int -> uv_fs_cb -> uv_errno = "camluv_fs_chmod"
-    external utime: loop -> string -> float -> float -> uv_fs_cb -> uv_errno = "camluv_fs_utime"
-    external futime: loop -> int -> float -> float -> uv_fs_cb -> uv_errno = "camluv_fs_futime"
-    external lstat: loop -> string -> uv_fs_cb -> uv_errno = "camluv_fs_lstat"
-    external link: loop -> string -> string -> uv_fs_cb -> uv_errno = "camluv_fs_link"
-    external symlink: loop -> string -> string -> int -> uv_fs_cb -> uv_errno =
-        "camluv_fs_symlink_native" "camluv_fs_symlink_bytecode"
-    external readlink: loop -> string -> uv_fs_cb -> uv_errno = "camluv_fs_readlink"
-    external fchmod: loop -> int -> int -> uv_fs_cb -> uv_errno = "camluv_fs_fchmod"
-    external chown: loop -> string -> int -> int -> uv_fs_cb -> uv_errno =
-        "camluv_fs_chown_native" "camluv_fs_chown_bytecode"
-    external fchown: loop -> int -> int -> int -> uv_fs_cb -> uv_errno =
-        "camluv_fs_fchown_native" "camluv_fs_fchown_bytecode"
-    external get_result: fs -> int = "camluv_fs_get_result"
-    external get_path: fs -> string = "camluv_fs_get_path"
-    external get_stat: fs -> uv_stat = "camluv_fs_get_stat"
-    external get_loop: fs -> loop = "camluv_fs_get_loop"
-    external clean: fs -> unit = "camluv_fs_req_cleanup"
+    type t
+
+    type cb = t -> unit
+
+    type timestamp = {
+      tv_sec: int32;
+      tv_nsec: int32;
+    }
+
+    type stat = {
+      st_dev: int64;
+      st_mode: int64;
+      st_nlink: int64;
+      st_uid: int64;
+      st_gid: int64;
+      st_rdev: int64;
+      st_ino: int64;
+      st_size: int64;
+      st_blksize: int64;
+      st_blocks: int64;
+      st_flags: int64;
+      st_gen: int64;
+      st_atim: timestamp;
+      st_mtim: timestamp;
+      st_ctim: timestamp;
+      st_birthtim: timestamp;
+    }
+
+    external close: Loop.t -> int -> cb -> unit= "camluv_fs_close"
+    external openfile: Loop.t -> string -> int -> int -> cb -> errno = "camluv_fs_open_native" "camluv_fs_open_bytecode"
+    external read: Loop.t -> int -> int -> int -> cb -> string = "camluv_fs_read_native" "camluv_fs_read_bytecode"
+    external unlink: Loop.t -> string -> cb -> errno = "camluv_fs_unlink"
+    external write: Loop.t -> int -> string -> int -> int -> cb -> errno = "camluv_fs_write_bytecode" "camluv_fs_write_native"
+    external mkdir: Loop.t -> string -> int -> cb -> errno = "camluv_fs_mkdir"
+    external rmdir: Loop.t -> string -> cb -> errno = "camluv_fs_rmdir"
+    external readdir: Loop.t -> string -> int -> cb -> errno = "camluv_fs_readdir"
+    external stat: Loop.t -> string -> cb -> errno = "camluv_fs_stat"
+    external fstat: Loop.t -> int -> cb -> errno = "camluv_fs_fstat"
+    external rename: Loop.t -> string -> string -> cb -> errno = "camluv_fs_rename"
+    external fsync: Loop.t -> int -> cb -> errno = "camluv_fs_fsync"
+    external fdatasync: Loop.t -> int -> cb -> errno = "camluv_fs_fdatasync"
+    external ftruncate: Loop.t -> int -> int -> cb -> errno = "camluv_fs_ftruncate"
+    external sendfile: Loop.t -> int -> int -> int -> int -> cb -> errno = "camluv_fs_sendfile_native" "camluv_fs_sendfile_bytecode"
+    external chmod: Loop.t -> string -> int -> cb -> errno = "camluv_fs_chmod"
+    external utime: Loop.t -> string -> float -> float -> cb -> errno = "camluv_fs_utime_native" "camluv_fs_utime_bytecode"
+    external futime: Loop.t -> int -> float -> float -> cb -> errno = "camluv_fs_futime_native" "camluv_fs_futime_bytecode"
+    external lstat: Loop.t -> string -> cb -> errno = "camluv_fs_lstat"
+    external link: Loop.t -> string -> string -> cb -> errno = "camluv_fs_link"
+    external symlink: Loop.t -> string -> string -> int -> cb -> errno = "camluv_fs_symlink_native" "camluv_fs_symlink_bytecode"
+    external readlink: Loop.t -> string -> cb -> errno = "camluv_fs_readlink"
+    external fchmod: Loop.t -> int -> int -> cb -> errno = "camluv_fs_fchmod"
+    external chown: Loop.t -> string -> int -> int -> cb -> errno = "camluv_fs_chown_native" "camluv_fs_chown_bytecode"
+    external fchown: Loop.t -> int -> int -> int -> cb -> errno = "camluv_fs_fchown_native" "camluv_fs_fchown_bytecode"
+    external get_result: t -> int = "camluv_fs_get_result"
+    external get_path: t -> string = "camluv_fs_get_path"
+    external get_stat: t -> stat = "camluv_fs_get_stat"
+    external get_loop: t -> Loop.t = "camluv_fs_get_loop"
+    external clean: t -> unit = "camluv_fs_req_cleanup"
   end
 
 module Signal =
   struct
-    external init: loop -> signal = "camluv_signal_init"
-    external create: loop -> signal = "camluv_signal_init"
-    external start: signal -> uv_signal_cb -> int -> uv_errno = "camluv_signal_start"
-    external stop: signal -> uv_errno = "camluv_signal_stop"
+    type t
+
+    type cb = t -> int -> unit
+
+    external init: Loop.t -> t = "camluv_signal_init"
+    external create: Loop.t -> t = "camluv_signal_init"
+    external start: t -> cb -> int -> errno = "camluv_signal_start"
+    external stop: t -> errno = "camluv_signal_stop"
   end
 
 module FsEvent =
   struct
-    external init: loop -> fs_event = "camluv_fs_event_init"
-    external create: loop -> fs_event = "camluv_fs_event_init"
-    external start: fs_event -> uv_fs_event_cb -> string -> int -> uv_errno = "camluv_fs_event_start"
-    external stop: fs_event -> uv_errno = "camluv_fs_event_stop"
+    type t
+
+    type cb = t -> string -> int -> int -> unit
+
+    type fs_type = (** UNUSED **)
+      | UV_FS_UNKNOWN
+      | UV_FS_CUSTOM
+      | UV_FS_OPEN
+      | UV_FS_CLOSE
+      | UV_FS_READ
+      | UV_FS_WRITE
+      | UV_FS_SENDFILE
+      | UV_FS_STAT
+      | UV_FS_LSTAT
+      | UV_FS_FSTAT
+      | UV_FS_FTRUNCATE
+      | UV_FS_UTIME
+      | UV_FS_FUTIME
+      | UV_FS_CHMOD
+      | UV_FS_FCHMOD
+      | UV_FS_FSYNC
+      | UV_FS_FDATASYNC
+      | UV_FS_UNLINK
+      | UV_FS_RMDIR
+      | UV_FS_MKDIR
+      | UV_FS_RENAME
+      | UV_FS_READDIR
+      | UV_FS_LINK
+      | UV_FS_SYMLINK
+      | UV_FS_READLINK
+      | UV_FS_CHOWN
+      | UV_FS_FCHOWN
+
+    type fs_event_flags = (** UNUSED **)
+        UV_FS_EVENT_WATCH_ENTRY
+      | UV_FS_EVENT_STAT
+      | UV_FS_EVENT_RECURSIVE
+
+    external init: Loop.t -> t = "camluv_fs_event_init"
+    external create: Loop.t -> t = "camluv_fs_event_init"
+    external start: t -> cb -> string -> int -> errno = "camluv_fs_event_start"
+    external stop: t -> errno = "camluv_fs_event_stop"
   end
 
-module FsPoll=
+module FsPoll =
   struct
-    external init: loop -> fs_poll = "camluv_fs_poll_init"
-    external create: loop -> fs_poll = "camluv_fs_poll_init"
-    external start: fs_poll -> uv_fs_poll_cb -> string -> int -> uv_errno = "camluv_fs_poll_start"
-    external stop: fs_poll -> uv_errno = "camluv_fs_poll_stop"
+    type t
+
+    type cb = t -> int -> Fs.stat -> Fs.stat -> unit
+
+    external init: Loop.t -> t = "camluv_fs_poll_init"
+    external create: Loop.t -> t = "camluv_fs_poll_init"
+    external start: t -> cb -> string -> int -> errno = "camluv_fs_poll_start"
+    external stop: t -> errno = "camluv_fs_poll_stop"
   end
 
 module TCP =
   struct
-    external init: loop -> tcp = "camluv_tcp_init"
-    external create: loop -> tcp = "camluv_tcp_init"
-    external openfd: tcp -> int -> uv_errno = "camluv_tcp_open"
-    external bind: tcp -> uv_sockaddr -> uv_errno = "camluv_tcp_bind"
-    external listen: tcp -> int -> uv_tcp_connection_cb -> uv_errno = "camluv_tcp_listen"
-    external accept: tcp -> tcp = "camluv_tcp_accept"
-    external connect: tcp -> uv_sockaddr -> uv_tcp_connect_cb -> uv_errno = "camluv_tcp_connect"
-    external getsockname: tcp -> uv_sockaddr = "camluv_tcp_getsockname"
-    external getpeername: tcp -> uv_sockaddr = "camluv_tcp_getpeername"
-    external nodelay: tcp -> int -> uv_errno = "camluv_tcp_nodelay"
-    external keepalive: tcp -> int -> int -> uv_errno = "camluv_tcp_nodelay"
-    external simultaneous_accepts: loop -> int -> uv_errno = "camluv_tcp_simultaneous_accepts"
-    external start_read: tcp -> uv_tcp_read_cb -> uv_errno = "camluv_tcp_start_read"
-    external stop_read: tcp -> uv_errno = "camluv_tcp_stop_read"
-    external write: tcp -> uv_buffer_array -> uv_tcp_write_cb -> uv_errno = "camluv_tcp_start_write"
-    external close: tcp -> uv_tcp_close_cb -> unit = "camluv_tcp_close"
-    external shutdown: tcp -> uv_tcp_shutdown_cb -> uv_errno = "camluv_tcp_shutdown"
-    external is_readable: tcp -> int = "camluv_tcp_is_readable"
-    external is_writable: tcp -> int = "camluv_tcp_is_writable"
-    external write_queue_size: tcp -> int = "camluv_tcp_write_queue_size"
-    external set_blocking: tcp -> int = "camluv_tcp_set_blocking"
-    external is_closing: tcp -> int = "camluv_tcp_is_closing"
-    external is_active: tcp -> int = "camluv_tcp_is_active"
-    external ref: tcp -> unit = "camluv_tcp_ref"
-    external unref: tcp -> unit = "camluv_tcp_unref"
-    external has_ref: tcp -> int = "camluv_tcp_has_ref"
-    external loop: tcp -> loop = "camluv_tcp_loop"
+    type t
+
+    type cb_connect = t -> int -> unit
+    type cb_connection = t -> int -> unit
+    type cb_close = t -> unit
+    type cb_shutdown = t -> int -> unit
+    type cb_read = t -> int -> buffer array-> unit
+    type cb_write = t -> int -> unit
+
+    external init: Loop.t -> t = "camluv_tcp_init"
+    external create: Loop.t -> t = "camluv_tcp_init"
+    external openfd: t -> int -> errno = "camluv_tcp_open"
+    external bind: t -> sockaddr -> errno = "camluv_tcp_bind"
+    external listen: t -> int -> cb_connection -> errno = "camluv_tcp_listen"
+    external accept: t -> t = "camluv_tcp_accept"
+    external connect: t -> sockaddr -> cb_connect -> errno = "camluv_tcp_connect"
+    external getsockname: t -> sockaddr = "camluv_tcp_getsockname"
+    external getpeername: t -> sockaddr = "camluv_tcp_getpeername"
+    external nodelay: t -> int -> errno = "camluv_tcp_nodelay"
+    external keepalive: t -> int -> int -> errno = "camluv_tcp_nodelay"
+    external simultaneous_accepts: Loop.t -> int -> errno = "camluv_tcp_simultaneous_accepts"
+    external start_read: t -> cb_read -> errno = "camluv_tcp_start_read"
+    (* DOES NOT EXIST
+     * external stop_read: t -> errno = "camluv_tcp_stop_read" *)
+    external write: t -> buffer array-> cb_write -> errno = "camluv_tcp_start_write"
+    external close: t -> cb_close -> unit = "camluv_tcp_close"
+    external shutdown: t -> cb_shutdown -> errno = "camluv_tcp_shutdown"
+    external is_readable: t -> int = "camluv_tcp_is_readable"
+    external is_writable: t -> int = "camluv_tcp_is_writable"
+    external write_queue_size: t -> int = "camluv_tcp_write_queue_size"
+    external set_blocking: t -> int = "camluv_tcp_set_blocking"
+    external is_closing: t -> int = "camluv_tcp_is_closing"
+    external is_active: t -> int = "camluv_tcp_is_active"
+    external ref: t -> unit = "camluv_tcp_ref"
+    external unref: t -> unit = "camluv_tcp_unref"
+    external has_ref: t -> int = "camluv_tcp_has_ref"
+    external loop: t -> Loop.t = "camluv_tcp_loop"
   end
 
 module UDP =
   struct
-    external init: loop -> udp = "camluv_udp_init"
-    external create: loop -> udp = "camluv_udp_init"
-    external openfd: udp -> int -> uv_errno = "camluv_udp_open"
-    external bind: udp -> uv_sockaddr -> uv_errno = "camluv_udp_bind"
-    external getsockname: udp -> uv_sockaddr = "camluv_udp_getsockname"
-    external set_multicast_loop: udp-> int -> uv_errno = "camluv_udp_set_multicast_loop"
-    external set_multicast_ttl: udp-> int -> uv_errno = "camluv_udp_set_multicast_ttl"
-    external set_broadcast: udp -> int -> uv_errno = "camluv_udp_set_broadcast"
-    external set_ttl: udp -> int -> uv_errno = "camluv_udp_set_ttl"
-    external set_membership: udp -> string -> string -> uv_membership -> uv_errno = "camluv_udp_set_membership"
-    external start_recv: udp -> uv_udp_recv_cb -> uv_errno = "camluv_udp_start_recv"
-    external stop_recv: udp -> uv_errno = "camluv_udp_stop_recv"
-    external send: udp -> uv_sockaddr -> uv_buffer_array -> uv_udp_send_cb -> uv_errno = "camluv_udp_send"
-    external close: udp -> uv_udp_close_cb -> unit = "camluv_udp_close"
-    external is_closing: udp -> int = "camluv_udp_is_closing"
-    external is_active: udp -> int = "camluv_udp_is_active"
-    external ref: udp -> unit = "camluv_udp_ref"
-    external unref: udp -> unit = "camluv_udp_unref"
-    external has_ref: udp -> int = "camluv_udp_has_ref"
-    external loop: udp -> loop = "camluv_udp_loop"
+    type t
+
+    type flags =
+      | UV_UDP_IPV6ONLY
+      | UV_UDP_PARTIAL
+
+    type membership =
+      | UV_LEAVE_GROUP
+      | UV_JOIN_GROUP
+
+    type cb_close = t -> unit
+    type cb_send = t -> int -> unit
+    type cb_recv = t -> int -> buffer array-> sockaddr -> flags -> unit
+
+    external init: Loop.t -> t = "camluv_udp_init"
+    external create: Loop.t -> t = "camluv_udp_init"
+    external openfd: t -> int -> errno = "camluv_udp_open"
+    external bind: t -> sockaddr -> errno = "camluv_udp_bind"
+    external getsockname: t -> sockaddr = "camluv_udp_getsockname"
+    external set_multicast_loop: t -> int -> errno = "camluv_udp_set_multicast_loop"
+    external set_multicast_ttl: t -> int -> errno = "camluv_udp_set_multicast_ttl"
+    external set_broadcast: t -> int -> errno = "camluv_udp_set_broadcast"
+    external set_ttl: t -> int -> errno = "camluv_udp_set_ttl"
+    external set_membership: t -> string -> string -> membership -> errno = "camluv_udp_set_membership"
+    external start_recv: t -> cb_recv -> errno = "camluv_udp_start_recv"
+    external stop_recv: t -> errno = "camluv_udp_stop_recv"
+    external send: t -> sockaddr -> buffer array-> cb_send -> errno = "camluv_udp_send"
+    external close: t -> cb_close -> unit = "camluv_udp_close"
+    external is_closing: t -> int = "camluv_udp_is_closing"
+    external is_active: t -> int = "camluv_udp_is_active"
+    external ref: t -> unit = "camluv_udp_ref"
+    external unref: t -> unit = "camluv_udp_unref"
+    external has_ref: t -> int = "camluv_udp_has_ref"
+    external loop: t -> Loop.t = "camluv_udp_loop"
   end
 
 module Pipe =
   struct
-    external init: loop -> pipe = "camluv_pipe_init"
-    external create: loop -> pipe = "camluv_pipe_init"
-    external openfd: pipe -> int -> uv_errno = "camluv_pipe_open"
-    external bind: pipe -> string -> uv_errno = "camluv_pipe_bind"
-    external listen: pipe -> int -> uv_pipe_connection_cb -> uv_errno = "camluv_pipe_listen"
-    external accept: pipe -> pipe = "camluv_pipe_accept"
-    external connect: pipe -> string -> uv_pipe_connect_cb -> uv_errno = "camluv_pipe_connect"
-    external getsockname: pipe -> uv_sockaddr = "camluv_pipe_getsockname"
-    external getpeername: pipe -> uv_sockaddr = "camluv_pipe_getpeername"
-    external nodelay: pipe -> int -> uv_errno = "camluv_pipe_nodelay"
-    external keepalive: pipe -> int -> int -> uv_errno = "camluv_pipe_nodelay"
-    external simultaneous_accepts: loop -> int -> uv_errno = "camluv_pipe_simultaneous_accepts"
-    external start_read: pipe -> uv_pipe_read_cb -> uv_errno = "camluv_pipe_start_read"
-    external start_read2: pipe -> uv_pipe_read2_cb -> uv_errno = "camluv_pipe_start_read2"
-    external stop_read: pipe -> uv_errno = "camluv_pipe_stop_read"
-    external write: pipe -> uv_buffer_array -> uv_pipe_write_cb -> uv_errno = "camluv_pipe_start_write"
-    external write_tcp: pipe -> uv_buffer_array -> tcp -> uv_pipe_write_cb -> uv_errno = "camluv_pipe_start_write2_tcp"
-    external write_pipe: pipe -> uv_buffer_array -> pipe -> uv_pipe_write_cb -> uv_errno = "camluv_pipe_start_write"
-    external close: pipe -> uv_pipe_close_cb -> unit = "camluv_pipe_close"
-    external shutdown: pipe -> uv_pipe_shutdown_cb -> uv_errno = "camluv_pipe_shutdown"
-    external is_readable: pipe -> int = "camluv_pipe_is_readable"
-    external is_writable: pipe -> int = "camluv_pipe_is_writable"
-    external write_queue_size: pipe -> int = "camluv_pipe_write_queue_size"
-    external set_blocking: pipe -> int = "camluv_pipe_set_blocking"
-    external is_closing: pipe -> int = "camluv_pipe_is_closing"
-    external is_active: pipe -> int = "camluv_pipe_is_active"
-    external ref: pipe -> unit = "camluv_pipe_ref"
-    external unref: pipe -> unit = "camluv_pipe_unref"
-    external has_ref: pipe -> int = "camluv_pipe_has_ref"
-    external loop: pipe -> loop = "camluv_pipe_loop"
+
+    type t
+
+    type cb_connect = t -> int -> unit
+    type cb_connection = t -> int -> unit
+    type cb_close = t -> unit
+    type cb_shutdown = t -> int -> unit
+    type cb_read = t -> int -> buffer array-> unit
+    type cb_write = t -> int -> unit
+
+    external init: Loop.t -> t = "camluv_pipe_init"
+    external create: Loop.t -> t = "camluv_pipe_init"
+    external openfd: t -> int -> errno = "camluv_pipe_open"
+    external bind: t -> string -> errno = "camluv_pipe_bind"
+    external listen: t -> int -> cb_connection -> errno = "camluv_pipe_listen"
+    external accept: t -> t = "camluv_pipe_accept"
+    external connect: t -> string -> cb_connect -> errno = "camluv_pipe_connect"
+    external start_read: t -> cb_read -> errno = "camluv_pipe_start_read"
+    (* DOES NOT EXIST
+     * external getsockname: t -> sockaddr = "camluv_pipe_getsockname"
+     * external getpeername: t -> sockaddr = "camluv_pipe_getpeername"
+     * external nodelay: t -> int -> errno = "camluv_pipe_nodelay"
+     * external keepalive: t -> int -> int -> errno = "camluv_pipe_nodelay"
+     * external simultaneous_accepts: Loop.t -> int -> errno = "camluv_pipe_simultaneous_accepts"
+     * external stop_read: t -> errno = "camluv_pipe_stop_read"
+     * external write: t -> buffer array-> cb_write -> errno = "camluv_pipe_start_write"
+     * external write_tcp: t -> buffer array-> TCP.t -> cb_write -> errno = "camluv_pipe_start_write2_tcp"
+     * external write_pipe: t -> buffer array-> TCP.t -> cb_write -> errno = "camluv_pipe_start_write" *)
+    external close: t -> cb_close -> unit = "camluv_pipe_close"
+    external shutdown: t -> cb_shutdown -> errno = "camluv_pipe_shutdown"
+    external is_readable: t -> int = "camluv_pipe_is_readable"
+    external is_writable: t -> int = "camluv_pipe_is_writable"
+    external write_queue_size: t -> int = "camluv_pipe_write_queue_size"
+    external set_blocking: t -> int = "camluv_pipe_set_blocking"
+    external is_closing: t -> int = "camluv_pipe_is_closing"
+    external is_active: t -> int = "camluv_pipe_is_active"
+    external ref: t -> unit = "camluv_pipe_ref"
+    external unref: t -> unit = "camluv_pipe_unref"
+    external has_ref: t -> int = "camluv_pipe_has_ref"
+    external loop: t -> Loop.t = "camluv_pipe_loop"
   end
 
 module TTY =
   struct
-    external init: loop -> int -> int -> tty = "camluv_tty_init"
-    external create: loop -> int -> int = "camluv_tty_init"
-    external set_mode: tty -> int -> uv_errno = "camluv_tty_set_mode"
-    external reset_mode: unit -> uv_errno = "camluv_tty_reset_mode"
-    external start_read: tty -> uv_tty_read_cb -> uv_errno = "camluv_tty_start_read"
-    external stop_read: tty -> uv_errno = "camluv_tty_stop_read"
-    external write: tty -> uv_buffer_array -> uv_tty_write_cb -> uv_errno = "camluv_tty_start_write"
-    external window_size: tty -> uv_win_size = "camluv_tty_get_winsize"
-    external close: tty -> uv_tty_close_cb -> unit = "camluv_tty_close"
-    external shutdown: tty -> uv_tty_shutdown_cb -> uv_errno = "camluv_tty_shutdown"
-    external is_readable: tty -> int = "camluv_tty_is_readable"
-    external is_writable: tty -> int = "camluv_tty_is_writable"
-    external write_queue_size: tty -> int = "camluv_tty_write_queue_size"
-    external set_blocking: tty -> int = "camluv_tty_set_blocking"
-    external is_closing: tty -> int = "camluv_tty_is_closing"
-    external is_active: tty -> int = "camluv_tty_is_active"
-    external ref: tty -> unit = "camluv_tty_ref"
-    external unref: tty -> unit = "camluv_tty_unref"
-    external has_ref: tty -> int = "camluv_tty_has_ref"
-    external loop: tty -> loop = "camluv_tty_loop"
+    type t
+
+    type cb_read = t -> int -> buffer array -> unit
+    type cb_write = t -> int -> unit
+    type cb_close = t-> unit
+    type cb_shutdown = t -> int -> unit
+
+    external init: Loop.t -> int -> int -> t = "camluv_tty_init"
+    external create: Loop.t -> int -> int = "camluv_tty_init"
+    external set_mode: t -> int -> errno = "camluv_tty_set_mode"
+    external reset_mode: unit -> errno = "camluv_tty_reset_mode"
+    external start_read: t -> cb_read -> errno = "camluv_tty_start_read"
+    external stop_read: t -> errno = "camluv_tty_stop_read"
+    external write: t -> buffer array-> cb_write -> errno = "camluv_tty_start_write"
+    external window_size: t -> int * int = "camluv_tty_get_winsize"
+    external close: t -> cb_close -> unit = "camluv_tty_close"
+    external shutdown: t -> cb_shutdown -> errno = "camluv_tty_shutdown"
+    external is_readable: t -> int = "camluv_tty_is_readable"
+    external is_writable: t -> int = "camluv_tty_is_writable"
+    external write_queue_size: t -> int = "camluv_tty_write_queue_size"
+    external set_blocking: t -> int = "camluv_tty_set_blocking"
+    external is_closing: t -> int = "camluv_tty_is_closing"
+    external is_active: t -> int = "camluv_tty_is_active"
+    external ref: t -> unit = "camluv_tty_ref"
+    external unref: t -> unit = "camluv_tty_unref"
+    external has_ref: t -> int = "camluv_tty_has_ref"
+    external loop: t -> Loop.t = "camluv_tty_loop"
   end
 
 module Thread =
   struct
-    external init: ('a -> unit) -> 'a -> thread = "camluv_thread_init"
-    external create: ('a -> unit) -> 'a -> thread = "camluv_thread_init"
+
+    type t
+
+    external init: ('a -> unit) -> 'a -> t = "camluv_thread_init"
+    external create: ('a -> unit) -> 'a -> t = "camluv_thread_init"
     external self: unit -> int = "camluv_thread_self"
-    external join: thread -> uv_errno = "camluv_thread_join"
+    external join: t -> errno = "camluv_thread_join"
   end
 
 module Key =
   struct
-    external init: unit -> key = "camluv_key_init"
-    external create: unit -> key = "camluv_key_init"
-    external delete: key -> unit = "camluv_key_delete"
-    external get: key -> 'a = "camluv_key_get"
-    external set: key -> 'a -> unit = "camluv_key_set"
+
+    type t
+
+    external init: unit -> t = "camluv_key_init"
+    external create: unit -> t = "camluv_key_init"
+    external delete: t -> unit = "camluv_key_delete"
+    external get: t -> 'a = "camluv_key_get"
+    external set: t -> 'a -> unit = "camluv_key_set"
   end
 
 module Mutex =
   struct
-    external init: unit -> mutex = "camluv_mutex_init"
-    external create: unit -> mutex = "camluv_mutex_init"
-    external destroy: mutex -> unit = "camluv_mutex_destroy"
-    external lock: mutex -> unit = "camluv_mutex_lock"
-    external unlock: mutex -> unit = "camluv_mutex_unlock"
-    external trylock: mutex -> int = "camluv_mutex_trylock"
+
+    type t
+
+    external init: unit -> t = "camluv_mutex_init"
+    external create: unit -> t = "camluv_mutex_init"
+    external destroy: t -> unit = "camluv_mutex_destroy"
+    external lock: t -> unit = "camluv_mutex_lock"
+    external unlock: t -> unit = "camluv_mutex_unlock"
+    external trylock: t -> int = "camluv_mutex_trylock"
   end
 
 module RWlock =
   struct
-    external init: unit -> rwlock = "camluv_rwlock_init"
-    external create: unit -> rwlock = "camluv_rwlock_init"
-    external destroy: rwlock -> unit = "camluv_rwlock_destroy"
-    external rdlock: rwlock -> unit = "camluv_rwlock_rdlock"
-    external rdunlock: rwlock -> unit = "camluv_rwlock_rdunlock"
-    external tryrdlock: rwlock -> int = "camluv_rwlock_tryrdlock"
-    external wrlock: rwlock -> unit = "camluv_rwlock_wrlock"
-    external wrunlock: rwlock -> unit = "camluv_rwlock_wrunlock"
-    external trywrlock: rwlock -> int = "camluv_rwlock_trywrlock"
+
+    type t
+
+    external init: unit -> t = "camluv_rwlock_init"
+    external create: unit -> t = "camluv_rwlock_init"
+    external destroy: t -> unit = "camluv_rwlock_destroy"
+    external rdlock: t -> unit = "camluv_rwlock_rdlock"
+    external rdunlock: t -> unit = "camluv_rwlock_rdunlock"
+    external tryrdlock: t -> int = "camluv_rwlock_tryrdlock"
+    external wrlock: t -> unit = "camluv_rwlock_wrlock"
+    external wrunlock: t -> unit = "camluv_rwlock_wrunlock"
+    external trywrlock: t -> int = "camluv_rwlock_trywrlock"
   end
 
 module Semaphore =
   struct
-    external init: int -> sem = "camluv_sem_init"
-    external create: int -> sem = "camluv_sem_init"
-    external destroy: sem -> unit = "camluv_sem_destroy"
-    external post: sem -> unit = "camluv_sem_post"
-    external wait: sem -> unit = "camluv_sem_wait"
-    external trywait: sem -> int = "camluv_sem_trywait"
+
+    type t
+
+    external init: int -> t = "camluv_sem_init"
+    external create: int -> t = "camluv_sem_init"
+    external destroy: t -> unit = "camluv_sem_destroy"
+    external post: t -> unit = "camluv_sem_post"
+    external wait: t -> unit = "camluv_sem_wait"
+    external trywait: t -> int = "camluv_sem_trywait"
   end
 
 module Condition =
   struct
-    external init: unit -> condition = "camluv_condition_init"
-    external create: unit -> condition = "camluv_condition_init"
-    external destroy: condition -> unit = "camluv_condition_destroy"
-    external signal: condition -> unit = "camluv_condition_signal"
-    external broadcast: condition -> unit = "camluv_condition_broadcast"
-    external wait: condition -> mutex -> unit = "camluv_condition_wait"
+
+    type t
+
+    external init: unit -> t = "camluv_condition_init"
+    external create: unit -> t = "camluv_condition_init"
+    external destroy: t -> unit = "camluv_condition_destroy"
+    external signal: t -> unit = "camluv_condition_signal"
+    external broadcast: t -> unit = "camluv_condition_broadcast"
+    external wait: t -> Mutex.t -> unit = "camluv_condition_wait"
   end
 
 module Barrier =
   struct
-    external init: int -> barrier = "camluv_barrier_init"
-    external create: int -> barrier = "camluv_barrier_init"
-    external destroy: barrier -> unit = "camluv_barrier_destroy"
-    external wait: barrier -> unit = "camluv_barrier_wait"
+
+    type t
+
+    external init: int -> t = "camluv_barrier_init"
+    external create: int -> t = "camluv_barrier_init"
+    external destroy: t -> unit = "camluv_barrier_destroy"
+    external wait: t -> unit = "camluv_barrier_wait"
   end
 
 module Process =
   struct
-    external init: loop -> uv_process_options -> process = "camluv_process_spawn"
-    external create: loop -> uv_process_options -> process = "camluv_process_spawn"
-    external spawn: loop -> uv_process_options -> process = "camluv_process_spawn"
-    external getpid: process -> int = "camluv_process_getpid"
-    external kill: process -> int -> uv_errno = "camluv_process_kill"
-    external kill2: int -> int -> uv_errno = "camluv_kill"
+
+    type t
+
+    type cb = t -> int64 -> int -> unit
+
+    type flags = (** UNUSED **)
+      | UV_PROCESS_SETUID
+      | UV_PROCESS_SETGID
+      | UV_PROCESS_WINDOWS_VERBATIM_ARGUMENTS
+      | UV_PROCESS_DETACHED
+      | UV_PROCESS_WINDOWS_HIDE
+
+    type opts = {
+      exit_cb: cb;
+      file: string;
+      args: string array;
+      env: string array;
+      cwd: string;
+      flags: int;
+      uid: int;
+      gid: int;
+    }
+
+    external init: Loop.t -> opts -> t = "camluv_process_spawn"
+    external create: Loop.t -> opts -> t = "camluv_process_spawn"
+    external spawn: Loop.t -> opts -> t = "camluv_process_spawn"
+    external getpid: t -> int = "camluv_process_getpid"
+    external kill: t -> int -> errno = "camluv_process_kill"
+    external killpid: int -> int -> errno = "camluv_pid_kill"
   end
 
 
-module Util =
-  struct
-    external strerror: int -> string = "camluv_strerror"
-    external err_name: int -> string = "camluv_err_name"
-  end
 
